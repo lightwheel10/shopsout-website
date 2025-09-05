@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="css/styles.css" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>S</text></svg>" />
   </head>
   <body>
     <!-- Header & Primary Navigation -->
@@ -101,7 +102,54 @@
       <!-- Deals Grid -->
       <section class="content" aria-label="Deal Liste">
         <div id="resultsMeta" class="muted" style="margin-bottom:8px;"></div>
-        <div class="deals-grid"></div>
+        
+        <!-- Skeleton Loading for Deals Grid -->
+        <div id="dealsGridSkeleton" class="skeleton-grid">
+          <div class="skeleton-card">
+            <div class="skeleton-media"></div>
+            <div class="skeleton-text wide"></div>
+            <div class="skeleton-text medium"></div>
+            <div class="skeleton-price"></div>
+            <div class="skeleton-button"></div>
+          </div>
+          <div class="skeleton-card">
+            <div class="skeleton-media"></div>
+            <div class="skeleton-text wide"></div>
+            <div class="skeleton-text medium"></div>
+            <div class="skeleton-price"></div>
+            <div class="skeleton-button"></div>
+          </div>
+          <div class="skeleton-card">
+            <div class="skeleton-media"></div>
+            <div class="skeleton-text wide"></div>
+            <div class="skeleton-text narrow"></div>
+            <div class="skeleton-price"></div>
+            <div class="skeleton-button"></div>
+          </div>
+          <div class="skeleton-card">
+            <div class="skeleton-media"></div>
+            <div class="skeleton-text wide"></div>
+            <div class="skeleton-text medium"></div>
+            <div class="skeleton-price"></div>
+            <div class="skeleton-button"></div>
+          </div>
+          <div class="skeleton-card">
+            <div class="skeleton-media"></div>
+            <div class="skeleton-text wide"></div>
+            <div class="skeleton-text narrow"></div>
+            <div class="skeleton-price"></div>
+            <div class="skeleton-button"></div>
+          </div>
+          <div class="skeleton-card">
+            <div class="skeleton-media"></div>
+            <div class="skeleton-text wide"></div>
+            <div class="skeleton-text medium"></div>
+            <div class="skeleton-price"></div>
+            <div class="skeleton-button"></div>
+          </div>
+        </div>
+        
+        <div class="deals-grid" style="display: none;"></div>
 
         <!-- Pagination -->
         <nav class="pagination" aria-label="Seiten" id="pagination" style="display:none;">

@@ -34,12 +34,17 @@
     
     if (store.logo_url) {
       const img = document.createElement('img');
-      img.src = store.logo_url;
+      img.className = 'product-image-lazy shop-logo-img';
       img.alt = displayName;
       img.width = 48;
       img.height = 48;
       img.loading = 'lazy';
       img.setAttribute('decoding', 'async');
+      
+      // Enhanced lazy loading with fade-in effect
+      img.onload = function() {
+        this.classList.add('loaded');
+      };
       
       // Add error handling for broken images
       img.onerror = function() {
@@ -47,6 +52,7 @@
         logoDiv.innerHTML = `<div class="shop-logo-fallback">${displayName.charAt(0).toUpperCase()}</div>`;
       };
       
+      img.src = store.logo_url;
       logoDiv.appendChild(img);
     } else {
       // Create a fallback logo with the first letter of the store name
@@ -66,7 +72,16 @@
   // Render stores into the shops grid
   function renderShops(stores) {
     const shopsGrid = document.querySelector('.shops-grid');
+    const skeleton = document.getElementById('shopsGridSkeleton');
+    
     if (!shopsGrid || !Array.isArray(stores)) return;
+    
+    // Hide skeleton and show grid with animation
+    if (skeleton) {
+      skeleton.style.display = 'none';
+    }
+    shopsGrid.style.display = '';
+    shopsGrid.classList.add('content-loaded');
     
     // Clear existing content
     shopsGrid.innerHTML = '';
@@ -89,6 +104,9 @@
   // Initialize shops page
   async function initShops() {
     try {
+      // Add a small delay to show the skeleton loading effect
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
       const stores = await fetchStores();
       renderShops(stores);
       
@@ -122,7 +140,7 @@
   }
 
   // Auto-run on shops page
-  if (document.querySelector('.shops-grid')) {
-    await initShops();
+  if (document.getElementById('shopsGridSkeleton')) {
+    initShops();
   }
 })();

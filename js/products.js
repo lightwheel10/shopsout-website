@@ -134,7 +134,17 @@
 
   function renderIntoDealsGrid(products) {
     const grid = document.querySelector('.deals-grid');
+    const skeleton = document.getElementById('dealsGridSkeleton');
+    
     if (!grid || !Array.isArray(products)) return;
+    
+    // Hide skeleton and show grid with animation
+    if (skeleton) {
+      skeleton.style.display = 'none';
+    }
+    grid.style.display = '';
+    grid.classList.add('content-loaded');
+    
     grid.innerHTML = '';
     const frag = document.createDocumentFragment();
 
@@ -150,10 +160,25 @@
       media.className = 'deal-v2-media';
       if (p.image) {
         const img = document.createElement('img');
-        img.src = p.image;
+        img.className = 'product-image-lazy';
         img.alt = p.title;
         img.loading = 'lazy';
+        
+        // Enhanced lazy loading with placeholder
+        img.onload = () => {
+          img.classList.add('loaded');
+        };
+        
+        img.onerror = () => {
+          // Show placeholder on error
+          media.innerHTML = '<div class="product-image-placeholder">Image not available</div>';
+        };
+        
+        img.src = p.image;
         media.appendChild(img);
+      } else {
+        // Show placeholder when no image
+        media.innerHTML = '<div class="product-image-placeholder">No image</div>';
       }
       
       const ctaContainer = document.createElement('div');
@@ -192,6 +217,7 @@
       
       const detailsGrid = document.createElement('div');
       detailsGrid.className = 'deal-v2-details-grid';
+      detailsGrid.style.position = 'relative'; // Add positioning context
 
       const discount = document.createElement('div');
       if (p.sale_price && p.price) {
@@ -391,12 +417,21 @@
 
     async function goTo(page) {
       currentPage = Math.max(1, Math.min(page, totalPages));
+      
+      // Show skeleton during loading (except for pagination clicks)
+      const skeleton = document.getElementById('dealsGridSkeleton');
+      const grid = document.querySelector('.deals-grid');
+      
+      if (page === 1 && skeleton && grid) {
+        skeleton.style.display = '';
+        grid.style.display = 'none';
+      }
+      
       // Fetch page; also get count the first time
       const { data, count } = await fetchProductsPage(currentPage, PAGE_SIZE);
       if (count != null) totalCount = count;
       
-      // Show no results message if needed
-      const grid = document.querySelector('.deals-grid');
+      // Show no results message if needed  
       const noResults = document.getElementById('noResults');
       
       if (data.length === 0) {
