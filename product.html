@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Selecdoo – Deal</title>
+    <meta name="description" content="View deal details" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <header class="site-header" role="banner">
+      <div class="container header-inner">
+        <a href="landing.html" class="brand" aria-label="Selecdoo Home">
+          <span class="brand-mark" aria-hidden="true">S</span>
+          <span class="brand-text">SELECDOO</span>
+        </a>
+
+        <nav class="primary-nav" aria-label="Primary navigation">
+          <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="primaryNavMenu">
+            <span class="sr-only">Toggle menu</span>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+          <ul id="primaryNavMenu" class="nav-list">
+            <li><a href="landing.html" data-i18n="nav.home">Home</a></li>
+            <li><a href="index.html" data-i18n="nav.deals">Deals</a></li>
+            <li><a href="shops.html" data-i18n="nav.shops">Shops</a></li>
+          </ul>
+        </nav>
+
+        <form class="search" role="search" aria-label="Search">
+          <span class="search-icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15.5 15.5L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/></svg>
+          </span>
+          <input type="search" placeholder="Search" data-i18n-placeholder="search.placeholder" />
+        </form>
+
+        <div id="langSwitch" class="lang-switch" role="tablist" aria-label="Language switch">
+          <button class="btn btn-pill" data-lang="de" aria-selected="false"><span class="lang-code">DE</span></button>
+          <button class="btn btn-pill" data-lang="en" aria-selected="false"><span class="lang-code">EN</span></button>
+        </div>
+      </div>
+    </header>
+
+    <main class="container" role="main" style="padding:24px 0;">
+      <section id="deal" class="product-detail" aria-live="polite">
+        <!-- TOP PANEL: Image + ALL Product Info -->
+        <div class="top-panel">
+          <div id="pdMedia" class="detail-media"></div>
+          <div class="detail-body">
+            <span id="pdBrand" class="brand-tag">Brand</span>
+            <h1 id="pdTitle">Product title</h1>
+            <div class="deal-prices">
+              <span id="pdPriceNow" class="price-now">—</span>
+              <span id="pdPriceOld" class="price-old" style="display:none;">—</span>
+            </div>
+
+            <div class="detail-buttons">
+              <a id="pdCta" class="btn btn-primary" href="#" target="_blank" rel="noopener">Go to store</a>
+              <a class="btn btn-outline" href="index.html">Back to deals</a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- BOTTOM PANEL: Full-width Description -->
+        <div class="bottom-panel">
+          <div id="pdDesc" class="product-description"></div>
+        </div>
+      </section>
+
+      <section class="best-deals" aria-label="Related products">
+        <div class="section-head">
+          <h2>Related products</h2>
+        </div>
+        <div id="relatedGrid" class="best-grid"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer" role="contentinfo">
+      <div class="container footer-inner">
+        <div class="footer-col">
+          <h4>Selecdoo</h4>
+          <p class="muted">Best deals from trusted shops.</p>
+          <div id="footerLangSwitch" class="lang-switch"><button class="btn btn-pill" data-lang="de">DE</button><button class="btn btn-pill" data-lang="en">EN</button></div>
+        </div>
+        <div class="footer-col">
+          <h4>Navigation</h4>
+          <ul class="footer-links">
+            <li><a href="index.html">Deals</a></li>
+            <li><a href="shops.html">Shops</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="container footer-bottom">
+        <p class="muted small">© 2025 – Selecdoo</p>
+      </div>
+    </footer>
+
+    <script src="js/env.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+    <script src="js/supabaseClient.js"></script>
+    <script src="js/product.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+  </html>
+

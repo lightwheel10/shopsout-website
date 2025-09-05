@@ -1,0 +1,128 @@
+(async function(){
+  if (!window.supabaseClient) return;
+
+  // Fetch stores from the cleaned_stores table
+  async function fetchStores(limit = 50) {
+    const { data, error } = await window.supabaseClient
+      .from('cleaned_stores')
+      .select('id, name, cleaned_name, logo_url, url, description, status, is_published_to_deals')
+      .eq('status', 'active')
+      .eq('is_published_to_deals', true)
+      .not('cleaned_name', 'is', null)
+      .order('name', { ascending: true })
+      .limit(limit);
+    
+    if (error) {
+      // console.error('[Supabase] fetch stores error', error);
+      return [];
+    }
+    return data || [];
+  }
+
+  // Create a shop card element
+  function createShopCard(store) {
+    const card = document.createElement('a');
+    card.className = 'shop-card';
+    card.href = `store.html?id=${encodeURIComponent(store.id)}`;
+    card.setAttribute('data-store-id', store.id);
+    
+    // Use cleaned_name only
+    const displayName = store.cleaned_name;
+    
+    const logoDiv = document.createElement('div');
+    logoDiv.className = 'shop-logo';
+    
+    if (store.logo_url) {
+      const img = document.createElement('img');
+      img.src = store.logo_url;
+      img.alt = displayName;
+      img.width = 48;
+      img.height = 48;
+      img.loading = 'lazy';
+      img.setAttribute('decoding', 'async');
+      
+      // Add error handling for broken images
+      img.onerror = function() {
+        this.style.display = 'none';
+        logoDiv.innerHTML = `<div class="shop-logo-fallback">${displayName.charAt(0).toUpperCase()}</div>`;
+      };
+      
+      logoDiv.appendChild(img);
+    } else {
+      // Create a fallback logo with the first letter of the store name
+      logoDiv.innerHTML = `<div class="shop-logo-fallback">${displayName.charAt(0).toUpperCase()}</div>`;
+    }
+    
+    const nameDiv = document.createElement('div');
+    nameDiv.className = 'shop-name';
+    nameDiv.textContent = displayName;
+    
+    card.appendChild(logoDiv);
+    card.appendChild(nameDiv);
+    
+    return card;
+  }
+
+  // Render stores into the shops grid
+  function renderShops(stores) {
+    const shopsGrid = document.querySelector('.shops-grid');
+    if (!shopsGrid || !Array.isArray(stores)) return;
+    
+    // Clear existing content
+    shopsGrid.innerHTML = '';
+    
+    if (stores.length === 0) {
+      shopsGrid.innerHTML = '<div class="no-shops-message">No shops available at the moment.</div>';
+      return;
+    }
+    
+    const fragment = document.createDocumentFragment();
+    
+    stores.forEach(store => {
+      const card = createShopCard(store);
+      fragment.appendChild(card);
+    });
+    
+    shopsGrid.appendChild(fragment);
+  }
+
+  // Initialize shops page
+  async function initShops() {
+    try {
+      const stores = await fetchStores();
+      renderShops(stores);
+      
+      // Set up search functionality
+      const searchInput = document.querySelector('.search input[type="search"]');
+      if (searchInput) {
+        searchInput.addEventListener('input', async (e) => {
+          const searchTerm = e.target.value.trim().toLowerCase();
+          
+          if (searchTerm === '') {
+            // Show all stores if search is empty
+            renderShops(stores);
+          } else {
+            // Filter stores by name
+            const filteredStores = stores.filter(store => {
+              const name = (store.cleaned_name || '').toLowerCase();
+              return name.includes(searchTerm);
+            });
+            renderShops(filteredStores);
+          }
+        });
+      }
+      
+    } catch (error) {
+      // console.error('[Shops] initialization error', error);
+      const shopsGrid = document.querySelector('.shops-grid');
+      if (shopsGrid) {
+        shopsGrid.innerHTML = '<div class="error-message">Error loading shops. Please try again later.</div>';
+      }
+    }
+  }
+
+  // Auto-run on shops page
+  if (document.querySelector('.shops-grid')) {
+    await initShops();
+  }
+})();
