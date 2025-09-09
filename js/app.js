@@ -24,7 +24,8 @@
   const pagination = document.getElementById('pagination');
   const paginationList = document.getElementById('paginationList');
 
-  const translations = {
+  // Expose translations globally for other scripts
+  window.translations = {
     de: {
       'nav.home': 'Start',
       'nav.deals': 'Deals',

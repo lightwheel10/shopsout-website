@@ -331,20 +331,89 @@
 
     async function loadCategories() {
       if (!categoriesListEl) return;
-      // Use ai_category as the main category field since that's what your schema defines for product categories
-      const { data, error } = await window.supabaseClient
-        .from('cleaned_products')
-        .select('ai_category')
-        .eq('status', 'published')
-        .not('ai_category', 'is', null)
-        .order('ai_category', { ascending: true })
-        .limit(200);
-      if (error) { /* console.warn('[Supabase] load categories error', error); */ return; }
-      const uniq = Array.from(new Set((data || []).map(r => (r.ai_category || '').trim()).filter(Boolean)));
-      // Render categories as checkboxes
-      categoriesListEl.innerHTML = uniq.slice(0, 30).map(c => `
-        <li><label><input type="checkbox" value="${c}"><span> ${c}</span></label></li>
-      `).join('');
+      
+      // Use the same categories as the landing page for consistency
+      const predefinedCategories = [
+        'Electronics',
+        'Home & Garden', 
+        'Beauty',
+        'Fashion',
+        'Sport',
+        'Children',
+        'Groceries',
+        'Shoes',
+        'Smartphone',
+        'Tablet', 
+        'Notebook',
+        'Television set',
+        'Gaming',
+        'Travel',
+        'Hotel',
+        'Wellness'
+      ];
+      
+      // Get current language for translations
+      const currentLang = localStorage.getItem('selectedLanguage') || 'de';
+      
+      // Create proper mapping between category names and translation keys
+      const categoryTranslationMap = {
+        'Electronics': 'cats.electronics',
+        'Home & Garden': 'cats.home',
+        'Beauty': 'cats.beauty', 
+        'Fashion': 'cats.fashion',
+        'Sport': 'cats.sport',
+        'Children': 'cats.children',
+        'Groceries': 'cats.grocery',
+        'Shoes': 'cats.shoes',
+        'Smartphone': 'cats.smartphone',
+        'Tablet': 'cats.tablet',
+        'Notebook': 'cats.notebook',
+        'Television set': 'cats.tv',
+        'Gaming': 'cats.gaming',
+        'Travel': 'cats.travel',
+        'Hotel': 'cats.hotel',
+        'Wellness': 'cats.wellness'
+      };
+      
+      // Render categories as checkboxes with proper translations
+      categoriesListEl.innerHTML = predefinedCategories.map(category => {
+        const translationKey = categoryTranslationMap[category] || 'cats.electronics'; // fallback
+        
+        // Get translated name
+        let displayName = category; // fallback
+        if (window.translations && window.translations[currentLang] && window.translations[currentLang][translationKey]) {
+          displayName = window.translations[currentLang][translationKey];
+        }
+        
+        return `<li><label><input type="checkbox" value="${category}"><span data-i18n="${translationKey}"> ${displayName}</span></label></li>`;
+      }).join('');
+      
+      // Apply language to all category labels
+      if (window.applyLanguageToElement) {
+        categoriesListEl.querySelectorAll('[data-i18n]').forEach(el => {
+          window.applyLanguageToElement(el);
+        });
+      }
+    }
+    
+    // Add language change listener to update categories
+    function setupCategoryLanguageListener() {
+      // Listen for language changes
+      document.addEventListener('click', function(e) {
+        if (e.target.closest('[data-lang]')) {
+          // Small delay to ensure language has been updated
+          setTimeout(() => {
+            loadCategories();
+          }, 100);
+        }
+      });
+      
+      // Listen for storage changes (cross-tab language changes)
+      window.addEventListener('storage', function(e) {
+        if (e.key === 'selectedLanguage') {
+          loadCategories();
+        }
+      });
     }
 
     async function fetchProductsPage(page, pageSize) {
@@ -495,6 +564,8 @@
       const noResults = document.getElementById('noResults');
       
       if (data.length === 0) {
+        // Hide both grid and skeleton when no results
+        if (skeleton) skeleton.style.display = 'none';
         if (grid) grid.style.display = 'none';
         if (noResults) {
           noResults.style.display = 'block';
@@ -558,6 +629,9 @@
 
     // Initial load
     await loadCategories();
+    
+    // Setup language change listener for categories
+    setupCategoryLanguageListener();
     
     // Initialize store name from URL if present
     await initializeStoreNameFromURL();
