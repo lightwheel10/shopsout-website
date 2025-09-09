@@ -107,86 +107,69 @@
     }
   }
 
-  // Create deal card (reused from products.js)
-  function createDealCard(product, storeName = '') {
+  // Create product card (same design as related products in product.html)
+  function createProductCard(product, storeName = '') {
     const card = document.createElement('article');
-    card.className = 'deal-card-v2';
-
-    // Left Column
-    const leftCol = document.createElement('div');
-    leftCol.className = 'deal-v2-left';
-
+    card.className = 'product-card';
+    
     const media = document.createElement('div');
-    media.className = 'deal-v2-media';
+    media.className = 'product-media';
     if (product.image) {
-      const img = document.createElement('img');
-      img.src = product.image;
-      img.alt = product.title;
-      img.loading = 'lazy';
-      media.appendChild(img);
+      media.style.background = `center/cover no-repeat url(${CSS.escape ? CSS.escape(product.image) : product.image})`;
     }
     
-    const ctaContainer = document.createElement('div');
-    ctaContainer.className = 'deal-v2-cta-container';
-    const dealBtn = document.createElement('a');
-    dealBtn.href = product.link || '#';
-    dealBtn.className = 'btn btn-deal';
-    dealBtn.textContent = 'zum Deal';
-    dealBtn.target = '_blank';
-    dealBtn.rel = 'noopener noreferrer';
-    const detailsBtn = document.createElement('a');
-    detailsBtn.href = `product.html?id=${encodeURIComponent(product.hash_id)}`;
-    detailsBtn.className = 'btn btn-details';
-    detailsBtn.textContent = 'Deal-Details';
-    ctaContainer.append(dealBtn, detailsBtn);
-    leftCol.append(media, ctaContainer);
-
-    // Right Column
-    const rightCol = document.createElement('div');
-    rightCol.className = 'deal-v2-right';
-
-    const header = document.createElement('div');
-    header.className = 'deal-v2-header';
+    const body = document.createElement('div');
+    body.className = 'product-body';
+    
+    const brand = document.createElement('span');
+    brand.className = 'brand-tag';
+    brand.textContent = storeName || product.store_name || product.brand || '';
+    
     const title = document.createElement('h3');
-    title.className = 'deal-v2-title';
+    title.className = 'product-title';
     title.textContent = product.title || 'Product';
-    header.appendChild(title);
     
-    const shopLink = document.createElement('a');
-    shopLink.href = product.link || '#';
-    shopLink.className = 'deal-v2-shoplink';
-    shopLink.textContent = `Shop: ${storeName || product.brand || 'Unknown'}`;
-    
-    const detailsGrid = document.createElement('div');
-    detailsGrid.className = 'deal-v2-details-grid';
-
-    const discount = document.createElement('div');
-    if (product.sale_price && product.price) {
-      const percentage = Math.round(((product.price - product.sale_price) / product.price) * 100);
-      if (percentage > 0) {
-        discount.className = 'discount-badge';
-        discount.textContent = `-${percentage}%`;
-      }
-    }
-
-    const validity = document.createElement('div');
-    validity.className = 'deal-v2-validity';
-
     const prices = document.createElement('div');
-    prices.className = 'deal-v2-prices';
-    if (product.price && product.sale_price && Number(product.price) > Number(product.sale_price)) {
-      prices.innerHTML += `<span class="price-old-v2">Vorher: ${formatCurrency(product.price, product.currency)}</span>`;
-    }
-    prices.innerHTML += `<span class="price-now-v2">Jetzt nur: ${formatCurrency(product.sale_price || product.price, product.currency)}</span>`;
-
-    const description = document.createElement('p');
-    description.className = 'deal-v2-description';
-    description.textContent = product.description ? (product.description.length > 100 ? product.description.substring(0, 100) + '…' : product.description) : '';
-
-    detailsGrid.append(discount, validity, prices, description);
-    rightCol.append(header, shopLink, detailsGrid);
+    prices.className = 'deal-prices';
     
-    card.append(leftCol, rightCol);
+    // Check if there's a discount
+    const hasDiscount = product.sale_price && product.price && Number(product.price) > Number(product.sale_price);
+    if (hasDiscount) {
+      prices.classList.add('has-discount');
+      // Add discount badge
+      const discountPercent = Math.round(((Number(product.price) - Number(product.sale_price)) / Number(product.price)) * 100);
+      const discountBadge = document.createElement('span');
+      discountBadge.className = 'discount-badge';
+      discountBadge.textContent = `-${discountPercent}%`;
+      prices.appendChild(discountBadge);
+    }
+    
+    const now = document.createElement('span');
+    now.className = 'price-now';
+    now.textContent = product.sale_price ? formatCurrency(product.sale_price, product.currency || 'EUR') : formatCurrency(product.price, product.currency || 'EUR');
+    prices.appendChild(now);
+    
+    if (hasDiscount) {
+      const old = document.createElement('span');
+      old.className = 'price-old';
+      old.textContent = formatCurrency(product.price, product.currency || 'EUR');
+      prices.appendChild(old);
+    }
+    
+    const cta = document.createElement('a');
+    cta.className = 'btn btn-primary';
+    cta.href = `product.html?id=${encodeURIComponent(product.hash_id)}`;
+    cta.setAttribute('data-i18n', 'card.cta');
+    cta.textContent = 'View deal'; // fallback
+    
+    body.append(brand, title, prices, cta);
+    card.append(media, body);
+    
+    // Apply current language to the button
+    if (window.applyLanguageToElement) {
+      window.applyLanguageToElement(cta);
+    }
+    
     return card;
   }
 
@@ -318,7 +301,7 @@
     
     const fragment = document.createDocumentFragment();
     deals.forEach(deal => {
-      fragment.appendChild(createDealCard(deal, storeName));
+      fragment.appendChild(createProductCard(deal, storeName));
     });
     dealsGrid.appendChild(fragment);
   }
@@ -383,9 +366,66 @@
     }
   }
 
+  // Initialize toggle functionality for store details
+  function initToggleFunctionality() {
+    const toggleHeaders = document.querySelectorAll('.toggle-header');
+    
+    function toggleSection(header) {
+      const toggleId = header.getAttribute('data-toggle');
+      const content = document.getElementById(toggleId + 'Content');
+      
+      if (content) {
+        // Toggle collapsed state
+        const isCollapsed = header.classList.contains('collapsed');
+        
+        if (isCollapsed) {
+          // Expand
+          header.classList.remove('collapsed');
+          content.classList.remove('collapsed');
+          header.setAttribute('aria-expanded', 'true');
+        } else {
+          // Collapse
+          header.classList.add('collapsed');
+          content.classList.add('collapsed');
+          header.setAttribute('aria-expanded', 'false');
+        }
+      }
+    }
+    
+    toggleHeaders.forEach(header => {
+      // Click event
+      header.addEventListener('click', function() {
+        toggleSection(this);
+      });
+      
+      // Keyboard navigation (Enter and Space)
+      header.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleSection(this);
+        }
+      });
+    });
+    
+    // Initialize with all sections collapsed by default
+    setTimeout(() => {
+      toggleHeaders.forEach(header => {
+        const toggleId = header.getAttribute('data-toggle');
+        const content = document.getElementById(toggleId + 'Content');
+        
+        if (content) {
+          header.classList.add('collapsed');
+          content.classList.add('collapsed');
+          header.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }, 100);
+  }
+
   // Auto-run on store page
   if (document.querySelector('.store-content')) {
     await initStorePage();
+    initToggleFunctionality();
   }
 })();
 

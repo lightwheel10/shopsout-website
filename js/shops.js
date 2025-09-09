@@ -59,12 +59,7 @@
       logoDiv.innerHTML = `<div class="shop-logo-fallback">${displayName.charAt(0).toUpperCase()}</div>`;
     }
     
-    const nameDiv = document.createElement('div');
-    nameDiv.className = 'shop-name';
-    nameDiv.textContent = displayName;
-    
     card.appendChild(logoDiv);
-    card.appendChild(nameDiv);
     
     return card;
   }

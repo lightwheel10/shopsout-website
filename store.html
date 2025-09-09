@@ -28,6 +28,7 @@
             <li><a href="landing.html" data-i18n="nav.home">Home</a></li>
             <li><a href="index.html" data-i18n="nav.deals">Deals</a></li>
             <li><a href="shops.html" data-i18n="nav.shops">Shops</a></li>
+            <li><a href="contact.html" data-i18n="nav.contact">Contact</a></li>
           </ul>
         </nav>
 
@@ -126,8 +127,13 @@
           <div class="info-cards-container">
             <!-- Statistics Card -->
             <div class="info-card statistics-card">
-              <h3>Statistics</h3>
-              <div class="statistics-content">
+              <div class="toggle-header" data-toggle="statistics" role="button" tabindex="0" aria-expanded="false" aria-controls="statisticsContent">
+                <h3>Statistics</h3>
+                <svg class="toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="statistics-content toggle-content" id="statisticsContent">
                 <div class="stat-row">
                   <span class="stat-label">Total Active Deals:</span>
                   <span id="totalActiveDeals" class="stat-value">-</span>
@@ -140,14 +146,18 @@
                   <span class="stat-label">Last Deal Added:</span>
                   <span id="lastDealDate" class="stat-value">-</span>
                 </div>
-
               </div>
             </div>
 
             <!-- Shipping Card -->
             <div class="info-card shipping-card">
-              <h3>Shipping</h3>
-              <div class="shipping-content">
+              <div class="toggle-header" data-toggle="shipping" role="button" tabindex="0" aria-expanded="false" aria-controls="shippingContent">
+                <h3>Shipping</h3>
+                <svg class="toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="shipping-content toggle-content" id="shippingContent">
                 <div class="shipping-item">
                   <span class="shipping-label">Country:</span>
                   <span id="shippingCountryMain" class="shipping-value">-</span>
@@ -175,8 +185,13 @@
 
         <!-- About Store Section -->
         <section class="about-store-section">
-          <h2>About the Store</h2>
-          <div class="about-content">
+          <div class="toggle-header" data-toggle="about" role="button" tabindex="0" aria-expanded="false" aria-controls="aboutContent">
+            <h2>About the Store</h2>
+            <svg class="toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="about-content toggle-content" id="aboutContent">
             <h3 id="aboutStoreTitle">Store Name</h3>
             <div id="aboutStoreDescription" class="about-description">
               <!-- Store description will be inserted here -->
@@ -210,7 +225,7 @@
             <p>Diese Deals sind durch unsere automatisiert KI Algorithmen, die Tausende von Geschäften durchsuchen, ausgewählt worden</p>
           </div>
           
-          <div id="storeProductsGrid" class="products-grid">
+          <div id="storeProductsGrid" class="best-grid">
             <!-- Products will be loaded here -->
           </div>
         </section>
@@ -252,11 +267,8 @@
         <div class="footer-col">
           <h4 data-i18n="footer.nav">Navigation</h4>
           <ul class="footer-links">
-            <li><a href="#" data-i18n="footer.links.enterDeal">Deal eintragen</a></li>
-            <li><a href="#" data-i18n="footer.links.contact">Kontakt</a></li>
-            <li><a href="#" data-i18n="footer.links.press">Presse</a></li>
-            <li><a href="#" data-i18n="footer.links.privacy">Datenschutz</a></li>
-            <li><a href="#" data-i18n="footer.links.imprint">Impressum</a></li>
+            <li><a href="contact.html" data-i18n="footer.links.contact">Kontakt</a></li>
+            <li><a href="privacy.html" data-i18n="footer.links.privacy">Datenschutz</a></li>
           </ul>
         </div>
       </div>

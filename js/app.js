@@ -30,6 +30,7 @@
       'nav.deals': 'Deals',
       'nav.vouchers': 'Gutscheine',
       'nav.shops': 'Shops',
+      'nav.contact': 'Kontakt',
       'nav.magazine': 'Magazin',
       'search.placeholder': 'Suche',
       'filter.title': 'Filter',
@@ -38,9 +39,9 @@
       'prices.max': 'Max (€):',
       'categories.title': 'Kategorien',
       // Landing specific
-      'landing.hero.title': 'Entdecke Top-<span class="highlight">Deals & Gutscheine</span> von vertrauenswürdigen Shops',
-      'landing.hero.subtitle': 'Ein kuratierter Marktplatz für hochwertige Angebote aus deinen Lieblingskategorien.',
-      'landing.hero.ctaPrimary': 'Deals shoppen',
+      'landing.hero.title': 'Entdecke Top-<span class="highlight">Angebote & Deals</span> von vertrauenswürdigen Shops',
+      'landing.hero.subtitle': 'Dein Marktplatz für hochwertige & geprüfte Angebote aus vielen Kategorien – geprüft von AI.',
+      'landing.hero.ctaPrimary': 'Alle Deals',
       'landing.featured.title': 'Empfohlene Produkte',
       'landing.featured.link': 'Alle Angebote ansehen',
       'landing.featured.cta': 'Jetzt kaufen',
@@ -54,17 +55,61 @@
       'actions.apply': 'Anwenden',
       'card.cta': 'Zum Deal',
       'empty': 'Keine Ergebnisse für die aktuellen Filter.',
-      'footer.title': 'Deals & Gutscheine',
-      'footer.subtitle': 'Sparen auf Deutschlands größte Plattform für Deals und Gutscheine.',
+      'footer.title': 'Deals & Coupons',
+      'footer.subtitle': 'Entdecke die besten Deals auf Europas innovativster AI-Deal-Plattform.',
       'footer.country.at': 'Österreich',
       'footer.country.de': 'Deutschland',
       'footer.nav': 'Navigation',
       'footer.links.contact': 'Kontakt',
-      'footer.links.press': 'Presse',
       'footer.links.privacy': 'Datenschutz',
-      'footer.links.imprint': 'Impressum',
-      'footer.disclaimer': 'Dieser Beitrag enthält Affiliate-Links. Wenn du über einen dieser Links etwas kaufst, erhalten wir eine Provision. Für dich ändert sich der Preis nicht.',
-      'footer.copy': '© 2025 – ShopShout',
+      'footer.disclaimer': 'Dieser Beitrag enthält Affiliate-Links. Wenn du über einen dieser Links etwas kaufst, erhalten wir eine Provision. Der Preis bleibt für dich unverändert.',
+      'footer.copy': '© 2025 – ShopShout AI',
+      'contact.message': 'Du hast eine Frage? Sende diese einfach an hello@shopshout.ai',
+      'contact.title': 'Kontakt',
+      'contact.subtitle': 'Wir helfen dir dabei, die besten Deals zu finden und beantworten all deine Fragen.',
+      'contact.email.title': 'E-Mail senden',
+      'contact.support.title': 'Kundensupport',
+      'contact.support.description': 'Hilfe bei Deals, Kontofragen oder technischem Support.',
+      'contact.support.hours': 'Antwortzeit: Innerhalb von 24 Stunden',
+      'contact.business.title': 'Geschäftsanfragen',
+      'contact.business.description': 'Partnerschaftsmöglichkeiten, Shop-Listings und Geschäftskooperationen.',
+      'contact.faq.title': 'Häufig gestellte Fragen',
+      'contact.faq.subtitle': 'Schnelle Antworten auf häufige Fragen',
+      'contact.faq.deals.question': 'Wie findet ihr diese Deals?',
+      'contact.faq.deals.answer': 'Unser KI-gestütztes System durchsucht kontinuierlich tausende vertrauenswürdige Shops, um die besten verfügbaren Deals und Rabatte zu finden.',
+      'contact.faq.trust.question': 'Sind alle Deals verifiziert?',
+      'contact.faq.trust.answer': 'Ja, alle Deals sind verifiziert und stammen von vertrauenswürdigen Partner-Shops. Wir gewährleisten Qualität und Authentizität jedes Angebots.',
+      'contact.faq.cost.question': 'Ist ShopShout kostenlos nutzbar?',
+      'contact.faq.cost.answer': 'Ja, ShopShout ist für Nutzer völlig kostenlos. Wir erhalten Provisionen von Partner-Shops, wenn du einen Kauf tätigst.',
+      // Privacy page translations
+      'privacy.title': 'Datenschutzerklärung',
+      'privacy.lastUpdated': 'Zuletzt aktualisiert: September 2025',
+      'privacy.de.overview': '1. Datenschutz auf einen Blick',
+      'privacy.de.generalInfo': 'Allgemeine Hinweise',
+      'privacy.de.overviewText': 'Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können.',
+      'privacy.de.dataCollection': 'Datenerfassung auf dieser Website',
+      'privacy.de.whoResponsible': 'Wer ist verantwortlich für die Datenerfassung auf dieser Website?',
+      'privacy.de.responsibleEntity': 'Die Datenverarbeitung auf dieser Website erfolgt durch den Websitebetreiber. Kontakt: hello@shopshout.ai',
+      'privacy.de.howCollectData': 'Wie erfassen wir Ihre Daten?',
+      'privacy.de.dataCollectionMethod': 'Ihre Daten werden zum einen dadurch erhoben, dass Sie uns diese mitteilen. Andere Daten werden automatisch beim Besuch der Website durch unsere IT-Systeme erfasst.',
+      'privacy.de.purposeData': 'Wofür nutzen wir Ihre Daten?',
+      'privacy.de.dataPurpose': 'Ein Teil der Daten wird erhoben, um eine fehlerfreie Bereitstellung der Website zu gewährleisten. Andere Daten können zur Analyse Ihres Nutzerverhaltens verwendet werden.',
+      'privacy.de.rightsData': 'Welche Rechte haben Sie bezüglich Ihrer Daten?',
+      'privacy.de.userRights': 'Sie haben jederzeit das Recht, unentgeltlich Auskunft über Herkunft, Empfänger und Zweck Ihrer gespeicherten personenbezogenen Daten zu erhalten.',
+      'privacy.de.hosting': '2. Hosting',
+      'privacy.de.externalHosting': 'Externes Hosting',
+      'privacy.de.hostingText': 'Diese Website wird extern gehostet. Die personenbezogenen Daten werden auf den Servern des Hosters gespeichert.',
+      'privacy.de.generalHints': '3. Allgemeine Hinweise und Pflichtinformationen',
+      'privacy.de.dataProtection': 'Datenschutz',
+      'privacy.de.protectionText': 'Die Betreiber dieser Seiten nehmen den Schutz Ihrer persönlichen Daten sehr ernst.',
+      'privacy.de.responsibleParty': 'Hinweis zur verantwortlichen Stelle',
+      'privacy.de.dataCollection4': '4. Datenerfassung auf dieser Website',
+      'privacy.de.serverLogs': 'Server-Log-Dateien',
+      'privacy.de.serverLogsText': 'Der Provider der Seiten erhebt und speichert automatisch Informationen in Server-Log-Dateien.',
+      'privacy.de.contactForm': 'Kontaktformular',
+      'privacy.de.contactFormText': 'Wenn Sie uns per Kontaktformular Anfragen zukommen lassen, werden Ihre Angaben gespeichert.',
+      'privacy.de.contact': 'Kontakt',
+      'privacy.de.contactInfo': 'Bei Fragen zum Datenschutz kontaktieren Sie uns unter: hello@shopshout.ai',
       'cats.auto': 'Auto',
       'cats.motorcycle': 'Motorrad',
       'cats.tire': 'Reifen',
@@ -104,6 +149,7 @@
       'nav.deals': 'Deals',
       'nav.vouchers': 'Vouchers',
       'nav.shops': 'Shops',
+      'nav.contact': 'Contact',
       'nav.magazine': 'Magazine',
       'search.placeholder': 'Search',
       'filter.title': 'Filter',
@@ -116,16 +162,75 @@
       'card.cta': 'View deal',
       'empty': 'No results for the current filters.',
       'footer.title': 'Deals & Coupons',
-      'footer.subtitle': "Save on Germany's largest platform for deals and vouchers.",
+      'footer.subtitle': 'Discover the best deals on Europe\'s most innovative AI deal platform.',
       'footer.country.at': 'Austria',
       'footer.country.de': 'Germany',
       'footer.nav': 'Navigation',
       'footer.links.contact': 'Contact',
-      'footer.links.press': 'Press',
       'footer.links.privacy': 'Privacy',
-      'footer.links.imprint': 'Imprint',
       'footer.disclaimer': 'This post contains affiliate links. If you buy something through one of these links, we earn a commission. The price does not change for you.',
-      'footer.copy': '© 2025 – ShopShout',
+      'footer.copy': '© 2025 – ShopShout AI',
+      'contact.message': 'Have a question? Simply send it to hello@shopshout.ai',
+      'contact.title': 'Contact Us',
+      'contact.subtitle': 'We\'re here to help you find the best deals and answer any questions you might have.',
+      'contact.email.title': 'Email Us',
+      'contact.support.title': 'Customer Support',
+      'contact.support.description': 'Get help with deals, account questions, or technical support.',
+      'contact.support.hours': 'Response time: Within 24 hours',
+      'contact.business.title': 'Business Inquiries',
+      'contact.business.description': 'Partnership opportunities, store listings, and business collaborations.',
+      'contact.faq.title': 'Frequently Asked Questions',
+      'contact.faq.subtitle': 'Quick answers to common questions',
+      'contact.faq.deals.question': 'How do you find these deals?',
+      'contact.faq.deals.answer': 'Our AI-powered system continuously scans thousands of trusted stores to find the best deals and discounts available.',
+      'contact.faq.trust.question': 'Are all deals verified?',
+      'contact.faq.trust.answer': 'Yes, all deals are verified and come from trusted partner stores. We ensure quality and authenticity of every offer.',
+      'contact.faq.cost.question': 'Is ShopShout free to use?',
+      'contact.faq.cost.answer': 'Yes, ShopShout is completely free for users. We earn commission from partner stores when you make a purchase.',
+      // Privacy page translations
+      'privacy.title': 'Privacy Policy',
+      'privacy.lastUpdated': 'Last updated: September 2025',
+      'privacy.en.dataController': 'Data Controller',
+      'privacy.en.whatDataWeCollect': 'What Data We Collect',
+      'privacy.en.contactInfo': 'Contact Information',
+      'privacy.en.contactInfoDesc': 'When you contact us via forms, email, or phone',
+      'privacy.en.technicalData': 'Technical Data',
+      'privacy.en.technicalDataDesc': 'IP address, browser type, pages visited, access times',
+      'privacy.en.cookies': 'Cookies',
+      'privacy.en.cookiesDesc': 'For website functionality and analytics (with your consent)',
+      'privacy.en.whyWeUseData': 'Why We Use Your Data',
+      'privacy.en.respondInquiries': 'To respond to your inquiries',
+      'privacy.en.improveWebsite': 'To improve our website',
+      'privacy.en.complyLegal': 'To comply with legal obligations',
+      'privacy.en.businessInterests': 'For legitimate business interests',
+      'privacy.en.legalBasis': 'Legal Basis',
+      'privacy.en.consent': 'Consent',
+      'privacy.en.consentDesc': 'When you agree to data processing',
+      'privacy.en.contract': 'Contract',
+      'privacy.en.contractDesc': 'To fulfill agreements with you',
+      'privacy.en.legitimateInterest': 'Legitimate Interest',
+      'privacy.en.legitimateInterestDesc': 'For business operations and website improvement',
+      'privacy.en.legalObligation': 'Legal Obligation',
+      'privacy.en.legalObligationDesc': 'To comply with applicable laws',
+      'privacy.en.dataSharing': 'Data Sharing',
+      'privacy.en.noSellData': 'We do not sell your data. We may share data with:',
+      'privacy.en.serviceProviders': 'Service providers (hosting, analytics)',
+      'privacy.en.legalAuthorities': 'Legal authorities when required by law',
+      'privacy.en.yourRights': 'Your Rights',
+      'privacy.en.rightsIntro': 'You have the right to:',
+      'privacy.en.accessData': 'Access your personal data',
+      'privacy.en.correctData': 'Correct inaccurate data',
+      'privacy.en.deleteData': 'Delete your data',
+      'privacy.en.restrictProcessing': 'Restrict processing',
+      'privacy.en.dataPortability': 'Data portability',
+      'privacy.en.objectProcessing': 'Object to processing',
+      'privacy.en.withdrawConsent': 'Withdraw consent',
+      'privacy.en.dataRetention': 'Data Retention',
+      'privacy.en.retentionPolicy': 'We keep your data only as long as necessary for the stated purposes or as required by law.',
+      'privacy.en.contactSection': 'Contact',
+      'privacy.en.privacyContact': 'For privacy questions, contact us at:',
+      'privacy.en.updates': 'Updates',
+      'privacy.en.updatesPolicy': 'This policy may be updated periodically. Check this page for changes.',
       'cats.auto': 'Car',
       'cats.motorcycle': 'Motorcycle',
       'cats.tire': 'Tire',
@@ -159,9 +264,9 @@
       'cats.travel': 'Travel',
       'cats.hotel': 'Hotel',
       'cats.wellness': 'Wellness',
-      'landing.hero.title': 'Discover top <span class="highlight">deals & coupons</span> from trusted stores',
-      'landing.hero.subtitle': 'A curated marketplace for quality offers across categories you love.',
-      'landing.hero.ctaPrimary': 'Shop deals',
+      'landing.hero.title': 'Discover top <span class="highlight">deals & savings</span> from trusted stores',
+      'landing.hero.subtitle': 'A curated marketplace for quality offers across categories you love backed by AI.',
+      'landing.hero.ctaPrimary': 'See all Deals',
       'landing.metrics.publishers': 'Publishers onboard',
       'landing.metrics.salesPerDay': 'Sales per day',
       'landing.metrics.uplift': 'Average uplift',
@@ -331,6 +436,26 @@
       if (dict[k]) el.innerHTML = dict[k];
     });
   }
+
+  // Helper function to apply current language to specific elements (for dynamically created content)
+  function applyLanguageToElement(element) {
+    const selectedLang = localStorage.getItem('selectedLanguage') || 'de';
+    const dict = translations[selectedLang] || translations.de;
+    
+    element.querySelectorAll('[data-i18n]').forEach(node => {
+      const key = node.getAttribute('data-i18n');
+      if (dict[key]) node.textContent = dict[key];
+    });
+    
+    // Also check if the element itself has data-i18n
+    if (element.hasAttribute('data-i18n')) {
+      const key = element.getAttribute('data-i18n');
+      if (dict[key]) element.textContent = dict[key];
+    }
+  }
+
+  // Make the helper function globally available
+  window.applyLanguageToElement = applyLanguageToElement;
 
   function applyFilters() {
     clampPriceInputs();
@@ -546,14 +671,13 @@
           const displayName = store.cleaned_name;
           
           if (store.logo_url) {
-            // Create store element with logo and name
+            // Create store element with logo only
             storeElement.innerHTML = `
               <img src="${store.logo_url}" alt="${displayName} logo" width="24" height="24" loading="lazy" decoding="async" />
-              <span>${displayName}</span>
             `;
           } else {
-            // Fallback: just show store name
-            storeElement.innerHTML = `<span>${displayName}</span>`;
+            // Fallback: show first letter of store name
+            storeElement.innerHTML = `<div class="store-logo-fallback">${displayName.charAt(0).toUpperCase()}</div>`;
           }
           
           fragment.appendChild(storeElement);

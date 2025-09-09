@@ -206,8 +206,15 @@
         const now = document.createElement('span'); now.className = 'price-now'; now.textContent = r.sale_price ? formatCurrency(r.sale_price, r.currency || 'EUR') : formatCurrency(r.price, r.currency || 'EUR');
         prices.appendChild(now);
         if (hasDiscount) { const old = document.createElement('span'); old.className = 'price-old'; old.textContent = formatCurrency(r.price, r.currency || 'EUR'); prices.appendChild(old); }
-        const cta = document.createElement('a'); cta.className = 'btn btn-primary'; cta.href = `product.html?id=${encodeURIComponent(r.hash_id)}`; cta.textContent = 'View deal';
-        body.append(b, t, prices, cta); card.append(media, body); frag.append(card);
+        const cta = document.createElement('a'); cta.className = 'btn btn-primary'; cta.href = `product.html?id=${encodeURIComponent(r.hash_id)}`; cta.setAttribute('data-i18n', 'card.cta'); cta.textContent = 'View deal'; // fallback
+        body.append(b, t, prices, cta); card.append(media, body); 
+        
+        // Apply current language to the button
+        if (window.applyLanguageToElement) {
+          window.applyLanguageToElement(cta);
+        }
+        
+        frag.append(card);
       });
       relatedGrid.append(frag);
     }

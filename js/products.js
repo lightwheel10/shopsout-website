@@ -1,6 +1,18 @@
 (async function(){
   if (!window.supabaseClient) return;
 
+  // Global store names cache for filter display
+  let storeNames = {};
+
+  // Initialize store name from URL parameter if present
+  async function initializeStoreNameFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const storeId = urlParams.get('store');
+    if (storeId && !storeNames[storeId]) {
+      await fetchStoreNames([storeId]);
+    }
+  }
+
   async function fetchTopProducts(limit = 9) {
     // Fetch active products with images and a sale price first
     const { data, error } = await window.supabaseClient
@@ -41,6 +53,26 @@
       ...p,
       store_name: storeMap[p.store_id] || p.brand
     }));
+  }
+
+  // Fetch and cache store names for filter display
+  async function fetchStoreNames(storeIds) {
+    if (!storeIds || storeIds.length === 0) return;
+    
+    // Only fetch stores we don't already have cached
+    const uncachedIds = storeIds.filter(id => !storeNames[id]);
+    if (uncachedIds.length === 0) return;
+    
+    const { data: stores } = await window.supabaseClient
+      .from('cleaned_stores')
+      .select('id, cleaned_name')
+      .in('id', uncachedIds);
+    
+    if (stores) {
+      stores.forEach(store => {
+        storeNames[store.id] = store.cleaned_name;
+      });
+    }
   }
 
   function formatCurrency(value, currency = '€') {
@@ -186,7 +218,8 @@
       const dealBtn = document.createElement('a');
       dealBtn.href = p.link || '#';
       dealBtn.className = 'btn btn-deal';
-      dealBtn.textContent = 'zum Deal';
+      dealBtn.setAttribute('data-i18n', 'card.cta');
+      dealBtn.textContent = 'zum Deal'; // fallback
       dealBtn.target = '_blank';
       dealBtn.rel = 'noopener noreferrer';
       const detailsBtn = document.createElement('a');
@@ -195,6 +228,12 @@
       detailsBtn.textContent = 'Deal-Details';
       ctaContainer.append(dealBtn, detailsBtn);
       leftCol.append(media, ctaContainer);
+
+      // Apply current language to the buttons
+      if (window.applyLanguageToElement) {
+        window.applyLanguageToElement(dealBtn);
+        window.applyLanguageToElement(detailsBtn);
+      }
 
       // --- Right Column ---
       const rightCol = document.createElement('div');
@@ -377,6 +416,10 @@
         store_name: storeMap[p.store_id] || p.brand
       }));
       
+      // Fetch store names for filter display
+      const currentStoreIds = [...new Set(data.map(p => p.store_id).filter(Boolean))];
+      await fetchStoreNames(currentStoreIds);
+      
       return { data: productsWithStores, count: count || 0 };
     }
 
@@ -390,7 +433,9 @@
       
       const urlParams = new URLSearchParams(window.location.search);
       const storeId = urlParams.get('store');
-      if (storeId) {
+      if (storeId && storeNames[storeId]) {
+        filters.push(`Store: ${storeNames[storeId]}`);
+      } else if (storeId) {
         filters.push(`Store: ${storeId}`);
       }
       
@@ -493,6 +538,9 @@
 
     // Initial load
     await loadCategories();
+    
+    // Initialize store name from URL if present
+    await initializeStoreNameFromURL();
     
     // Auto-select category from URL parameter
     const urlParams = new URLSearchParams(window.location.search);

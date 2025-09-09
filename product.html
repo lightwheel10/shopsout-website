@@ -27,6 +27,7 @@
             <li><a href="landing.html" data-i18n="nav.home">Home</a></li>
             <li><a href="index.html" data-i18n="nav.deals">Deals</a></li>
             <li><a href="shops.html" data-i18n="nav.shops">Shops</a></li>
+            <li><a href="contact.html" data-i18n="nav.contact">Contact</a></li>
           </ul>
         </nav>
 
@@ -81,20 +82,48 @@
     <footer class="site-footer" role="contentinfo">
       <div class="container footer-inner">
         <div class="footer-col">
-          <h4>ShopShout</h4>
-          <p class="muted">AI-powered deals from verified stores.</p>
-          <div id="footerLangSwitch" class="lang-switch"><button class="btn btn-pill" data-lang="de">DE</button><button class="btn btn-pill" data-lang="en">EN</button></div>
+          <h4 data-i18n="footer.title">Deals & Coupons</h4>
+          <p data-i18n="footer.subtitle">Entdecke die besten Deals auf Europas innovativster AI-Deal-Plattform.</p>
+          <div class="footer-actions">
+            <div id="footerLangSwitch" class="lang-switch" role="tablist" aria-label="Language switch">
+              <button class="btn btn-pill" data-lang="de" aria-selected="false">
+                <svg class="flag-icon" viewBox="0 0 3 2" aria-hidden="true">
+                  <rect width="3" height="2" fill="#000"/>
+                  <rect width="3" height="1.333" y="0.333" fill="#dd0000"/>
+                  <rect width="3" height="0.666" y="1.333" fill="#ffce00"/>
+                </svg>
+                <span class="lang-code">DE</span>
+              </button>
+              <button class="btn btn-pill" data-lang="en" aria-selected="false">
+                <svg class="flag-icon" viewBox="0 0 3 2" aria-hidden="true">
+                  <rect width="3" height="2" fill="#012169"/>
+                  <g stroke="#fff" stroke-width="0.2">
+                    <path d="m0 0 3 2M3 0 0 2"/>
+                  </g>
+                  <g stroke="#c8102e" stroke-width="0.133">
+                    <path d="m0 0 3 2M3 0 0 2"/>
+                  </g>
+                  <path stroke="#fff" stroke-width="0.4" d="M1.5 0v2"/>
+                  <path stroke="#fff" stroke-width="0.267" d="M0 1h3"/>
+                  <path stroke="#c8102e" stroke-width="0.267" d="M1.5 0v2"/>
+                  <path stroke="#c8102e" stroke-width="0.133" d="M0 1h3"/>
+                </svg>
+                <span class="lang-code">EN</span>
+              </button>
+            </div>
+          </div>
         </div>
         <div class="footer-col">
-          <h4>Navigation</h4>
+          <h4 data-i18n="footer.nav">Navigation</h4>
           <ul class="footer-links">
-            <li><a href="index.html">Deals</a></li>
-            <li><a href="shops.html">Shops</a></li>
+            <li><a href="contact.html" data-i18n="footer.links.contact">Kontakt</a></li>
+            <li><a href="privacy.html" data-i18n="footer.links.privacy">Datenschutz</a></li>
           </ul>
         </div>
       </div>
       <div class="container footer-bottom">
-        <p class="muted small">© 2025 – ShopShout</p>
+        <p class="muted" data-i18n="footer.disclaimer">Dieser Beitrag enthält Affiliate-Links. Wenn du über einen dieser Links etwas kaufst, erhalten wir eine Provision. Der Preis bleibt für dich unverändert.</p>
+        <p class="muted small" data-i18n="footer.copy">© 2025 – ShopShout AI</p>
       </div>
     </footer>
 

@@ -242,59 +242,60 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
 /* Shops grid */
 .shops-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 200px));
+  gap: 20px;
   padding: 8px 0;
+  justify-content: center;
 }
 .shop-card {
-  display: grid;
-  grid-template-rows: 140px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60px;
+  width: 100%;
   text-decoration: none;
   background: linear-gradient(180deg, var(--panel), var(--panel-2));
   border: 1px solid var(--border);
-  border-radius: 8px;
-  box-shadow: 0 10px 20px var(--shadow);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px var(--shadow);
   color: #0f172a;
-  padding-bottom: 1px;
-  transition: transform .2s ease, background .2s ease;
+  padding: 12px 20px;
+  transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
 }
 .shop-logo { 
-  display: grid; 
-  place-items: center; 
-  border-bottom: 1px solid var(--border); 
-  background: linear-gradient(120deg, #f2f5f9, #f8fafc);
-  height: 140px;
-  padding: 0px;
-  border-radius: 0px 0px 0 0;
+  display: flex; 
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 }
 .shop-logo img { 
-  width: 270px; 
-  height: 130px; 
-  filter: grayscale(10%); 
+  width: auto; 
+  height: 36px; 
+  max-width: 120px;
+  object-fit: contain;
+  filter: grayscale(5%); 
 }
 .shop-logo-fallback { 
-  width: 64px; 
-  height: 64px; 
+  width: 40px; 
+  height: 40px; 
   display: flex; 
   align-items: center; 
   justify-content: center; 
   background: var(--brand-gradient); 
   color: white; 
   font-weight: 700; 
-  font-size: 24px; 
+  font-size: 1rem; 
   border-radius: 8px; 
 }
-.shop-name { 
-  font-weight: 700; 
-  text-align: center; 
-  padding: 10px 8px 0 8px; 
-  font-size: 18px;
-  line-height: 1.2;
-  height: 40px;
-}
 .shop-card:hover { 
-  transform: translateY(-2px); 
+  transform: translateY(-1px); 
   background: var(--panel); 
+  box-shadow: 0 4px 12px var(--shadow);
+}
+
+.shop-card:hover .shop-logo img {
+  filter: grayscale(0%);
 }
 
 /* Shop grid messages */
@@ -1041,23 +1042,22 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   display: flex;
   align-items: center;
   justify-content: center; /* center the whole strip */
-  gap: 20px;
+  gap: 16px;
   padding: 18px 0;
   flex-wrap: wrap;
 }
 .brand-logo {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 10px;
-  height: 50px;
-  min-width: 120px;
-  max-width: 180px;
+  justify-content: center;
+  height: 40px;
+  min-width: 100px;
+  max-width: 140px;
   padding: 8px 16px;
-  border-radius: 12px;
+  border-radius: 8px;
   background: linear-gradient(180deg, var(--panel), var(--panel-2));
   border: 1px solid var(--border);
-  box-shadow: 0 4px 10px var(--shadow);
+  box-shadow: 0 2px 8px var(--shadow);
   color: #334155;
   font-weight: 600;
   letter-spacing: .2px;
@@ -1067,27 +1067,82 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
 
 .brand-logo img { 
   width: auto;
-  height: 28px;
-  max-width: 40px;
+  height: 24px;
+  max-width: 60px;
   object-fit: contain;
   display: block;
   flex-shrink: 0;
+  filter: grayscale(5%);
 }
 
-.brand-logo span {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 0.9rem;
-  line-height: 1.2;
-  min-width: 0;
+.brand-logo .store-logo-fallback {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: var(--brand-gradient);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.8rem;
 }
+
 .brand-logo:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   background: var(--panel);
-  box-shadow: 0 10px 20px var(--shadow);
+  box-shadow: 0 4px 12px var(--shadow);
   color: var(--text);
   opacity: 1;
+}
+
+.brand-logo:hover img {
+  filter: grayscale(0%);
+}
+
+/* Toggle functionality for store details */
+.toggle-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 12px 16px;
+  margin: 8px 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  transition: all 0.2s ease;
+}
+
+.toggle-header:hover {
+  background: var(--accent-2);
+  border-color: var(--brand-solid);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+.toggle-icon {
+  transition: transform 0.3s ease;
+  color: var(--muted);
+}
+
+.toggle-header.collapsed .toggle-icon {
+  transform: rotate(-90deg);
+}
+
+.toggle-content {
+  max-height: 1000px;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+  opacity: 1;
+  padding-top: 16px;
+}
+
+.toggle-content.collapsed {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .featured { padding: 28px 0; }
@@ -1622,6 +1677,324 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Contact Page Styles */
+.contact-hero {
+  padding: 40px 0 60px;
+  text-align: center;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+
+.contact-hero-content h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 16px;
+  color: var(--text);
+}
+
+.contact-subtitle {
+  font-size: 1.1rem;
+  color: var(--muted);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.contact-info-section {
+  padding: 60px 0;
+}
+
+.contact-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 32px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.contact-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.contact-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px var(--shadow);
+  border-color: var(--brand-solid);
+}
+
+.contact-card-icon {
+  width: 64px;
+  height: 64px;
+  background: var(--brand-gradient);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  color: white;
+}
+
+.contact-card-content h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0 0 12px;
+  color: var(--text);
+}
+
+.contact-card-content p {
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0 0 16px;
+}
+
+.contact-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  background: var(--accent);
+  color: var(--brand-solid);
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.contact-link:hover {
+  background: var(--brand-solid);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.contact-faq-section {
+  padding: 60px 0;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+}
+
+.faq-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.faq-header h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0 0 12px;
+  color: var(--text);
+}
+
+.faq-header p {
+  color: var(--muted);
+  font-size: 1.1rem;
+}
+
+.faq-list {
+  max-width: 800px;
+  margin: 0 auto;
+  display: grid;
+  gap: 24px;
+}
+
+.faq-item {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.faq-item h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 12px;
+  color: var(--text);
+}
+
+.faq-item p {
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Mobile Responsive for Contact Page */
+@media (max-width: 768px) {
+  .contact-hero-content h1 {
+    font-size: 2rem;
+  }
+  
+  .contact-subtitle {
+    font-size: 1rem;
+  }
+  
+  .contact-cards {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .contact-card {
+    padding: 24px;
+  }
+  
+  .contact-info-section,
+  .contact-faq-section {
+    padding: 40px 0;
+  }
+  
+  .faq-header h2 {
+    font-size: 1.6rem;
+  }
+}
+
+/* Privacy Page Styles */
+.privacy-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 0;
+}
+
+.privacy-header {
+  text-align: center;
+  margin-bottom: 48px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.privacy-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 12px;
+  color: var(--text);
+}
+
+.privacy-last-updated {
+  color: var(--muted);
+  font-style: italic;
+  margin: 0;
+}
+
+.privacy-lang-content {
+  display: none;
+}
+
+.privacy-lang-content.active {
+  display: block;
+}
+
+.privacy-section {
+  margin-bottom: 32px;
+  padding: 24px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.privacy-section h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 16px;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+
+.privacy-section h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 20px 0 12px;
+  color: var(--text);
+}
+
+.privacy-section h4 {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 16px 0 8px;
+  color: var(--text);
+}
+
+.privacy-section p {
+  line-height: 1.6;
+  margin: 0 0 16px;
+  color: var(--text);
+}
+
+.privacy-section p:last-child {
+  margin-bottom: 0;
+}
+
+.privacy-section ul {
+  margin: 0 0 16px;
+  padding-left: 24px;
+}
+
+.privacy-section li {
+  line-height: 1.6;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.privacy-company-info {
+  background: var(--accent-2);
+  padding: 16px;
+  border-radius: 6px;
+  border-left: 4px solid var(--brand-solid);
+  margin: 16px 0;
+}
+
+.privacy-company-info p {
+  margin: 0 0 8px;
+  font-weight: 500;
+}
+
+.privacy-company-info p:last-child {
+  margin-bottom: 0;
+}
+
+.privacy-company-info a {
+  color: var(--brand-solid);
+  text-decoration: none;
+}
+
+.privacy-company-info a:hover {
+  text-decoration: underline;
+}
+
+.privacy-section a {
+  color: var(--brand-solid);
+  text-decoration: none;
+}
+
+.privacy-section a:hover {
+  text-decoration: underline;
+}
+
+/* Mobile Responsive for Privacy Page */
+@media (max-width: 768px) {
+  .privacy-content {
+    padding: 24px 0;
+  }
+  
+  .privacy-header h1 {
+    font-size: 2rem;
+  }
+  
+  .privacy-section {
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  
+  .privacy-section h2 {
+    font-size: 1.3rem;
+  }
+  
+  .privacy-section h3 {
+    font-size: 1.1rem;
+  }
+}
+
 .content-loaded {
   animation: fadeIn 0.4s ease-out;
 }
@@ -1720,7 +2093,7 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
 }
 .btn-deal {
   background: var(--brand-gradient);
-  color: #0b1220;
+  color: white;
   text-align: center;
   padding: 10px;
   border-radius: 8px;
