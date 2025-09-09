@@ -286,13 +286,29 @@
     const featuresList = document.getElementById('storeFeaturesList');
     const features = [];
     
-    if (store.ai_shipping_country) features.push(`Ships to ${store.ai_shipping_country}`);
-    if (store.platform) features.push(`${store.platform.charAt(0).toUpperCase() + store.platform.slice(1)} powered store`);
-    if (store.ai_shipping_service) features.push(`${store.ai_shipping_service} shipping`);
-    if (store.status === 'active') features.push('Active and verified store');
+    // Use the same currentLang variable from above
+    
+    if (store.ai_shipping_country) {
+      const shipsToText = currentLang === 'de' ? 'Versand nach' : 'Ships to';
+      features.push(`${shipsToText} ${store.ai_shipping_country}`);
+    }
+    if (store.platform) {
+      const poweredText = currentLang === 'de' ? 'betriebener Shop' : 'powered store';
+      const platformName = store.platform.charAt(0).toUpperCase() + store.platform.slice(1);
+      features.push(`${platformName} ${poweredText}`);
+    }
+    if (store.ai_shipping_service) {
+      const shippingText = currentLang === 'de' ? 'Versand' : 'shipping';
+      features.push(`${store.ai_shipping_service} ${shippingText}`);
+    }
+    if (store.status === 'active') {
+      const activeText = currentLang === 'de' ? 'Aktiver und verifizierter Shop' : 'Active and verified store';
+      features.push(activeText);
+    }
     
     if (features.length === 0) {
-      features.push('No additional features available');
+      const noFeaturesText = currentLang === 'de' ? 'Keine zusätzlichen Features verfügbar' : 'No additional features available';
+      features.push(noFeaturesText);
     }
     
     featuresList.innerHTML = features.map(feature => `<li>${feature}</li>`).join('');
