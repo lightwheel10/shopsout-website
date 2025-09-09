@@ -247,7 +247,7 @@
     categoryFilters.addEventListener('change', () => applyFilters());
   }
 
-  // Language switching
+  // Language switching with localStorage persistence
   // Wire both header and footer switches and keep them in sync
   function wireLangSwitch(container) {
     if (!container) return [];
@@ -255,6 +255,13 @@
     buttons.forEach(btn => {
       btn.addEventListener('click', () => {
         const lang = btn.getAttribute('data-lang');
+        // Save language preference to localStorage for persistence across pages
+        try {
+          localStorage.setItem('selectedLanguage', lang);
+        } catch (e) {
+          // Handle case where localStorage might not be available (private browsing, etc.)
+          console.warn('[Language] Unable to save language preference:', e);
+        }
         setLanguage(lang);
         // reflect state in all switches
         syncLangSwitches(lang);
@@ -274,9 +281,27 @@
     });
   }
 
-  // default: EN
-  setLanguage('en');
-  syncLangSwitches('en');
+  // Initialize language from localStorage or default to EN
+  function initializeLanguage() {
+    let selectedLang = 'en'; // Default fallback
+    
+    try {
+      // Try to get saved language preference from localStorage
+      const savedLang = localStorage.getItem('selectedLanguage');
+      if (savedLang && (savedLang === 'en' || savedLang === 'de')) {
+        selectedLang = savedLang;
+      }
+    } catch (e) {
+      // Handle case where localStorage might not be available (private browsing, etc.)
+      console.warn('[Language] Unable to read language preference:', e);
+    }
+    
+    setLanguage(selectedLang);
+    syncLangSwitches(selectedLang);
+  }
+  
+  // Initialize language on page load
+  initializeLanguage();
 
   function setLanguage(lang) {
     const dict = translations[lang] || translations.de;
