@@ -19,18 +19,25 @@
 }
 
 * { box-sizing: border-box; }
-html, body { min-height: 100%; height: auto; }
+html, body { min-height: 100vh; height: auto; }
 body {
   margin: 0;
   font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
   color: var(--text);
   background: radial-gradient(1200px 800px at 10% -10%, #fcfefe, var(--bg) 60%) fixed;
+  display: flex;
+  flex-direction: column;
   /* revert to document flow; allow normal page scroll */
 }
 
 .container {
   width: min(1200px, 92%);
   margin-inline: auto;
+}
+
+main.container {
+  min-height: calc(100vh - 400px); /* Ensure main content takes up space */
+  flex: 1;
 }
 
 .sr-only {
@@ -638,36 +645,6 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   font-weight: bold;
 }
 
-.coupon-section {
-  background: rgba(255, 107, 107, 0.1);
-  border: 1px solid rgba(255, 107, 107, 0.2);
-  border-radius: 12px;
-  padding: 20px;
-}
-
-.coupon-section h4 {
-  font-size: 18px;
-  font-weight: 600;
-  margin: 0 0 16px 0;
-  color: var(--text);
-}
-
-.coupon-code-container {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.coupon-code-text {
-  background: #ff6b6b;
-  color: white;
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-family: 'Courier New', monospace;
-  font-weight: 600;
-  font-size: 16px;
-  letter-spacing: 1px;
-}
 
 /* Products Section */
 .store-products-section {
@@ -736,10 +713,6 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
     font-size: 28px;
   }
   
-  .coupon-code-container {
-    flex-direction: column;
-    gap: 8px;
-  }
 }
 
 .deal-card {
@@ -809,7 +782,6 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   text-decoration: line-through;
   color: var(--muted);
 }
-.coupon-note { color: #065f46; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 6px 10px; border-radius: 8px; width: fit-content; }
 
 /* Two-Panel Product Layout - Image Left, Content Right */
 .top-panel {
@@ -1492,10 +1464,6 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
     justify-content: center;
   }
   
-  .coupon-note {
-    padding: 8px 12px;
-    font-size: 0.9rem;
-  }
   
   /* General mobile improvements */
   .deals-grid { grid-template-columns: 1fr; }
@@ -1992,6 +1960,46 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   
   .privacy-section h3 {
     font-size: 1.1rem;
+  }
+}
+
+/* Shops Page Specific Styles */
+.shops-section {
+  padding: 40px 0;
+}
+
+.shops-section .section-head {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.shops-section .section-head h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 16px;
+  color: var(--text);
+}
+
+.shops-section .section-head p {
+  font-size: 1.1rem;
+  color: var(--muted);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Mobile responsive for shops section */
+@media (max-width: 768px) {
+  .shops-section {
+    padding: 24px 0;
+  }
+  
+  .shops-section .section-head h1 {
+    font-size: 2rem;
+  }
+  
+  .shops-section .section-head {
+    margin-bottom: 32px;
   }
 }
 

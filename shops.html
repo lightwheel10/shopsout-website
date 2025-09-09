@@ -65,38 +65,13 @@
       </div>
     </header>
 
-    <main class="container layout" role="main">
-      <!-- Filters Sidebar (same as deals) -->
-      <aside id="filtersPanel" class="filters" aria-label="Filter">
-        <div class="filters-header">
-          <h2 data-i18n="filter.title">Filter</h2>
-        </div>
-
-        <div class="filter-group">
-          <h3 data-i18n="prices.title">Preise</h3>
-          <div class="price-row">
-            <label class="range-label" for="priceMin" data-i18n="prices.min">Min (€):</label>
-            <input id="priceMin" type="number" min="0" max="3000" step="1" value="0" />
-            <label class="range-label" for="priceMax" data-i18n="prices.max">Max (€):</label>
-            <input id="priceMax" type="number" min="0" max="3000" step="1" value="3000" />
-          </div>
-        </div>
-
-        <div class="filter-group">
-          <h3 data-i18n="categories.title">Kategorien</h3>
-          <ul class="checkbox-list two-cols" id="categoryFilters">
-            <!-- Categories not functional on shops page -->
-          </ul>
-        </div>
-
-        <div class="filters-actions">
-          <button class="btn btn-outline" id="filtersReset" data-i18n="actions.clear">Clear filters</button>
-          <button class="btn" id="filtersApply" data-i18n="actions.apply">Anwenden</button>
-        </div>
-      </aside>
-
+    <main class="container" role="main">
       <!-- Shops Grid -->
-      <section class="content" aria-label="Shops">
+      <section class="shops-section" aria-label="Shops">
+        <div class="section-head">
+          <h1 data-i18n="shops.title">Shops</h1>
+          <p data-i18n="shops.subtitle">Discover trusted stores with the best deals and offers.</p>
+        </div>
         <!-- Skeleton Loading for Shops Grid -->
         <div id="shopsGridSkeleton" class="shops-grid">
           <div class="shop-card" style="background: var(--panel-2); pointer-events: none;">
@@ -125,7 +100,7 @@
           </div>
         </div>
         
-        <div class="shops-grid" style="display: none;">
+        <div id="shopsGrid" class="shops-grid" style="display: none;">
           <!-- Shops will be loaded dynamically from cleaned_stores table -->
         </div>
       </section>

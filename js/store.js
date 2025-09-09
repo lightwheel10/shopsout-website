@@ -1,5 +1,8 @@
 (async function(){
   if (!window.supabaseClient) return;
+  
+  // Store the current store data globally for language switching
+  let currentStoreData = null;
 
   // Get store ID from URL parameter
   function getStoreIdFromURL() {
@@ -173,8 +176,38 @@
     return card;
   }
 
+  // Update store description based on current language
+  function updateStoreDescription(store) {
+    const descriptionEl = document.getElementById('aboutStoreDescription');
+    if (!descriptionEl || !store) return;
+    
+    const currentLang = localStorage.getItem('selectedLanguage') || 'de';
+    let storeDescription = null;
+    
+    if (currentLang === 'de') {
+      // German: try description_german first, then fallbacks
+      storeDescription = store.description_german || store.seo_text || store.description || null;
+    } else {
+      // English: try description_english first, then fallbacks  
+      storeDescription = store.description_english || store.seo_text || store.description || null;
+    }
+    
+    if (storeDescription && storeDescription.trim()) {
+      descriptionEl.textContent = storeDescription.trim();
+    } else {
+      // Show appropriate "no description" message based on language
+      const noDescMsg = currentLang === 'de' 
+        ? '<em>Keine Beschreibung für diesen Shop verfügbar.</em>'
+        : '<em>No description available for this store.</em>';
+      descriptionEl.innerHTML = noDescMsg;
+    }
+  }
+
   // Render store details
   function renderStoreDetails(store, stats) {
+    // Store the data globally for language switching
+    currentStoreData = store;
+    
     const displayName = store.cleaned_name;
     
     // Hero Section
@@ -198,9 +231,6 @@
     }
     
     // Meta information
-    document.getElementById('storeLastUpdated').textContent = store.last_scraped 
-      ? new Date(store.last_scraped).toLocaleDateString()
-      : 'Not available';
     
     const statusEl = document.getElementById('storeStatus');
     statusEl.textContent = store.status || 'Unknown';
@@ -241,16 +271,9 @@
     
     // About Store Section
     document.getElementById('aboutStoreTitle').textContent = displayName;
-    const descriptionEl = document.getElementById('aboutStoreDescription');
     
-    // Check multiple description sources in order of preference
-    const storeDescription = store.seo_text || store.description || null;
-    
-    if (storeDescription && storeDescription.trim()) {
-      descriptionEl.textContent = storeDescription.trim();
-    } else {
-      descriptionEl.innerHTML = '<em>No description available for this store.</em>';
-    }
+    // Update store description (will be called again on language change)
+    updateStoreDescription(store);
     
     // Store Features
     const featuresList = document.getElementById('storeFeaturesList');
@@ -267,26 +290,6 @@
     
     featuresList.innerHTML = features.map(feature => `<li>${feature}</li>`).join('');
     
-    // Coupon Section
-    if (store.coupon_code) {
-      const couponSection = document.getElementById('couponSection');
-      couponSection.style.display = 'block';
-      document.getElementById('mainCouponCode').textContent = store.coupon_code;
-      
-      // Copy coupon functionality
-      document.getElementById('copyCouponMainBtn').addEventListener('click', () => {
-        navigator.clipboard.writeText(store.coupon_code).then(() => {
-          const btn = document.getElementById('copyCouponMainBtn');
-          const originalText = btn.textContent;
-          btn.textContent = 'Copied!';
-          setTimeout(() => {
-            btn.textContent = originalText;
-          }, 2000);
-        }).catch(() => {
-          // console.log('Failed to copy coupon code');
-        });
-      });
-    }
   }
 
   // Render store deals
@@ -422,10 +425,38 @@
     }, 100);
   }
 
+  // Listen for language changes to update store description
+  function setupLanguageChangeListener() {
+    // Listen for language changes (custom event or manual checking)
+    document.addEventListener('languageChanged', function() {
+      if (currentStoreData) {
+        updateStoreDescription(currentStoreData);
+      }
+    });
+    
+    // Also listen for storage changes (when language is changed from other tabs/pages)
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'selectedLanguage' && currentStoreData) {
+        updateStoreDescription(currentStoreData);
+      }
+    });
+    
+    // Listen for clicks on language buttons (backup method)
+    document.addEventListener('click', function(e) {
+      if (e.target.closest('[data-lang]') && currentStoreData) {
+        // Small delay to ensure language has been updated
+        setTimeout(() => {
+          updateStoreDescription(currentStoreData);
+        }, 100);
+      }
+    });
+  }
+
   // Auto-run on store page
   if (document.querySelector('.store-content')) {
     await initStorePage();
     initToggleFunctionality();
+    setupLanguageChangeListener();
   }
 })();
 
