@@ -215,11 +215,13 @@
     
     // Store badge
     const badge = document.getElementById('storeBadge');
+    // Get current language for badge text
+    const currentLang = localStorage.getItem('selectedLanguage') || 'de';
     if (store.is_published_to_deals) {
-      badge.textContent = 'Featured Store';
+      badge.textContent = currentLang === 'de' ? 'Ausgewählter Shop' : 'Featured Store';
       badge.style.background = '#10b981';
     } else {
-      badge.textContent = 'Store Highlight';
+      badge.textContent = currentLang === 'de' ? 'Shop-Highlight' : 'Store Highlight';
     }
     
     // Main store image/logo
@@ -242,31 +244,36 @@
     
     // Statistics Card
     document.getElementById('totalActiveDeals').textContent = stats.totalProducts || '0';
-    document.getElementById('averageDiscount').textContent = stats.avgDiscount > 0 ? `${stats.avgDiscount}%` : 'N/A';
+    const naText = currentLang === 'de' ? 'Keine Angabe' : 'N/A';
+    document.getElementById('averageDiscount').textContent = stats.avgDiscount > 0 ? `${stats.avgDiscount}%` : naText;
     
     if (stats.lastDealAdded) {
       const lastDealDate = new Date(stats.lastDealAdded);
       const daysAgo = Math.floor((new Date() - lastDealDate) / (1000 * 60 * 60 * 24));
-      document.getElementById('lastDealDate').textContent = daysAgo === 0 ? 'Today' : `${daysAgo} days ago`;
+      const todayText = currentLang === 'de' ? 'Heute' : 'Today';
+      const daysAgoText = currentLang === 'de' ? `vor ${daysAgo} Tagen` : `${daysAgo} days ago`;
+      document.getElementById('lastDealDate').textContent = daysAgo === 0 ? todayText : daysAgoText;
     } else {
-      document.getElementById('lastDealDate').textContent = 'N/A';
+      document.getElementById('lastDealDate').textContent = naText;
     }
     
     // Shipping Card
-    document.getElementById('shippingCountryMain').textContent = store.ai_shipping_country || 'Not specified';
-    document.getElementById('shippingPriceMain').textContent = store.ai_shipping_price || 'Not specified';
-    document.getElementById('shippingServiceMain').textContent = store.ai_shipping_service || 'Not specified';
+    const notSpecifiedText = currentLang === 'de' ? 'Nicht angegeben' : 'Not specified';
+    document.getElementById('shippingCountryMain').textContent = store.ai_shipping_country || notSpecifiedText;
+    document.getElementById('shippingPriceMain').textContent = store.ai_shipping_price || notSpecifiedText;
+    document.getElementById('shippingServiceMain').textContent = store.ai_shipping_service || notSpecifiedText;
     
+    const daysText = currentLang === 'de' ? 'Tage' : 'days';
     if (store.ai_shipping_min_handling_time && store.ai_shipping_max_handling_time) {
-      document.getElementById('handlingTimeMain').textContent = `${store.ai_shipping_min_handling_time}-${store.ai_shipping_max_handling_time} days`;
+      document.getElementById('handlingTimeMain').textContent = `${store.ai_shipping_min_handling_time}-${store.ai_shipping_max_handling_time} ${daysText}`;
     } else {
-      document.getElementById('handlingTimeMain').textContent = 'Not specified';
+      document.getElementById('handlingTimeMain').textContent = notSpecifiedText;
     }
     
     if (store.ai_shipping_min_transit_time && store.ai_shipping_max_transit_time) {
-      document.getElementById('transitTimeMain').textContent = `${store.ai_shipping_min_transit_time}-${store.ai_shipping_max_transit_time} days`;
+      document.getElementById('transitTimeMain').textContent = `${store.ai_shipping_min_transit_time}-${store.ai_shipping_max_transit_time} ${daysText}`;
     } else {
-      document.getElementById('transitTimeMain').textContent = 'Not specified';
+      document.getElementById('transitTimeMain').textContent = notSpecifiedText;
     }
     
     // About Store Section

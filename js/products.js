@@ -139,7 +139,12 @@
     }
     const cta = document.createElement('a'); cta.className = 'btn btn-primary';
     cta.href = p.link || '#'; cta.target = '_blank'; cta.rel = 'noopener noreferrer';
-    cta.textContent = 'Shop now';
+    cta.setAttribute('data-i18n', 'landing.featured.cta');
+    cta.textContent = 'Shop now'; // fallback
+    // Apply current language translation
+    if (window.applyLanguageToElement) {
+      window.applyLanguageToElement(cta);
+    }
     body.append(brand, title, prices, cta); card.append(media, body);
     return card;
   }
@@ -225,7 +230,11 @@
       const detailsBtn = document.createElement('a');
       detailsBtn.href = `product.html?id=${encodeURIComponent(p.hash_id)}`;
       detailsBtn.className = 'btn btn-details';
-      detailsBtn.textContent = 'Deal-Details';
+      detailsBtn.setAttribute('data-i18n', 'button.dealDetails');
+      detailsBtn.textContent = 'Deal-Details'; // fallback
+      if (window.applyLanguageToElement) {
+        window.applyLanguageToElement(detailsBtn);
+      }
       ctaContainer.append(dealBtn, detailsBtn);
       leftCol.append(media, ctaContainer);
 
@@ -274,10 +283,16 @@
 
       const prices = document.createElement('div');
       prices.className = 'deal-v2-prices';
+      // Get current language for price labels
+      const currentLang = localStorage.getItem('selectedLanguage') || 'de';
+      const priceLabels = currentLang === 'de' 
+        ? { before: 'Vorher:', now: 'Jetzt nur:' }
+        : { before: 'Before:', now: 'Now only:' };
+      
       if (p.price && p.sale_price && Number(p.price) > Number(p.sale_price)) {
-        prices.innerHTML += `<span class="price-old-v2">Vorher: ${formatCurrency(p.price, p.currency)}</span>`;
+        prices.innerHTML += `<span class="price-old-v2">${priceLabels.before} ${formatCurrency(p.price, p.currency)}</span>`;
       }
-      prices.innerHTML += `<span class="price-now-v2">Jetzt nur: ${formatCurrency(p.sale_price || p.price, p.currency)}</span>`;
+      prices.innerHTML += `<span class="price-now-v2">${priceLabels.now} ${formatCurrency(p.sale_price || p.price, p.currency)}</span>`;
 
       const description = document.createElement('p');
       description.className = 'deal-v2-description';
@@ -483,7 +498,12 @@
         if (grid) grid.style.display = 'none';
         if (noResults) {
           noResults.style.display = 'block';
-          noResults.textContent = 'Keine Produkte gefunden. Versuchen Sie es mit anderen Filtern.';
+          // Get current language for error message
+          const currentLang = localStorage.getItem('selectedLanguage') || 'de';
+          const errorMsg = currentLang === 'de' 
+            ? 'Keine Produkte gefunden. Versuchen Sie es mit anderen Filtern.'
+            : 'No products found. Try different filters.';
+          noResults.textContent = errorMsg;
         }
       } else {
         if (grid) grid.style.display = '';
