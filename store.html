@@ -117,7 +117,44 @@
           </div>
         </section>
 
-        <!-- Information Cards Section -->
+        <!-- Products Section - NOW SECOND -->
+        <section class="store-products-section">
+          <div class="products-header">
+            <h2 data-i18n="store.productsTitle">Products and deals from this store</h2>
+            <p data-i18n="store.productsSubtitle">Diese Deals sind durch unsere automatisiert KI Algorithmen, die Tausende von Geschäften durchsuchen, ausgewählt worden</p>
+          </div>
+          
+          <div id="storeProductsGrid" class="best-grid">
+            <!-- Products will be loaded here -->
+          </div>
+        </section>
+
+        <!-- About Store Section - NOW THIRD -->
+        <section class="about-store-section">
+          <div class="toggle-header" data-toggle="about" role="button" tabindex="0" aria-expanded="false" aria-controls="aboutContent">
+            <h2 data-i18n="store.aboutStore">About the Store</h2>
+            <svg class="toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="about-content toggle-content" id="aboutContent">
+            <h3 id="aboutStoreTitle">Store Name</h3>
+            <div id="aboutStoreDescription" class="about-description">
+              <!-- Store description will be inserted here -->
+            </div>
+            
+            <!-- Store Features List -->
+            <div class="store-features">
+              <h4 data-i18n="store.features">Store Features:</h4>
+              <ul id="storeFeaturesList" class="features-list">
+                <!-- Features will be dynamically added -->
+              </ul>
+            </div>
+            
+          </div>
+        </section>
+
+        <!-- Information Cards Section - NOW LAST -->
         <section class="store-info-cards">
           <div class="info-cards-container">
             <!-- Statistics Card -->
@@ -175,43 +212,6 @@
                 </div>
               </div>
             </div>
-          </div>
-        </section>
-
-        <!-- About Store Section -->
-        <section class="about-store-section">
-          <div class="toggle-header" data-toggle="about" role="button" tabindex="0" aria-expanded="false" aria-controls="aboutContent">
-            <h2 data-i18n="store.aboutStore">About the Store</h2>
-            <svg class="toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div class="about-content toggle-content" id="aboutContent">
-            <h3 id="aboutStoreTitle">Store Name</h3>
-            <div id="aboutStoreDescription" class="about-description">
-              <!-- Store description will be inserted here -->
-            </div>
-            
-            <!-- Store Features List -->
-            <div class="store-features">
-              <h4 data-i18n="store.features">Store Features:</h4>
-              <ul id="storeFeaturesList" class="features-list">
-                <!-- Features will be dynamically added -->
-              </ul>
-            </div>
-            
-          </div>
-        </section>
-
-        <!-- Products Section -->
-        <section class="store-products-section">
-          <div class="products-header">
-            <h2 data-i18n="store.productsTitle">Products and deals from this store</h2>
-            <p data-i18n="store.productsSubtitle">Diese Deals sind durch unsere automatisiert KI Algorithmen, die Tausende von Geschäften durchsuchen, ausgewählt worden</p>
-          </div>
-          
-          <div id="storeProductsGrid" class="best-grid">
-            <!-- Products will be loaded here -->
           </div>
         </section>
       </div>
