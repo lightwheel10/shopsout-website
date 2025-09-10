@@ -85,16 +85,6 @@
     
     if (hasDiscount && pricesContainer) {
       pricesContainer.classList.add('has-discount');
-      // Add discount badge to product detail section (top right corner)
-      const productDetailSection = document.querySelector('.product-detail');
-      if (productDetailSection) {
-        const discountPercent = Math.round(((Number(p.price) - Number(p.sale_price)) / Number(p.price)) * 100);
-        const discountBadge = document.createElement('span');
-        discountBadge.className = 'discount-badge';
-        discountBadge.textContent = `-${discountPercent}%`;
-        // Remove inline styles - let CSS handle positioning and sizing
-        productDetailSection.appendChild(discountBadge); // Attach to product detail section
-      }
     }
     
     setText(now, p.sale_price ? formatCurrency(p.sale_price, p.currency || 'EUR') : formatCurrency(p.price, p.currency || 'EUR'));
@@ -130,6 +120,44 @@
       };
     }
     setText(desc, p.description || '');
+    
+    // Add discount badge AFTER all other DOM manipulations
+    if (hasDiscount) {
+      // Remove any existing discount badges and wrappers first
+      const existingBadges = document.querySelectorAll('.discount-badge, .brand-discount');
+      existingBadges.forEach(badge => badge.remove());
+      const existingWrappers = document.querySelectorAll('.brand-wrapper');
+      existingWrappers.forEach(wrapper => {
+        // Move brand back to original position before removing wrapper
+        const brandElement = wrapper.querySelector('#pdBrand');
+        if (brandElement) {
+          wrapper.parentNode.insertBefore(brandElement, wrapper);
+        }
+        wrapper.remove();
+      });
+      
+      // Add discount badge next to brand name
+      const brandElement = document.getElementById('pdBrand');
+      if (brandElement) {
+        const discountPercent = Math.round(((Number(p.price) - Number(p.sale_price)) / Number(p.price)) * 100);
+        const discountBadge = document.createElement('span');
+        discountBadge.className = 'brand-discount';
+        discountBadge.textContent = `-${discountPercent}%`;
+        
+        // Create a wrapper to keep brand and badge on same line
+        const brandWrapper = document.createElement('div');
+        brandWrapper.className = 'brand-wrapper';
+        brandWrapper.style.cssText = 'display: flex; align-items: center; gap: 8px; flex-direction: row;';
+        
+        // Replace brand element with wrapper containing both brand and badge
+        const parentElement = brandElement.parentNode;
+        parentElement.insertBefore(brandWrapper, brandElement);
+        
+        // Move brand to wrapper first, then add badge after
+        brandWrapper.appendChild(brandElement); // Brand first (left)
+        brandWrapper.appendChild(discountBadge); // Badge second (right)
+      }
+    }
 
     // Related products: same brand, otherwise recent ones; min 6
     const relatedGrid = document.getElementById('relatedGrid');

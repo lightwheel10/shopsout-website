@@ -885,6 +885,34 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   order: 1;
 }
 
+/* Override order for brand tags inside wrapper */
+.brand-wrapper .brand-tag {
+  order: 0; /* Reset order inside wrapper */
+}
+
+/* Brand wrapper to keep brand and discount badge on same line */
+.brand-wrapper {
+  order: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-direction: row; /* Ensure left-to-right order */
+}
+
+/* Discount badge next to brand name in product detail */
+.brand-discount {
+  background: #ef4444;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  display: inline-block;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
 .detail-body h1 {
   order: 2;
   margin: 0;
@@ -893,8 +921,9 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
 .detail-body .deal-prices {
   order: 3;
   display: flex;
-  align-items: baseline;
-  gap: 12px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
   margin: 8px 0;
 }
 
