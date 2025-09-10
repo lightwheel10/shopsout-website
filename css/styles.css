@@ -723,6 +723,7 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   display: grid;
   grid-template-rows: 160px auto;
   box-shadow: 0 10px 20px var(--shadow);
+  position: relative;
 }
 .deal-media { background: linear-gradient(120deg, #e9eef5, #f3f5f8); }
 .deal-body { padding: 14px; display: grid; gap: 8px; }
@@ -732,21 +733,22 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
 .price-now { color: var(--text); font-weight: 700; }
 .price-old { color: var(--muted); text-decoration: line-through; font-size: .9rem; }
 
-/* Discount Badge */
+/* Discount Badge - Overlapping Top Right Corner, 50% Bigger */
 .discount-badge {
   background: #ef4444;
   color: white;
-  font-size: 0.75rem;
+  font-size: 1.125rem; /* 50% bigger than 0.75rem */
   font-weight: 700;
-  padding: 4px 8px;
-  border-radius: 6px;
+  padding: 6px 12px; /* Increased padding proportionally */
+  border-radius: 8px; /* Slightly larger border radius */
   position: absolute;
-  top: -12px;
-  right: -12px;
-  z-index: 10;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  top: -8px; /* Negative value to overlap the top edge */
+  right: -8px; /* Negative value to overlap the right edge */
+  z-index: 20; /* Higher z-index to ensure it's above everything */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.25); /* Enhanced shadow for floating effect */
   white-space: nowrap;
   display: inline-block;
+  transform: none;
 }
 
 /* Enhanced pricing when discount is present */
@@ -766,6 +768,9 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   opacity: 0.8;
 }
 /* Product Detail Page Styles */
+.product-detail {
+  position: relative;
+}
 .product-detail .price-now { 
   font-size: 1.8rem; 
   font-weight: 700;
@@ -969,6 +974,7 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   overflow: visible;
   box-shadow: 0 12px 28px var(--shadow);
   cursor: pointer;
+  position: relative;
 }
 .product-card.hero-product { grid-template-rows: 245px 1fr; }
 .hero-product .product-media { background: #f7fafc; background-size: contain; background-position: center; background-repeat: no-repeat; }
@@ -1124,7 +1130,7 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
 .product-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 .best-deals { padding: 28px 0; }
 .best-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.product-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; overflow: visible; display: grid; grid-template-rows: 160px 1fr; }
+.product-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; overflow: visible; display: grid; grid-template-rows: 160px 1fr; position: relative; }
 .product-media { background: linear-gradient(120deg, #e9eef5, #f3f5f8); }
 .product-body { padding: 12px; display: grid; gap: 8px; align-content: start; grid-template-rows: auto minmax(2.6em, auto) 3em 1fr auto; }
 .brand-tag { display:inline-flex; padding: 2px 8px; border-radius: 999px; background: var(--accent); color: #0f172a; width: fit-content; font-weight: 600; }
@@ -2075,6 +2081,7 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   border-radius: 14px;
   padding: 16px;
   box-shadow: 0 4px 12px var(--shadow);
+  position: relative;
 }
 .deal-v2-left {
   display: flex;

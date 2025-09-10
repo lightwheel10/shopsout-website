@@ -85,13 +85,16 @@
     
     if (hasDiscount && pricesContainer) {
       pricesContainer.classList.add('has-discount');
-      // Add discount badge
-      const discountPercent = Math.round(((Number(p.price) - Number(p.sale_price)) / Number(p.price)) * 100);
-      const discountBadge = document.createElement('span');
-      discountBadge.className = 'discount-badge';
-      discountBadge.textContent = `-${discountPercent}%`;
-      discountBadge.style.cssText = 'background: #ef4444 !important; color: white !important; position: absolute !important; top: -12px !important; right: -12px !important; z-index: 999 !important; padding: 4px 8px !important; border-radius: 6px !important; font-size: 0.75rem !important; font-weight: 700 !important; display: block !important; box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;';
-      pricesContainer.appendChild(discountBadge);
+      // Add discount badge to product detail section (top right corner)
+      const productDetailSection = document.querySelector('.product-detail');
+      if (productDetailSection) {
+        const discountPercent = Math.round(((Number(p.price) - Number(p.sale_price)) / Number(p.price)) * 100);
+        const discountBadge = document.createElement('span');
+        discountBadge.className = 'discount-badge';
+        discountBadge.textContent = `-${discountPercent}%`;
+        // Remove inline styles - let CSS handle positioning and sizing
+        productDetailSection.appendChild(discountBadge); // Attach to product detail section
+      }
     }
     
     setText(now, p.sale_price ? formatCurrency(p.sale_price, p.currency || 'EUR') : formatCurrency(p.price, p.currency || 'EUR'));
@@ -195,12 +198,12 @@
         const hasDiscount = r.sale_price && r.price && Number(r.price) > Number(r.sale_price);
         if (hasDiscount) {
           prices.classList.add('has-discount');
-          // Add discount badge
+          // Add discount badge to product card (top right corner)
           const discountPercent = Math.round(((Number(r.price) - Number(r.sale_price)) / Number(r.price)) * 100);
           const discountBadge = document.createElement('span');
           discountBadge.className = 'discount-badge';
           discountBadge.textContent = `-${discountPercent}%`;
-          prices.appendChild(discountBadge);
+          card.appendChild(discountBadge); // Attach to card instead of prices
         }
         
         const now = document.createElement('span'); now.className = 'price-now'; now.textContent = r.sale_price ? formatCurrency(r.sale_price, r.currency || 'EUR') : formatCurrency(r.price, r.currency || 'EUR');

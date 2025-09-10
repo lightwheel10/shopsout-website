@@ -139,12 +139,12 @@
     const hasDiscount = product.sale_price && product.price && Number(product.price) > Number(product.sale_price);
     if (hasDiscount) {
       prices.classList.add('has-discount');
-      // Add discount badge
+      // Add discount badge to product card (top right corner)
       const discountPercent = Math.round(((Number(product.price) - Number(product.sale_price)) / Number(product.price)) * 100);
       const discountBadge = document.createElement('span');
       discountBadge.className = 'discount-badge';
       discountBadge.textContent = `-${discountPercent}%`;
-      prices.appendChild(discountBadge);
+      card.appendChild(discountBadge); // Attach to card instead of prices
     }
     
     const now = document.createElement('span');

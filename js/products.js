@@ -119,13 +119,13 @@
     
     if (hasDiscount) {
       prices.classList.add('has-discount');
-      // Add discount badge
+      // Add discount badge to product card (top right corner)
       const discountPercent = Math.round(((Number(p.price) - Number(p.sale_price)) / Number(p.price)) * 100);
       const discountBadge = document.createElement('span');
       discountBadge.className = 'discount-badge';
       discountBadge.textContent = `-${discountPercent}%`;
-      discountBadge.style.cssText = 'background: #ef4444 !important; color: white !important; position: absolute !important; top: -12px !important; right: -12px !important; z-index: 999 !important; padding: 4px 8px !important; border-radius: 6px !important; font-size: 0.75rem !important; font-weight: 700 !important; display: block !important; box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;';
-      prices.appendChild(discountBadge);
+      // Remove inline styles - let CSS handle positioning and sizing
+      card.appendChild(discountBadge); // Attach to card instead of prices
     }
     
     const now = document.createElement('span'); now.className = 'price-now';
@@ -273,6 +273,8 @@
         if (percentage > 0) {
           discount.className = 'discount-badge';
           discount.textContent = `-${percentage}%`;
+          // Attach discount badge to card (top right corner) instead of detailsGrid
+          card.appendChild(discount);
         }
       }
 
@@ -298,7 +300,7 @@
       description.className = 'deal-v2-description';
       description.textContent = p.description ? (p.description.length > 150 ? p.description.substring(0, 150) + '…' : p.description) : '';
 
-      detailsGrid.append(discount, validity, prices, description);
+      detailsGrid.append(validity, prices, description);
 
       rightCol.append(header, shopLink, detailsGrid);
       
