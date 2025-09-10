@@ -1028,14 +1028,14 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 40px;
-  min-width: 100px;
-  max-width: 140px;
-  padding: 8px 16px;
-  border-radius: 8px;
+  height: 60px; /* 50% bigger: 40px → 60px */
+  min-width: 150px; /* 50% bigger: 100px → 150px */
+  max-width: 210px; /* 50% bigger: 140px → 210px */
+  padding: 12px 24px; /* 50% bigger: 8px 16px → 12px 24px */
+  border-radius: 12px; /* Proportionally bigger: 8px → 12px */
   background: linear-gradient(180deg, var(--panel), var(--panel-2));
   border: 1px solid var(--border);
-  box-shadow: 0 2px 8px var(--shadow);
+  box-shadow: 0 3px 12px var(--shadow); /* Enhanced shadow for bigger cards */
   color: #334155;
   font-weight: 600;
   letter-spacing: .2px;
@@ -1045,8 +1045,8 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
 
 .brand-logo img { 
   width: auto;
-  height: 24px;
-  max-width: 60px;
+  height: 36px; /* 50% bigger: 24px → 36px */
+  max-width: 90px; /* 50% bigger: 60px → 90px */
   object-fit: contain;
   display: block;
   flex-shrink: 0;
@@ -1054,22 +1054,22 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
 }
 
 .brand-logo .store-logo-fallback {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
+  width: 42px; /* 50% bigger: 28px → 42px */
+  height: 42px; /* 50% bigger: 28px → 42px */
+  border-radius: 9px; /* Proportionally bigger: 6px → 9px */
   background: var(--brand-gradient);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 0.8rem;
+  font-size: 1.2rem; /* 50% bigger: 0.8rem → 1.2rem */
 }
 
 .brand-logo:hover {
   transform: translateY(-1px);
   background: var(--panel);
-  box-shadow: 0 4px 12px var(--shadow);
+  box-shadow: 0 6px 18px var(--shadow); /* Enhanced hover shadow for bigger cards */
   color: var(--text);
   opacity: 1;
 }
