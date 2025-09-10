@@ -81,6 +81,7 @@
       'footer.nav': 'Navigation',
       'footer.links.contact': 'Kontakt',
       'footer.links.privacy': 'Datenschutz',
+      'footer.links.impressum': 'Impressum',
       'footer.disclaimer': 'Dieser Beitrag enthält Affiliate-Links. Wenn du über einen dieser Links etwas kaufst, erhalten wir eine Provision. Der Preis bleibt für dich unverändert.',
       'footer.copy': '© 2025 – ShopShout AI',
       'contact.message': 'Du hast eine Frage? Sende diese einfach an hello@shopshout.ai',
@@ -102,6 +103,8 @@
       'contact.faq.cost.answer': 'Ja, ShopShout ist für Nutzer völlig kostenlos. Wir erhalten Provisionen von Partner-Shops, wenn du einen Kauf tätigst.',
       // Privacy page translations
       'privacy.title': 'Datenschutzerklärung',
+      // Impressum page translations
+      'impressum.title': 'Impressum',
       'privacy.lastUpdated': 'Zuletzt aktualisiert: September 2025',
       'privacy.de.overview': '1. Datenschutz auf einen Blick',
       'privacy.de.generalInfo': 'Allgemeine Hinweise',
@@ -207,6 +210,7 @@
       'footer.nav': 'Navigation',
       'footer.links.contact': 'Contact',
       'footer.links.privacy': 'Privacy',
+      'footer.links.impressum': 'Imprint',
       'footer.disclaimer': 'This post contains affiliate links. If you buy something through one of these links, we earn a commission. The price does not change for you.',
       'footer.copy': '© 2025 – ShopShout AI',
       'contact.message': 'Have a question? Simply send it to hello@shopshout.ai',
@@ -228,6 +232,8 @@
       'contact.faq.cost.answer': 'Yes, ShopShout is completely free for users. We earn commission from partner stores when you make a purchase.',
       // Privacy page translations
       'privacy.title': 'Privacy Policy',
+      // Impressum page translations
+      'impressum.title': 'Imprint',
       'privacy.lastUpdated': 'Last updated: September 2025',
       'privacy.en.dataController': 'Data Controller',
       'privacy.en.whatDataWeCollect': 'What Data We Collect',
