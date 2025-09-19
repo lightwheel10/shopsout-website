@@ -254,6 +254,32 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   padding: 8px 0;
   justify-content: center;
 }
+
+/* Mobile-responsive shops grid */
+@media (max-width: 900px) {
+  .shops-grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    padding: 12px 4px;
+  }
+}
+
+@media (max-width: 560px) {
+  .shops-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2x2 grid for smaller screens */
+    gap: 14px;
+    padding: 16px 8px;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 390px) {
+  .shops-grid {
+    grid-template-columns: repeat(2, 1fr); /* Keep 2x2 even on very small screens */
+    gap: 12px;
+    padding: 16px 4px;
+  }
+}
 .shop-card {
   display: flex;
   align-items: center;
@@ -268,6 +294,9 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   color: #0f172a;
   padding: 12px 20px;
   transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
+  /* Mobile touch improvements */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 .shop-logo { 
   display: flex; 
@@ -303,6 +332,119 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
 
 .shop-card:hover .shop-logo img {
   filter: grayscale(0%);
+}
+
+/* Mobile-enhanced shop cards */
+@media (max-width: 900px) {
+  .shop-card {
+    height: 70px;
+    border-radius: 12px;
+    min-height: 70px;
+    padding: 14px 22px;
+  }
+}
+
+@media (max-width: 560px) {
+  .shop-card {
+    height: 90px; /* Increased from 80px for bigger logos */
+    min-height: 90px;
+    padding: 16px; /* Reduced horizontal padding for 2x2 grid */
+    border-radius: 14px;
+  }
+  
+  .shop-card:active {
+    transform: scale(0.96);
+    background: var(--accent-2);
+  }
+}
+
+@media (max-width: 390px) {
+  .shop-card {
+    height: 100px; /* Increased from 90px for bigger logos */
+    min-height: 100px;
+    padding: 16px 12px; /* Optimized padding for 2x2 grid */
+    flex-direction: column; /* Keep vertical layout for better logo display */
+    justify-content: center;
+    gap: 8px;
+    text-align: center;
+  }
+}
+
+/* Mobile-enhanced shop logos - BIGGER for smaller screens */
+@media (max-width: 560px) {
+  .shop-logo {
+    width: 100%; /* Take full width of card */
+    height: 100%;
+    flex-shrink: 0;
+  }
+  
+  .shop-logo img {
+    width: auto;
+    height: 48px; /* Increased from 42px to 48px */
+    max-width: 140px; /* Increased max-width */
+  }
+  
+  .shop-logo-fallback {
+    width: 56px; /* Increased from 54px */
+    height: 56px;
+    font-size: 1.4rem; /* Increased from 1.3rem */
+    font-weight: 700;
+  }
+}
+
+@media (max-width: 390px) {
+  .shop-logo {
+    width: 100%; /* Full width in 2x2 grid */
+    height: 100%;
+    min-width: 64px; /* Ensure minimum size */
+  }
+  
+  .shop-logo img {
+    width: auto;
+    height: 52px; /* Even bigger on smallest screens */
+    max-width: 160px; /* Increased max-width for smallest screens */
+  }
+  
+  .shop-logo-fallback {
+    width: 64px; /* Increased from 60px */
+    height: 64px;
+    font-size: 1.5rem; /* Increased from 1.4rem */
+    font-weight: 700;
+  }
+}
+
+/* Mobile-optimized shops section */
+@media (max-width: 560px) {
+  .shops-section {
+    padding: 20px 0;
+  }
+  
+  .shops-section .section-head {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  
+  .shops-section .section-head p {
+    font-size: 1.1rem; /* Larger on mobile */
+    color: var(--text); /* Main text color instead of muted */
+    font-weight: 500;
+  }
+  
+  /* Error and no-shops messages on mobile */
+  .no-shops-message, .error-message {
+    padding: 30px 16px;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+}
+
+@media (max-width: 390px) {
+  .shops-section .section-head p {
+    font-size: 1rem; /* Responsive font size */
+  }
+  
+  /* Mobile note: Search is hidden on screens < 560px via existing mobile CSS */
+  /* This is consistent with the header search behavior on mobile */
 }
 
 /* Shop grid messages */
@@ -2294,22 +2436,16 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
 
 .shops-section .section-head {
   text-align: center;
-  margin-bottom: 48px;
-}
-
-.shops-section .section-head h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin: 0 0 16px;
-  color: var(--text);
+  margin-bottom: 32px; /* Reduced margin since no h1 */
 }
 
 .shops-section .section-head p {
-  font-size: 1.1rem;
-  color: var(--muted);
+  font-size: 1.3rem; /* Increased size to be more prominent */
+  color: var(--text); /* Changed from muted to main text color */
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;
+  font-weight: 500; /* Added weight for better prominence */
 }
 
 /* Mobile responsive for shops section */
@@ -2318,12 +2454,12 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
     padding: 24px 0;
   }
   
-  .shops-section .section-head h1 {
-    font-size: 2rem;
+  .shops-section .section-head {
+    margin-bottom: 24px; /* Adjusted margin without h1 */
   }
   
-  .shops-section .section-head {
-    margin-bottom: 32px;
+  .shops-section .section-head p {
+    font-size: 1.2rem; /* Larger on tablet */
   }
 }
 
