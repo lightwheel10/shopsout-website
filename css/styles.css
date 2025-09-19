@@ -1771,7 +1771,7 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   /* Mobile product cards */
   .product-card {
     border-radius: 16px;
-    overflow: hidden;
+    overflow: visible; /* Keep visible to allow discount badge to show */
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
@@ -2798,12 +2798,20 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
     margin-bottom: 8px;
   }
   
-  /* Move discount badge higher on mobile to prevent title overlap */
-  .discount-badge {
+  /* Move discount badge higher on mobile for deals page cards only */
+  .deal-card-v2 .discount-badge {
     top: -12px; /* Moved up from -8px */
     right: -8px;
     font-size: 1rem; /* Slightly smaller on mobile */
     padding: 5px 10px; /* Adjusted padding */
+  }
+  
+  /* Specific adjustment for regular product cards (featured/related products) */
+  .product-card .discount-badge {
+    top: -10px; /* Moderate adjustment now that overflow is visible */
+    right: -6px;
+    font-size: 1rem;
+    padding: 5px 10px;
   }
 }
 
@@ -2856,12 +2864,20 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
     margin-top: 8px;
   }
   
-  /* Further adjust discount badge for smaller screens */
-  .discount-badge {
+  /* Further adjust discount badge for smaller screens - deals page only */
+  .deal-card-v2 .discount-badge {
     top: -16px; /* Move even higher on smaller screens */
     right: -6px;
     font-size: 0.9rem; /* Smaller font */
     padding: 4px 8px; /* Smaller padding */
+  }
+  
+  /* Additional adjustment for product cards on smaller screens */
+  .product-card .discount-badge {
+    top: -12px; /* Moderate adjustment now that overflow is visible */
+    right: -4px;
+    font-size: 0.9rem;
+    padding: 4px 8px;
   }
 }
 
@@ -2883,12 +2899,20 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
     padding: 3px 6px;
   }
   
-  /* Optimal discount badge positioning for very small screens */
-  .discount-badge {
+  /* Optimal discount badge positioning for very small screens - deals page only */
+  .deal-card-v2 .discount-badge {
     top: -18px; /* Move highest on smallest screens */
     right: -4px;
     font-size: 0.8rem; /* Smallest font size */
     padding: 3px 6px; /* Minimal padding */
+  }
+  
+  /* Maximum adjustment for product cards on smallest screens */
+  .product-card .discount-badge {
+    top: -14px; /* Moderate adjustment now that overflow is visible */
+    right: -2px;
+    font-size: 0.8rem;
+    padding: 3px 6px;
   }
   
   .deal-v2-shoplink {
