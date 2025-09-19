@@ -2797,6 +2797,14 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
     gap: 12px;
     margin-bottom: 8px;
   }
+  
+  /* Move discount badge higher on mobile to prevent title overlap */
+  .discount-badge {
+    top: -12px; /* Moved up from -8px */
+    right: -8px;
+    font-size: 1rem; /* Slightly smaller on mobile */
+    padding: 5px 10px; /* Adjusted padding */
+  }
 }
 
 @media (max-width: 560px) {
@@ -2847,6 +2855,14 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
     gap: 10px;
     margin-top: 8px;
   }
+  
+  /* Further adjust discount badge for smaller screens */
+  .discount-badge {
+    top: -16px; /* Move even higher on smaller screens */
+    right: -6px;
+    font-size: 0.9rem; /* Smaller font */
+    padding: 4px 8px; /* Smaller padding */
+  }
 }
 
 @media (max-width: 390px) {
@@ -2865,6 +2881,14 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   .deal-v2-expiry {
     font-size: 0.75rem;
     padding: 3px 6px;
+  }
+  
+  /* Optimal discount badge positioning for very small screens */
+  .discount-badge {
+    top: -18px; /* Move highest on smallest screens */
+    right: -4px;
+    font-size: 0.8rem; /* Smallest font size */
+    padding: 3px 6px; /* Minimal padding */
   }
   
   .deal-v2-shoplink {
