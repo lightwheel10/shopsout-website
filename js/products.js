@@ -511,10 +511,17 @@
 
     function updateResultsMeta(total) {
       if (!resultsMeta) return;
+      
+      // Get current language for translations
+      const currentLang = localStorage.getItem('selectedLanguage') || 'de';
+      const dict = window.translations?.[currentLang] || window.translations?.de || {};
+      const resultsText = dict['results.count'] || 'Results';
+      const categoriesText = dict['results.categories'] || 'Categories';
+      
       const filters = [];
       
       if (Array.isArray(selectedCategories) && selectedCategories.length > 0) {
-        filters.push(`Kategorien: ${selectedCategories.slice(0, 3).join(', ')}${selectedCategories.length > 3 ? ` (+${selectedCategories.length - 3})` : ''}`);
+        filters.push(`${categoriesText}: ${selectedCategories.slice(0, 3).join(', ')}${selectedCategories.length > 3 ? ` (+${selectedCategories.length - 3})` : ''}`);
       }
       
       const urlParams = new URLSearchParams(window.location.search);
@@ -526,7 +533,7 @@
       }
       
       const filterText = filters.length > 0 ? ` • ${filters.join(' • ')}` : '';
-      resultsMeta.textContent = `${total} Ergebnisse${filterText}`;
+      resultsMeta.textContent = `${total} ${resultsText}${filterText}`;
     }
 
     function buildPaginationUI(total, size, page) {
@@ -534,6 +541,12 @@
       if (!pagination || !paginationList) return;
       if (totalPages <= 1) { pagination.style.display = 'none'; return; }
       pagination.style.display = '';
+      
+      // Get current language for pagination translations
+      const currentLang = localStorage.getItem('selectedLanguage') || 'de';
+      const dict = window.translations?.[currentLang] || window.translations?.de || {};
+      const nextText = dict['pagination.next'] || 'Next';
+      
       const items = [];
       const maxButtons = 6;
       const start = Math.max(1, Math.min(page - 2, totalPages - maxButtons + 1));
@@ -542,7 +555,7 @@
         items.push(`<li><a ${i === page ? 'class="current"' : ''} href="#" data-page="${i}">${i}</a></li>`);
       }
       if (end < totalPages) items.push('<li aria-hidden="true">…</li>');
-      items.push(`<li><a class="next" href="#" data-page="${Math.min(totalPages, page + 1)}">Weiter</a></li>`);
+      items.push(`<li><a class="next" href="#" data-page="${Math.min(totalPages, page + 1)}">${nextText}</a></li>`);
       paginationList.innerHTML = items.join('');
     }
 
@@ -596,6 +609,14 @@
         goTo(page);
       }
     });
+
+    // Expose function to refresh pagination and results meta translations
+    window.refreshPagination = function() {
+      if (totalCount > 0) {
+        updateResultsMeta(totalCount);
+        buildPaginationUI(totalCount, PAGE_SIZE, currentPage);
+      }
+    };
 
     // Wire interactions
     // Header search box integration: server-side search on title/description

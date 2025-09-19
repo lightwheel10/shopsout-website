@@ -1110,6 +1110,108 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
 .pagination a.current { background: var(--brand-gradient); color: white; border-color: var(--brand-solid); }
 .pagination .next { width: auto; padding: 0 12px; }
 
+/* Mobile-optimized pagination */
+@media (max-width: 860px) {
+  .pagination {
+    margin-top: 24px;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .pagination ul {
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .pagination a {
+    width: 44px;
+    height: 44px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 12px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: all 0.2s ease;
+  }
+  
+  .pagination a:active {
+    transform: scale(0.95);
+    background: var(--accent-2);
+  }
+  
+  .pagination .next {
+    min-width: 44px;
+    height: 44px;
+    padding: 0 16px;
+    font-weight: 600;
+  }
+  
+  .pagination a.current {
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  }
+}
+
+@media (max-width: 560px) {
+  .pagination {
+    margin-top: 20px;
+    padding: 0 8px;
+  }
+  
+  .pagination ul {
+    gap: 10px;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 8px 0;
+  }
+  
+  .pagination ul::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .pagination a {
+    width: 42px;
+    height: 42px;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+  
+  .pagination .next {
+    min-width: 42px;
+    height: 42px;
+    padding: 0 14px;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 390px) {
+  .pagination {
+    margin-top: 16px;
+    padding: 0 4px;
+  }
+  
+  .pagination ul {
+    gap: 8px;
+    padding: 6px 0;
+  }
+  
+  .pagination a {
+    width: 40px;
+    height: 40px;
+    font-size: 0.85rem;
+    border-radius: 10px;
+  }
+  
+  .pagination .next {
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    font-size: 0.8rem;
+  }
+}
+
 /* Footer */
 .site-footer { border-top: 1px solid var(--border); margin-top: 32px; background: #ffffff; }
 .footer-inner { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 24px; padding: 28px 0; }
@@ -2663,6 +2765,123 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   font-size: 0.9rem;
   color: var(--muted);
   margin: 8px 0 0;
+}
+
+/* Mobile optimizations for deal cards */
+@media (max-width: 860px) {
+  /* Hide descriptions on mobile for cleaner, faster UX */
+  .deal-v2-description {
+    display: none;
+  }
+  
+  /* Optimize grid layout without descriptions */
+  .deal-v2-details-grid {
+    grid-template-columns: auto 1fr;
+    gap: 8px 12px;
+    align-items: center;
+  }
+  
+  /* Enhanced mobile layout for deal cards */
+  .deal-card-v2 {
+    grid-template-columns: 180px 1fr;
+    gap: 16px;
+    padding: 16px;
+  }
+  
+  .deal-v2-title {
+    font-size: 1.1rem;
+    line-height: 1.3;
+  }
+  
+  .deal-v2-header {
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+}
+
+@media (max-width: 560px) {
+  /* Optimize for smaller mobile screens */
+  .deal-card-v2 {
+    grid-template-columns: 160px 1fr;
+    gap: 14px;
+    padding: 14px;
+  }
+  
+  .deal-v2-title {
+    font-size: 1rem;
+    line-height: 1.25;
+  }
+  
+  .deal-v2-details-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .deal-v2-validity {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  
+  .deal-v2-discount {
+    grid-column: 1;
+    justify-self: start;
+  }
+  
+  .deal-v2-prices {
+    grid-column: 1;
+  }
+  
+  /* Enhanced mobile CTA buttons */
+  .btn-deal, .btn-details {
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  .deal-v2-cta-container {
+    gap: 10px;
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 390px) {
+  /* Extra small screens optimization */
+  .deal-card-v2 {
+    grid-template-columns: 140px 1fr;
+    gap: 12px;
+    padding: 12px;
+  }
+  
+  .deal-v2-title {
+    font-size: 0.95rem;
+    line-height: 1.2;
+  }
+  
+  .deal-v2-expiry {
+    font-size: 0.75rem;
+    padding: 3px 6px;
+  }
+  
+  .deal-v2-shoplink {
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+  }
+  
+  /* Extra small screen CTA optimization */
+  .btn-deal, .btn-details {
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    min-height: 42px;
+  }
+  
+  .deal-v2-cta-container {
+    gap: 8px;
+  }
 }
 
 /* Skeleton Loading Animations */

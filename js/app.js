@@ -105,6 +105,13 @@
       'contact.faq.trust.answer': 'Ja, alle Deals sind verifiziert und stammen von vertrauenswürdigen Partner-Shops. Wir gewährleisten Qualität und Authentizität jedes Angebots.',
       'contact.faq.cost.question': 'Ist ShopShout kostenlos nutzbar?',
       'contact.faq.cost.answer': 'Ja, ShopShout ist für Nutzer völlig kostenlos. Wir erhalten Provisionen von Partner-Shops, wenn du einen Kauf tätigst.',
+      // Pagination translations
+      'pagination.next': 'Weiter',
+      'pagination.previous': 'Zurück',
+      // Results meta translations
+      'results.count': 'Ergebnisse',
+      'results.categories': 'Kategorien',
+      'results.priceRange': 'Preis',
       // Privacy page translations
       'privacy.title': 'Datenschutzerklärung',
       // Impressum page translations
@@ -238,6 +245,13 @@
       'contact.faq.trust.answer': 'Yes, all deals are verified and come from trusted partner stores. We ensure quality and authenticity of every offer.',
       'contact.faq.cost.question': 'Is ShopShout free to use?',
       'contact.faq.cost.answer': 'Yes, ShopShout is completely free for users. We earn commission from partner stores when you make a purchase.',
+      // Pagination translations
+      'pagination.next': 'Next',
+      'pagination.previous': 'Previous',
+      // Results meta translations
+      'results.count': 'Results',
+      'results.categories': 'Categories',
+      'results.priceRange': 'Price',
       // Privacy page translations
       'privacy.title': 'Privacy Policy',
       // Impressum page translations
@@ -490,6 +504,11 @@
       const k = el.getAttribute('data-i18n-html');
       if (dict[k]) el.innerHTML = dict[k];
     });
+    
+    // Update pagination if it exists (for deals page)
+    if (window.refreshPagination) {
+      window.refreshPagination();
+    }
   }
 
   // Helper function to apply current language to specific elements (for dynamically created content)
