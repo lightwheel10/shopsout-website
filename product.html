@@ -78,7 +78,28 @@
     </header>
 
     <main class="container" role="main" style="padding:24px 0;">
-      <section id="deal" class="product-detail" aria-live="polite">
+      <!-- Product Detail Skeleton -->
+      <div id="productDetailSkeleton" class="product-detail-skeleton">
+        <div class="top-panel">
+          <div class="skeleton-media"></div>
+          <div class="skeleton-body">
+            <div class="skeleton skeleton-brand"></div>
+            <div class="skeleton skeleton-title"></div>
+            <div class="skeleton skeleton-title-2"></div>
+            <div class="skeleton skeleton-price"></div>
+            <div class="skeleton-buttons">
+              <div class="skeleton skeleton-button-primary"></div>
+              <div class="skeleton skeleton-button-secondary"></div>
+            </div>
+          </div>
+        </div>
+        <div class="bottom-panel">
+          <div class="skeleton skeleton-description"></div>
+        </div>
+      </div>
+
+      <!-- Actual Product Detail Content (Initially Hidden) -->
+      <section id="deal" class="product-detail" aria-live="polite" style="display: none;">
         <!-- TOP PANEL: Image + ALL Product Info -->
         <div class="top-panel">
           <div id="pdMedia" class="detail-media"></div>
@@ -107,7 +128,73 @@
         <div class="section-head">
           <h2 data-i18n="product.relatedProducts">Ähnliche Produkte</h2>
         </div>
-        <div id="relatedGrid" class="best-grid"></div>
+        
+        <!-- Related Products Skeleton -->
+        <div id="relatedSkeleton" class="best-grid-loading">
+          <div class="product-card-skeleton">
+            <div class="skeleton skeleton-media"></div>
+            <div class="skeleton-body">
+              <div class="skeleton skeleton-brand"></div>
+              <div class="skeleton skeleton-title"></div>
+              <div class="skeleton skeleton-title-2"></div>
+              <div class="skeleton skeleton-price"></div>
+              <div class="skeleton skeleton-button"></div>
+            </div>
+          </div>
+          <div class="product-card-skeleton">
+            <div class="skeleton skeleton-media"></div>
+            <div class="skeleton-body">
+              <div class="skeleton skeleton-brand"></div>
+              <div class="skeleton skeleton-title"></div>
+              <div class="skeleton skeleton-title-2"></div>
+              <div class="skeleton skeleton-price"></div>
+              <div class="skeleton skeleton-button"></div>
+            </div>
+          </div>
+          <div class="product-card-skeleton">
+            <div class="skeleton skeleton-media"></div>
+            <div class="skeleton-body">
+              <div class="skeleton skeleton-brand"></div>
+              <div class="skeleton skeleton-title"></div>
+              <div class="skeleton skeleton-title-2"></div>
+              <div class="skeleton skeleton-price"></div>
+              <div class="skeleton skeleton-button"></div>
+            </div>
+          </div>
+          <div class="product-card-skeleton">
+            <div class="skeleton skeleton-media"></div>
+            <div class="skeleton-body">
+              <div class="skeleton skeleton-brand"></div>
+              <div class="skeleton skeleton-title"></div>
+              <div class="skeleton skeleton-title-2"></div>
+              <div class="skeleton skeleton-price"></div>
+              <div class="skeleton skeleton-button"></div>
+            </div>
+          </div>
+          <div class="product-card-skeleton">
+            <div class="skeleton skeleton-media"></div>
+            <div class="skeleton-body">
+              <div class="skeleton skeleton-brand"></div>
+              <div class="skeleton skeleton-title"></div>
+              <div class="skeleton skeleton-title-2"></div>
+              <div class="skeleton skeleton-price"></div>
+              <div class="skeleton skeleton-button"></div>
+            </div>
+          </div>
+          <div class="product-card-skeleton">
+            <div class="skeleton skeleton-media"></div>
+            <div class="skeleton-body">
+              <div class="skeleton skeleton-brand"></div>
+              <div class="skeleton skeleton-title"></div>
+              <div class="skeleton skeleton-title-2"></div>
+              <div class="skeleton skeleton-price"></div>
+              <div class="skeleton skeleton-button"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Actual Related Products Grid (Initially Hidden) -->
+        <div id="relatedGrid" class="best-grid" style="display: none;"></div>
       </section>
     </main>
 

@@ -57,15 +57,53 @@
   function setText(el, text) { if (el) el.textContent = text || ''; }
   function setVisible(el, show) { if (el) el.style.display = show ? '' : 'none'; }
 
+  // Helper function to show content with animation
+  function showContentWithAnimation(skeletonId, contentId, content = null) {
+    const skeleton = document.getElementById(skeletonId);
+    const contentEl = document.getElementById(contentId);
+    
+    if (skeleton && contentEl) {
+      // Hide skeleton
+      skeleton.style.display = 'none';
+      
+      // Show content with fade-in animation
+      contentEl.style.display = '';
+      contentEl.classList.add('content-loaded');
+      
+      // If content is provided, append it
+      if (content && contentEl) {
+        contentEl.innerHTML = '';
+        contentEl.appendChild(content);
+      }
+    }
+  }
+
   async function render() {
+    // Add a small delay to show the skeleton loading effect
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
     const id = getQueryParam('id') || getQueryParam('hash');
     // console.log('[Product Debug] URL ID:', id);
-    const { data: p } = await fetchProduct(id);
-    // console.log('[Product Debug] Fetched product:', p);
-    if (!p) {
-      // console.log('[Product Debug] No product found, exiting render');
-      return;
-    }
+    
+    try {
+      const { data: p } = await fetchProduct(id);
+      // console.log('[Product Debug] Fetched product:', p);
+      
+      if (!p) {
+        // console.log('[Product Debug] No product found, showing error state');
+        // Hide skeleton and show error state
+        const skeleton = document.getElementById('productDetailSkeleton');
+        const content = document.getElementById('deal');
+        if (skeleton) skeleton.style.display = 'none';
+        if (content) {
+          content.style.display = '';
+          content.innerHTML = '<div style="text-align: center; padding: 60px 20px;"><h2>Product Not Found</h2><p>The product you\'re looking for doesn\'t exist or has been removed.</p><a href="index.html" class="btn btn-primary">Back to Deals</a></div>';
+        }
+        return;
+      }
+      
+      // Hide skeleton and show content with animation
+      showContentWithAnimation('productDetailSkeleton', 'deal');
     const media = document.getElementById('pdMedia');
     const brand = document.getElementById('pdBrand');
     const title = document.getElementById('pdTitle');
@@ -159,17 +197,36 @@
       }
     }
 
-    // Related products: same brand, otherwise recent ones; min 6
-    const relatedGrid = document.getElementById('relatedGrid');
-    if (relatedGrid) {
+    // Load related products with skeleton loading
+    await loadRelatedProducts(p);
+    
+    } catch (error) {
+      // console.error('[Product] Loading error:', error);
+      // Show error state
+      const skeleton = document.getElementById('productDetailSkeleton');
+      const content = document.getElementById('deal');
+      if (skeleton) skeleton.style.display = 'none';
+      if (content) {
+        content.style.display = '';
+        content.innerHTML = '<div style="text-align: center; padding: 60px 20px;"><h2>Error Loading Product</h2><p>There was an error loading this product. Please try again later.</p><a href="index.html" class="btn btn-primary">Back to Deals</a></div>';
+      }
+      return;
+    }
+  }
+
+  async function loadRelatedProducts(product) {
+    try {
+      // Add delay for related products skeleton
+      await new Promise(resolve => setTimeout(resolve, 400));
+      
       const { data: sameBrand } = await window.supabaseClient
         .from('cleaned_products')
         .select('hash_id, product_id, title, price, sale_price, image, brand, currency, store_id')
         .eq('status', 'published')
         .not('image', 'is', null)
         .not('store_id', 'is', null)
-        .eq('store_id', p.store_id)
-        .neq('hash_id', p.hash_id)
+        .eq('store_id', product.store_id)
+        .neq('hash_id', product.hash_id)
         .order('updated_at', { ascending: false, nullsFirst: false })
         .limit(6);
       let items = sameBrand || [];
@@ -180,7 +237,7 @@
           .eq('status', 'published')
           .not('image', 'is', null)
           .not('store_id', 'is', null)
-          .neq('hash_id', p.hash_id)
+          .neq('hash_id', product.hash_id)
           .order('updated_at', { ascending: false, nullsFirst: false })
           .limit(6 - items.length);
         items = items.concat(fallback || []);
@@ -211,7 +268,6 @@
         }));
       }
       
-      relatedGrid.innerHTML = '';
       const frag = document.createDocumentFragment();
       items.slice(0, 6).forEach(r => {
         const card = document.createElement('article'); card.className = 'product-card';
@@ -247,7 +303,17 @@
         
         frag.append(card);
       });
-      relatedGrid.append(frag);
+      
+      // Show related products with animation
+      showContentWithAnimation('relatedSkeleton', 'relatedGrid', frag);
+      
+    } catch (error) {
+      // console.error('[Product] Related products loading error:', error);
+      // Show empty grid on error
+      const skeleton = document.getElementById('relatedSkeleton');
+      const grid = document.getElementById('relatedGrid');
+      if (skeleton) skeleton.style.display = 'none';
+      if (grid) grid.style.display = '';
     }
   }
 
