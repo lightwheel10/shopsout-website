@@ -185,15 +185,24 @@
     let storeDescription = null;
     
     if (currentLang === 'de') {
-      // German: try description_german first, then fallbacks
-      storeDescription = store.description_german || store.seo_text || store.description || null;
+      // German: try formatted description first, then fallbacks
+      storeDescription = store.description_german_formatted || store.description_german || store.seo_text || store.description || null;
     } else {
-      // English: try description_english first, then fallbacks  
-      storeDescription = store.description_english || store.seo_text || store.description || null;
+      // English: try formatted description first, then fallbacks  
+      storeDescription = store.description_english_formatted || store.description_english || store.seo_text || store.description || null;
     }
     
     if (storeDescription && storeDescription.trim()) {
-      descriptionEl.textContent = storeDescription.trim();
+      // Check if description contains HTML tags (formatted version)
+      const hasHTMLTags = /<[^>]*>/g.test(storeDescription);
+      
+      if (hasHTMLTags) {
+        // Use innerHTML for formatted HTML descriptions
+        descriptionEl.innerHTML = storeDescription.trim();
+      } else {
+        // Use textContent for plain text descriptions (fallbacks)
+        descriptionEl.textContent = storeDescription.trim();
+      }
     } else {
       // Show appropriate "no description" message based on language
       const noDescMsg = currentLang === 'de' 
@@ -201,6 +210,40 @@
         : '<em>No description available for this store.</em>';
       descriptionEl.innerHTML = noDescMsg;
     }
+  }
+
+  // Update store features based on current language
+  function updateStoreFeatures(store) {
+    const featuresList = document.getElementById('storeFeaturesList');
+    if (!featuresList || !store) return;
+    
+    const currentLang = localStorage.getItem('selectedLanguage') || 'de';
+    const features = [];
+    
+    if (store.ai_shipping_country) {
+      const shipsToText = currentLang === 'de' ? 'Versand nach' : 'Ships to';
+      features.push(`${shipsToText} ${store.ai_shipping_country}`);
+    }
+    if (store.platform) {
+      const poweredText = currentLang === 'de' ? 'betriebener Shop' : 'powered store';
+      const platformName = store.platform.charAt(0).toUpperCase() + store.platform.slice(1);
+      features.push(`${platformName} ${poweredText}`);
+    }
+    if (store.ai_shipping_service) {
+      const shippingText = currentLang === 'de' ? 'Versand' : 'shipping';
+      features.push(`${store.ai_shipping_service} ${shippingText}`);
+    }
+    if (store.status === 'active') {
+      const activeText = currentLang === 'de' ? 'Aktiver und verifizierter Shop' : 'Active and verified store';
+      features.push(activeText);
+    }
+    
+    if (features.length === 0) {
+      const noFeaturesText = currentLang === 'de' ? 'Keine zusätzlichen Features verfügbar' : 'No additional features available';
+      features.push(noFeaturesText);
+    }
+    
+    featuresList.innerHTML = features.map(feature => `<li>${feature}</li>`).join('');
   }
 
   // Render store details
@@ -282,36 +325,8 @@
     // Update store description (will be called again on language change)
     updateStoreDescription(store);
     
-    // Store Features
-    const featuresList = document.getElementById('storeFeaturesList');
-    const features = [];
-    
-    // Use the same currentLang variable from above
-    
-    if (store.ai_shipping_country) {
-      const shipsToText = currentLang === 'de' ? 'Versand nach' : 'Ships to';
-      features.push(`${shipsToText} ${store.ai_shipping_country}`);
-    }
-    if (store.platform) {
-      const poweredText = currentLang === 'de' ? 'betriebener Shop' : 'powered store';
-      const platformName = store.platform.charAt(0).toUpperCase() + store.platform.slice(1);
-      features.push(`${platformName} ${poweredText}`);
-    }
-    if (store.ai_shipping_service) {
-      const shippingText = currentLang === 'de' ? 'Versand' : 'shipping';
-      features.push(`${store.ai_shipping_service} ${shippingText}`);
-    }
-    if (store.status === 'active') {
-      const activeText = currentLang === 'de' ? 'Aktiver und verifizierter Shop' : 'Active and verified store';
-      features.push(activeText);
-    }
-    
-    if (features.length === 0) {
-      const noFeaturesText = currentLang === 'de' ? 'Keine zusätzlichen Features verfügbar' : 'No additional features available';
-      features.push(noFeaturesText);
-    }
-    
-    featuresList.innerHTML = features.map(feature => `<li>${feature}</li>`).join('');
+    // Update store features (will be called again on language change)
+    updateStoreFeatures(store);
     
   }
 
@@ -448,12 +463,13 @@
     }, 100);
   }
 
-  // Listen for language changes to update store description
+  // Listen for language changes to update store description and features
   function setupLanguageChangeListener() {
     // Listen for language changes (custom event or manual checking)
     document.addEventListener('languageChanged', function() {
       if (currentStoreData) {
         updateStoreDescription(currentStoreData);
+        updateStoreFeatures(currentStoreData);
       }
     });
     
@@ -461,6 +477,7 @@
     window.addEventListener('storage', function(e) {
       if (e.key === 'selectedLanguage' && currentStoreData) {
         updateStoreDescription(currentStoreData);
+        updateStoreFeatures(currentStoreData);
       }
     });
     
@@ -470,6 +487,7 @@
         // Small delay to ensure language has been updated
         setTimeout(() => {
           updateStoreDescription(currentStoreData);
+          updateStoreFeatures(currentStoreData);
         }, 100);
       }
     });
