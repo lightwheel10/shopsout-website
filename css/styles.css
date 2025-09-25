@@ -2103,6 +2103,17 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   margin-bottom: 32px;
 }
 
+/* Accessibility enhancements for skeleton */
+.product-detail-skeleton[role="status"] {
+  /* Ensure focus management during loading */
+  position: relative;
+}
+
+.product-detail-skeleton[aria-busy="true"] {
+  /* Visual indication that content is loading */
+  pointer-events: none;
+}
+
 .product-detail-skeleton .top-panel {
   display: grid;
   grid-template-columns: 1fr 1fr;

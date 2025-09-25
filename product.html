@@ -79,7 +79,8 @@
 
     <main class="container" role="main" style="padding:24px 0;">
       <!-- Product Detail Skeleton -->
-      <div id="productDetailSkeleton" class="product-detail-skeleton">
+      <div id="productDetailSkeleton" class="product-detail-skeleton" role="status" aria-busy="true" aria-label="Loading product details">
+        <span class="sr-only">Loading product details...</span>
         <div class="top-panel">
           <div class="skeleton-media"></div>
           <div class="skeleton-body">

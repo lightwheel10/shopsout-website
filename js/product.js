@@ -63,6 +63,10 @@
     const contentEl = document.getElementById(contentId);
     
     if (skeleton && contentEl) {
+      // Update accessibility attributes for skeleton
+      skeleton.setAttribute('aria-busy', 'false');
+      skeleton.setAttribute('aria-hidden', 'true');
+      
       // Hide skeleton
       skeleton.style.display = 'none';
       
@@ -94,7 +98,11 @@
         // Hide skeleton and show error state
         const skeleton = document.getElementById('productDetailSkeleton');
         const content = document.getElementById('deal');
-        if (skeleton) skeleton.style.display = 'none';
+        if (skeleton) {
+          skeleton.setAttribute('aria-busy', 'false');
+          skeleton.setAttribute('aria-hidden', 'true');
+          skeleton.style.display = 'none';
+        }
         if (content) {
           content.style.display = '';
           content.innerHTML = '<div style="text-align: center; padding: 60px 20px;"><h2>Product Not Found</h2><p>The product you\'re looking for doesn\'t exist or has been removed.</p><a href="index.html" class="btn btn-primary">Back to Deals</a></div>';
@@ -205,7 +213,11 @@
       // Show error state
       const skeleton = document.getElementById('productDetailSkeleton');
       const content = document.getElementById('deal');
-      if (skeleton) skeleton.style.display = 'none';
+      if (skeleton) {
+        skeleton.setAttribute('aria-busy', 'false');
+        skeleton.setAttribute('aria-hidden', 'true');
+        skeleton.style.display = 'none';
+      }
       if (content) {
         content.style.display = '';
         content.innerHTML = '<div style="text-align: center; padding: 60px 20px;"><h2>Error Loading Product</h2><p>There was an error loading this product. Please try again later.</p><a href="index.html" class="btn btn-primary">Back to Deals</a></div>';
