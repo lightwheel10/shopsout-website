@@ -1003,6 +1003,53 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   padding: 16px;
   box-shadow: 0 2px 4px var(--shadow);
   width: 100%;
+  /* Ensure content can expand fully */
+  overflow: visible;
+  max-height: none;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Enhanced styling for formatted HTML product descriptions */
+.product-description h3 {
+  color: var(--text);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  line-height: 1.3;
+}
+
+.product-description h4 {
+  color: var(--text);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 16px 0 8px 0;
+  line-height: 1.3;
+}
+
+.product-description p {
+  margin: 0 0 12px 0;
+  line-height: 1.6;
+}
+
+.product-description strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.product-description ul, .product-description ol {
+  margin: 8px 0 12px 0;
+  padding-left: 20px;
+}
+
+.product-description li {
+  margin-bottom: 6px;
+  line-height: 1.5;
+}
+
+.product-description em {
+  font-style: italic;
+  color: var(--text-muted);
 }
 
 /* Disabled/greyed out button styles */

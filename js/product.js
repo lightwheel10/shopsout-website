@@ -16,7 +16,7 @@
     // console.log('[Product Debug] fetchProduct called with:', idOrHash);
     let query = window.supabaseClient
       .from('cleaned_products')
-      .select('hash_id, product_id, title, description, price, sale_price, link, image, brand, currency, coupon_code, coupon_value, availability, store_id, affiliate_link')
+      .select('hash_id, product_id, title, description, description_english, price, sale_price, link, image, brand, currency, coupon_code, coupon_value, availability, store_id, affiliate_link')
       .eq('status', 'published')
       .not('store_id', 'is', null)
       .limit(1);
@@ -56,6 +56,45 @@
 
   function setText(el, text) { if (el) el.textContent = text || ''; }
   function setVisible(el, show) { if (el) el.style.display = show ? '' : 'none'; }
+
+  // Store the current product data globally for language switching
+  let currentProductData = null;
+
+  // Update product description based on current language
+  function updateProductDescription(product) {
+    const descriptionEl = document.getElementById('pdDesc');
+    if (!descriptionEl || !product) return;
+    
+    const currentLang = localStorage.getItem('selectedLanguage') || 'de';
+    let productDescription = null;
+    
+    if (currentLang === 'de') {
+      // German: use description (which contains German content)
+      productDescription = product.description || null;
+    } else {
+      // English: try description_english first, then fallback to description
+      productDescription = product.description_english || product.description || null;
+    }
+    
+    if (productDescription && productDescription.trim()) {
+      // Check if description contains HTML tags (formatted version)
+      const hasHTMLTags = /<[^>]*>/g.test(productDescription);
+      
+      if (hasHTMLTags) {
+        // Use innerHTML for formatted HTML descriptions
+        descriptionEl.innerHTML = productDescription.trim();
+      } else {
+        // Use textContent for plain text descriptions (fallbacks)
+        descriptionEl.textContent = productDescription.trim();
+      }
+    } else {
+      // Show appropriate "no description" message based on language
+      const noDescMsg = currentLang === 'de' 
+        ? '<em>Keine Beschreibung für dieses Produkt verfügbar.</em>'
+        : '<em>No description available for this product.</em>';
+      descriptionEl.innerHTML = noDescMsg;
+    }
+  }
 
   // Helper function to show content with animation
   function showContentWithAnimation(skeletonId, contentId, content = null) {
@@ -109,6 +148,9 @@
         }
         return;
       }
+      
+      // Store product data globally for language switching
+      currentProductData = p;
       
       // Hide skeleton and show content with animation
       showContentWithAnimation('productDetailSkeleton', 'deal');
@@ -165,7 +207,8 @@
         return false; 
       };
     }
-    setText(desc, p.description || '');
+    // Update product description with language support
+    updateProductDescription(p);
     
     // Add discount badge AFTER all other DOM manipulations
     if (hasDiscount) {
@@ -328,6 +371,36 @@
       if (grid) grid.style.display = '';
     }
   }
+
+  // Listen for language changes to update product description
+  function setupProductLanguageChangeListener() {
+    // Listen for language changes (custom event or manual checking)
+    document.addEventListener('languageChanged', function() {
+      if (currentProductData) {
+        updateProductDescription(currentProductData);
+      }
+    });
+    
+    // Also listen for storage changes (when language is changed from other tabs/pages)
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'selectedLanguage' && currentProductData) {
+        updateProductDescription(currentProductData);
+      }
+    });
+    
+    // Listen for clicks on language buttons (backup method)
+    document.addEventListener('click', function(e) {
+      if (e.target.closest('[data-lang]') && currentProductData) {
+        // Small delay to ensure language has been updated
+        setTimeout(() => {
+          updateProductDescription(currentProductData);
+        }, 100);
+      }
+    });
+  }
+
+  // Initialize language change listener
+  setupProductLanguageChangeListener();
 
   await render();
 })();
