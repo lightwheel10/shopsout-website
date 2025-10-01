@@ -495,13 +495,14 @@
       });
     });
     
-    // Initialize with all sections collapsed by default
+    // Initialize with sections collapsed by default (except "about" which has no toggle header)
     setTimeout(() => {
       toggleHeaders.forEach(header => {
         const toggleId = header.getAttribute('data-toggle');
         const content = document.getElementById(toggleId + 'Content');
         
-        if (content) {
+        // Only collapse sections that have toggle headers (statistics, shipping)
+        if (content && toggleId !== 'about') {
           header.classList.add('collapsed');
           content.classList.add('collapsed');
           header.setAttribute('aria-expanded', 'false');
