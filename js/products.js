@@ -296,9 +296,38 @@
       }
       prices.innerHTML += `<span class="price-now-v2">${priceLabels.now} ${formatCurrency(p.sale_price || p.price, p.currency)}</span>`;
 
-      const description = document.createElement('p');
+      const description = document.createElement('div');
       description.className = 'deal-v2-description';
-      description.textContent = p.description ? (p.description.length > 150 ? p.description.substring(0, 150) + '…' : p.description) : '';
+      
+      // Use existing currentLang variable from line 289 for description
+      let descText = null;
+      
+      if (currentLang === 'de') {
+        // German: use description (which contains German content)
+        descText = p.description || null;
+      } else {
+        // English: try description_english first, then fallback to description
+        descText = p.description_english || p.description || null;
+      }
+      
+      if (descText) {
+        // Check if description contains HTML tags (formatted version)
+        const hasHTMLTags = /<[^>]*>/g.test(descText);
+        
+        if (hasHTMLTags) {
+          // For HTML content: strip tags for preview, keep first 150 chars of text content
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = descText;
+          const textOnly = tempDiv.textContent || tempDiv.innerText || '';
+          const preview = textOnly.length > 150 ? textOnly.substring(0, 150) + '…' : textOnly;
+          description.textContent = preview;
+        } else {
+          // For plain text: just truncate
+          description.textContent = descText.length > 150 ? descText.substring(0, 150) + '…' : descText;
+        }
+      } else {
+        description.textContent = '';
+      }
 
       detailsGrid.append(validity, prices, description);
 
