@@ -3,7 +3,7 @@
   
   <!-- Main landing page - highest priority -->
   <url>
-    <loc>https://shopshout.vercel.app/</loc>
+    <loc>https://shopshout.ai/</loc>
     <lastmod>2025-10-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
@@ -11,28 +11,28 @@
   
   <!-- Core product discovery pages - high priority -->
   <url>
-    <loc>https://shopshout.vercel.app/index.html</loc>
+    <loc>https://shopshout.ai/index.html</loc>
     <lastmod>2025-10-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   
   <url>
-    <loc>https://shopshout.vercel.app/shops.html</loc>
+    <loc>https://shopshout.ai/shops.html</loc>
     <lastmod>2025-10-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   
   <url>
-    <loc>https://shopshout.vercel.app/product.html</loc>
+    <loc>https://shopshout.ai/product.html</loc>
     <lastmod>2025-10-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://shopshout.vercel.app/store.html</loc>
+    <loc>https://shopshout.ai/store.html</loc>
     <lastmod>2025-10-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
@@ -40,7 +40,7 @@
   
   <!-- Contact page - medium priority -->
   <url>
-    <loc>https://shopshout.vercel.app/contact.html</loc>
+    <loc>https://shopshout.ai/contact.html</loc>
     <lastmod>2025-10-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -48,14 +48,14 @@
   
   <!-- Legal/compliance pages - lower priority but required -->
   <url>
-    <loc>https://shopshout.vercel.app/privacy.html</loc>
+    <loc>https://shopshout.ai/privacy.html</loc>
     <lastmod>2025-10-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   
   <url>
-    <loc>https://shopshout.vercel.app/impressum.html</loc>
+    <loc>https://shopshout.ai/impressum.html</loc>
     <lastmod>2025-10-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
