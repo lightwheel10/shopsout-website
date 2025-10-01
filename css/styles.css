@@ -934,7 +934,7 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   padding: 6px 12px; /* Increased padding proportionally */
   border-radius: 8px; /* Slightly larger border radius */
   position: absolute;
-  top: -8px; /* Negative value to overlap the top edge */
+  top: -18px; /* Moved up to prevent overlap with title */
   right: -8px; /* Negative value to overlap the right edge */
   z-index: 20; /* Higher z-index to ensure it's above everything */
   box-shadow: 0 4px 8px rgba(0,0,0,0.25); /* Enhanced shadow for floating effect */
