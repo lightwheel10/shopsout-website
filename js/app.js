@@ -59,6 +59,7 @@
       'product.goToStore': 'Zum Shop',
       'product.backToDeals': 'Zurück zu den Deals',
       'product.relatedProducts': 'Ähnliche Produkte',
+      'store.badge': 'AUSGEWÄHLTER SHOP',
       'store.status': 'Status:',
       'store.visitStore': 'Shop besuchen',
       'store.viewAllDeals': 'Alle Deals ansehen',
@@ -198,6 +199,7 @@
       'product.goToStore': 'Go to store',
       'product.backToDeals': 'Back to deals',
       'product.relatedProducts': 'Related products',
+      'store.badge': 'FEATURED STORE',
       'store.status': 'Status:',
       'store.visitStore': 'Visit Store',
       'store.viewAllDeals': 'View All Deals',
@@ -770,6 +772,107 @@
   if (document.getElementById('featuredStoresRow')) {
     loadFeaturedStores();
   }
+
+  // Global live search with dropdown suggestions
+  function setupGlobalSearch() {
+    const searchForm = document.querySelector('.search');
+    const searchInput = document.querySelector('.search input[type="search"]');
+    
+    if (!searchForm || !searchInput) return;
+
+    // Create dropdown container
+    let dropdown = document.querySelector('.search-dropdown');
+    if (!dropdown) {
+      dropdown = document.createElement('div');
+      dropdown.className = 'search-dropdown';
+      searchForm.style.position = 'relative';
+      searchForm.appendChild(dropdown);
+    }
+
+    let searchTimeout;
+    let currentRequest = null;
+
+    // Live search as user types - FAST!
+    searchInput.addEventListener('input', async (e) => {
+      const searchTerm = e.target.value.trim();
+      
+      clearTimeout(searchTimeout);
+
+      if (searchTerm.length === 0) {
+        dropdown.style.display = 'none';
+        dropdown.innerHTML = '';
+        return;
+      }
+
+      // Instant search with minimal delay
+      searchTimeout = setTimeout(async () => {
+        try {
+          // Cancel previous request if still pending
+          if (currentRequest) {
+            currentRequest.abort?.();
+          }
+
+          // Search database
+          currentRequest = window.supabaseClient
+            .from('cleaned_products')
+            .select('hash_id, title, image, sale_price, price, currency, brand')
+            .eq('status', 'published')
+            .not('image', 'is', null)
+            .or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,brand.ilike.%${searchTerm}%`)
+            .order('updated_at', { ascending: false })
+            .limit(3);
+
+          const { data, error } = await currentRequest;
+          currentRequest = null;
+
+          if (error) throw error;
+
+          if (data && data.length > 0) {
+            dropdown.innerHTML = data.map(product => `
+              <a href="product.html?id=${product.hash_id}" class="search-result-item">
+                <img src="${product.image}" alt="${product.title}" class="search-result-image" loading="lazy">
+                <div class="search-result-info">
+                  <div class="search-result-title">${product.title}</div>
+                  <div class="search-result-brand">${product.brand || ''}</div>
+                  <div class="search-result-price">${product.sale_price || product.price} ${product.currency || '€'}</div>
+                </div>
+              </a>
+            `).join('');
+            dropdown.style.display = 'block';
+          } else {
+            const currentLang = localStorage.getItem('selectedLanguage') || 'de';
+            const noResultsMsg = currentLang === 'de' ? 'Keine Produkte gefunden' : 'No products found';
+            dropdown.innerHTML = `<div class="search-no-results">${noResultsMsg}</div>`;
+            dropdown.style.display = 'block';
+          }
+        } catch (error) {
+          if (error.name !== 'AbortError') {
+            console.error('Search error:', error);
+          }
+          dropdown.style.display = 'none';
+        }
+      }, 100); // Super fast - 100ms delay
+    });
+
+    // Handle form submission (Enter key) - go to deals page
+    searchForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const searchTerm = searchInput.value.trim();
+      if (searchTerm) {
+        window.location.href = `index.html?search=${encodeURIComponent(searchTerm)}`;
+      }
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!searchForm.contains(e.target)) {
+        dropdown.style.display = 'none';
+      }
+    });
+  }
+
+  // Setup search on all pages
+  setupGlobalSearch();
 })();
 
 

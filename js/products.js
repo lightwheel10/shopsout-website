@@ -621,10 +621,25 @@
     // Wire interactions
     // Header search box integration: server-side search on title/description
     const searchInput = document.querySelector('.search input[type="search"]');
-    let searchTerm = '';
+    
+    // Initialize search from URL parameter
+    let searchTerm = new URLSearchParams(window.location.search).get('search') || '';
+    if (searchInput && searchTerm) {
+      searchInput.value = searchTerm;
+    }
+    
+    // Debounce search to avoid too many database calls
+    let searchTimeout;
     searchInput?.addEventListener('input', (e) => {
       searchTerm = String(e.target.value || '').trim();
-      goTo(1);
+      
+      // Clear previous timeout
+      clearTimeout(searchTimeout);
+      
+      // Wait 300ms after user stops typing before searching
+      searchTimeout = setTimeout(() => {
+        goTo(1);
+      }, 300);
     });
 
     // Filter event listeners

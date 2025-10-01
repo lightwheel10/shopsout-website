@@ -3,6 +3,8 @@
   
   // Store the current store data globally for language switching
   let currentStoreData = null;
+  let currentStoreDeals = [];
+  let currentStoreName = '';
 
   // Get store ID from URL parameter
   function getStoreIdFromURL() {
@@ -212,6 +214,32 @@
     }
   }
 
+  // Update store badge and status based on current language
+  function updateStoreBadgeAndStatus(store) {
+    if (!store) return;
+    
+    const currentLang = localStorage.getItem('selectedLanguage') || 'de';
+    
+    // Update badge
+    const badge = document.getElementById('storeBadge');
+    if (badge) {
+      if (store.is_published_to_deals) {
+        badge.textContent = currentLang === 'de' ? 'AUSGEWÄHLTER SHOP' : 'FEATURED STORE';
+      } else {
+        badge.textContent = currentLang === 'de' ? 'SHOP-HIGHLIGHT' : 'STORE HIGHLIGHT';
+      }
+    }
+    
+    // Update status value
+    const statusEl = document.getElementById('storeStatus');
+    if (statusEl) {
+      const statusText = store.status === 'active' 
+        ? (currentLang === 'de' ? 'aktiv' : 'active')
+        : (currentLang === 'de' ? 'inaktiv' : 'inactive');
+      statusEl.textContent = statusText;
+    }
+  }
+
   // Update store features based on current language
   function updateStoreFeatures(store) {
     const featuresList = document.getElementById('storeFeaturesList');
@@ -276,9 +304,11 @@
     }
     
     // Meta information
-    
     const statusEl = document.getElementById('storeStatus');
-    statusEl.textContent = store.status || 'Unknown';
+    const statusText = store.status === 'active' 
+      ? (currentLang === 'de' ? 'aktiv' : 'active')
+      : (currentLang === 'de' ? 'inaktiv' : 'inactive');
+    statusEl.textContent = statusText;
     statusEl.className = `meta-value status-${store.status}`;
     
     // Action buttons
@@ -331,12 +361,25 @@
   }
 
   // Render store deals
-  function renderStoreDeals(deals, storeName = '') {
+  function renderStoreDeals(deals, storeName = '', isSearchResult = false) {
     const dealsGrid = document.getElementById('storeProductsGrid');
     dealsGrid.innerHTML = '';
     
     if (deals.length === 0) {
-      dealsGrid.innerHTML = '<div class="no-deals-message">No deals available from this store at the moment.</div>';
+      const currentLang = localStorage.getItem('selectedLanguage') || 'de';
+      let noDealsMsg;
+      
+      if (isSearchResult) {
+        noDealsMsg = currentLang === 'de' 
+          ? 'Keine Produkte gefunden. Versuchen Sie einen anderen Suchbegriff.'
+          : 'No products found. Try a different search term.';
+      } else {
+        noDealsMsg = currentLang === 'de' 
+          ? 'Derzeit sind keine Deals von diesem Shop verfügbar.'
+          : 'No deals available from this store at the moment.';
+      }
+      
+      dealsGrid.innerHTML = `<div class="no-deals-message">${noDealsMsg}</div>`;
       return;
     }
     
@@ -394,6 +437,10 @@
       
       // Update page title
       document.title = `${store.cleaned_name} – Store Details – Selecdoo`;
+      
+      // Store deals and name globally for search
+      currentStoreDeals = deals;
+      currentStoreName = store.cleaned_name;
       
       // Render everything
       renderStoreDetails(store, stats);
@@ -463,21 +510,38 @@
     }, 100);
   }
 
+  // Update "no deals" message if present
+  function updateNoDealsMessage() {
+    const noDealsEl = document.querySelector('.no-deals-message');
+    if (noDealsEl) {
+      const currentLang = localStorage.getItem('selectedLanguage') || 'de';
+      const noDealsMsg = currentLang === 'de' 
+        ? 'Derzeit sind keine Deals von diesem Shop verfügbar.'
+        : 'No deals available from this store at the moment.';
+      noDealsEl.textContent = noDealsMsg;
+    }
+  }
+
+
   // Listen for language changes to update store description and features
   function setupLanguageChangeListener() {
     // Listen for language changes (custom event or manual checking)
     document.addEventListener('languageChanged', function() {
       if (currentStoreData) {
+        updateStoreBadgeAndStatus(currentStoreData);
         updateStoreDescription(currentStoreData);
         updateStoreFeatures(currentStoreData);
+        updateNoDealsMessage();
       }
     });
     
     // Also listen for storage changes (when language is changed from other tabs/pages)
     window.addEventListener('storage', function(e) {
       if (e.key === 'selectedLanguage' && currentStoreData) {
+        updateStoreBadgeAndStatus(currentStoreData);
         updateStoreDescription(currentStoreData);
         updateStoreFeatures(currentStoreData);
+        updateNoDealsMessage();
       }
     });
     
@@ -486,8 +550,10 @@
       if (e.target.closest('[data-lang]') && currentStoreData) {
         // Small delay to ensure language has been updated
         setTimeout(() => {
+          updateStoreBadgeAndStatus(currentStoreData);
           updateStoreDescription(currentStoreData);
           updateStoreFeatures(currentStoreData);
+          updateNoDealsMessage();
         }, 100);
       }
     });
@@ -500,4 +566,5 @@
     setupLanguageChangeListener();
   }
 })();
+
 
