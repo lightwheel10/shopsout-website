@@ -436,7 +436,7 @@
       }
       
       // Update page title
-      document.title = `${store.cleaned_name} – Store Details – Selecdoo`;
+      document.title = `${store.cleaned_name} – Store Details – ShopShout`;
       
       // Store deals and name globally for search
       currentStoreDeals = deals;
