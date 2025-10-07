@@ -17,7 +17,7 @@
     // Fetch active products with images and a sale price first
     const { data, error } = await window.supabaseClient
       .from('cleaned_products')
-      .select('hash_id, title, price, sale_price, image, brand, link, currency, store_id')
+      .select('hash_id, title, price, sale_price, image, brand, link, affiliate_link, currency, store_id')
       .eq('status', 'published')
       .not('image', 'is', null)
       .not('store_id', 'is', null)
@@ -138,7 +138,23 @@
       prices.appendChild(old);
     }
     const cta = document.createElement('a'); cta.className = 'btn btn-primary';
-    cta.href = p.link || '#'; cta.target = '_blank'; cta.rel = 'noopener noreferrer';
+    // Use affiliate_link for the button, fallback to regular link if not available
+    if (p.affiliate_link && p.affiliate_link.trim() !== '') {
+      cta.href = p.affiliate_link;
+      cta.target = '_blank';
+      cta.rel = 'noopener noreferrer';
+    } else if (p.link && p.link.trim() !== '') {
+      cta.href = p.link;
+      cta.target = '_blank';
+      cta.rel = 'noopener noreferrer';
+    } else {
+      // No link available - disable button
+      cta.href = 'javascript:void(0)';
+      cta.classList.add('disabled');
+      cta.style.pointerEvents = 'none';
+      cta.style.cursor = 'not-allowed';
+      cta.title = 'Link not available';
+    }
     cta.setAttribute('data-i18n', 'landing.featured.cta');
     cta.textContent = 'Shop now'; // fallback
     // Apply current language translation
@@ -221,12 +237,26 @@
       const ctaContainer = document.createElement('div');
       ctaContainer.className = 'deal-v2-cta-container';
       const dealBtn = document.createElement('a');
-      dealBtn.href = p.link || '#';
+      // Use affiliate_link for the button, fallback to regular link if not available
+      if (p.affiliate_link && p.affiliate_link.trim() !== '') {
+        dealBtn.href = p.affiliate_link;
+        dealBtn.target = '_blank';
+        dealBtn.rel = 'noopener noreferrer';
+      } else if (p.link && p.link.trim() !== '') {
+        dealBtn.href = p.link;
+        dealBtn.target = '_blank';
+        dealBtn.rel = 'noopener noreferrer';
+      } else {
+        // No link available - disable button
+        dealBtn.href = 'javascript:void(0)';
+        dealBtn.classList.add('disabled');
+        dealBtn.style.pointerEvents = 'none';
+        dealBtn.style.cursor = 'not-allowed';
+        dealBtn.title = 'Link not available';
+      }
       dealBtn.className = 'btn btn-deal';
       dealBtn.setAttribute('data-i18n', 'card.cta');
       dealBtn.textContent = 'zum Deal'; // fallback
-      dealBtn.target = '_blank';
-      dealBtn.rel = 'noopener noreferrer';
       const detailsBtn = document.createElement('a');
       detailsBtn.href = `product.html?id=${encodeURIComponent(p.hash_id)}`;
       detailsBtn.className = 'btn btn-details';
@@ -452,7 +482,7 @@
       const to = from + pageSize - 1;
       let query = window.supabaseClient
         .from('cleaned_products')
-        .select('hash_id, title, price, sale_price, image, brand, link, currency, description, store_id, ai_category', { count: 'exact' })
+        .select('hash_id, title, price, sale_price, image, brand, link, affiliate_link, currency, description, store_id, ai_category', { count: 'exact' })
         .eq('status', 'published')
         .not('image', 'is', null)
         .not('store_id', 'is', null)
@@ -727,7 +757,7 @@
   async function fetchFeaturedProducts(limit = 4) {
     const { data, error } = await window.supabaseClient
       .from('cleaned_products')
-      .select('hash_id, title, price, sale_price, image, brand, link, currency, store_id')
+      .select('hash_id, title, price, sale_price, image, brand, link, affiliate_link, currency, store_id')
       .eq('status', 'published')
       .eq('is_featured', true)
       .not('image', 'is', null)
