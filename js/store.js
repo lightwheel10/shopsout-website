@@ -350,8 +350,6 @@
     }
     
     // About Store Section
-    document.getElementById('aboutStoreTitle').textContent = displayName;
-    
     // Update store description (will be called again on language change)
     updateStoreDescription(store);
     
