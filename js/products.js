@@ -289,9 +289,18 @@
       // Future enhancement: add expiry logic when schema supports it
 
       const shopLink = document.createElement('a');
-      shopLink.href = p.link || '#';
+      // Use affiliate_link for the shop link, fallback to regular link if not available
+      if (p.affiliate_link && p.affiliate_link.trim() !== '') {
+        shopLink.href = p.affiliate_link;
+      } else if (p.link && p.link.trim() !== '') {
+        shopLink.href = p.link;
+      } else {
+        shopLink.href = '#';
+      }
       shopLink.className = 'deal-v2-shoplink';
       shopLink.textContent = `Shop: ${p.store_name || 'Unknown'}`;
+      shopLink.target = '_blank';
+      shopLink.rel = 'noopener noreferrer';
       
       const detailsGrid = document.createElement('div');
       detailsGrid.className = 'deal-v2-details-grid';
