@@ -224,19 +224,10 @@
     const badge = document.getElementById('storeBadge');
     if (badge) {
       if (store.is_published_to_deals) {
-        badge.textContent = currentLang === 'de' ? 'AUSGEWÄHLTER SHOP' : 'FEATURED STORE';
+        badge.textContent = currentLang === 'de' ? 'TOP-SHOP' : 'TOP SHOP';
       } else {
         badge.textContent = currentLang === 'de' ? 'SHOP-HIGHLIGHT' : 'STORE HIGHLIGHT';
       }
-    }
-    
-    // Update status value
-    const statusEl = document.getElementById('storeStatus');
-    if (statusEl) {
-      const statusText = store.status === 'active' 
-        ? (currentLang === 'de' ? 'aktiv' : 'active')
-        : (currentLang === 'de' ? 'inaktiv' : 'inactive');
-      statusEl.textContent = statusText;
     }
   }
 
@@ -289,7 +280,7 @@
     // Get current language for badge text
     const currentLang = localStorage.getItem('selectedLanguage') || 'de';
     if (store.is_published_to_deals) {
-      badge.textContent = currentLang === 'de' ? 'Ausgewählter Shop' : 'Featured Store';
+      badge.textContent = currentLang === 'de' ? 'Top-Shop' : 'Top Shop';
       badge.style.background = '#10b981';
     } else {
       badge.textContent = currentLang === 'de' ? 'Shop-Highlight' : 'Store Highlight';
@@ -303,13 +294,7 @@
       imageContainer.innerHTML = `<div class="store-logo-fallback">${displayName.charAt(0).toUpperCase()}</div>`;
     }
     
-    // Meta information
-    const statusEl = document.getElementById('storeStatus');
-    const statusText = store.status === 'active' 
-      ? (currentLang === 'de' ? 'aktiv' : 'active')
-      : (currentLang === 'de' ? 'inaktiv' : 'inactive');
-    statusEl.textContent = statusText;
-    statusEl.className = `meta-value status-${store.status}`;
+    // Meta information (status display removed per client request)
     
     // Action buttons
     document.getElementById('visitStoreMainBtn').href = store.url;
