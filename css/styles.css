@@ -1503,8 +1503,8 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
 .hero-product .deal-prices { min-height: 24px; align-items: baseline; }
 .hero-product .btn-primary { 
   align-self: start; 
-  margin-top: auto; /* Push button to bottom of available space */
-  margin-bottom: 4px; /* Space from card bottom edge */
+  margin-top: 4px; /* Push button to bottom of available space */
+  margin-bottom: 8px; /* Space from card bottom edge */
   padding: 8px 12px;
   justify-self: stretch; /* Make button full width */
 }
@@ -2459,7 +2459,7 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   .hero-product .btn-primary {
     padding: 10px 14px;
     font-size: 0.9rem;
-    margin-top: 8px;
+    margin-top: 0px;
   }
   
   .hero-product .product-title {
