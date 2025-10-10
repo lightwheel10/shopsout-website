@@ -1504,6 +1504,7 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
 .hero-product .btn-primary { 
   align-self: start; 
   margin-top: auto; /* Push button to bottom of available space */
+  margin-bottom: 4px; /* Space from card bottom edge */
   padding: 8px 12px;
   justify-self: stretch; /* Make button full width */
 }
