@@ -86,20 +86,52 @@
 
   // Fetch recent deals from this store
   async function fetchStoreDeals(storeId, limit = 6) {
+    // Fetch more products than needed to allow for sorting by discount
+    const fetchLimit = limit * 3; // Fetch 3x to ensure we have enough after sorting
+    
     const { data, error } = await window.supabaseClient
       .from('cleaned_products')
-      .select('hash_id, title, price, sale_price, image, brand, link, currency, description')
+      .select('hash_id, title, price, sale_price, image, brand, link, currency, description, updated_at')
       .eq('store_id', storeId)
       .eq('status', 'published')
       .not('image', 'is', null)
       .order('updated_at', { ascending: false })
-      .limit(limit);
+      .limit(fetchLimit);
     
     if (error) {
       // console.error('[Supabase] fetch store deals error', error);
       return [];
     }
-    return data || [];
+    
+    if (!data || data.length === 0) {
+      return [];
+    }
+    
+    // Sort products by discount percentage (highest first)
+    const sortedData = data.sort((a, b) => {
+      // Calculate discount percentage for product A
+      const hasDiscountA = a.sale_price && a.price && Number(a.price) > Number(a.sale_price);
+      const discountA = hasDiscountA 
+        ? ((Number(a.price) - Number(a.sale_price)) / Number(a.price)) * 100 
+        : 0;
+      
+      // Calculate discount percentage for product B
+      const hasDiscountB = b.sale_price && b.price && Number(b.price) > Number(b.sale_price);
+      const discountB = hasDiscountB 
+        ? ((Number(b.price) - Number(b.sale_price)) / Number(b.price)) * 100 
+        : 0;
+      
+      // Sort by discount (highest first)
+      if (discountA !== discountB) {
+        return discountB - discountA;
+      }
+      
+      // If discounts are equal (including both zero), sort by date (most recent first)
+      return new Date(b.updated_at) - new Date(a.updated_at);
+    });
+    
+    // Return only the requested limit
+    return sortedData.slice(0, limit);
   }
 
   // Format currency helper
