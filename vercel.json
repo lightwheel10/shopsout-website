@@ -5,8 +5,8 @@
       "destination": "/landing.html"
     },
     {
-      "source": "/product/:slug*",
-      "destination": "/product.html?slug=:slug*"
+      "source": "/product/:path*",
+      "destination": "/product.html"
     }
   ],
   "cleanUrls": true,
