@@ -1,14 +1,17 @@
 {
   "buildCommand": null,
   "outputDirectory": ".",
+  "redirects": [
+    {
+      "source": "/product/:slug*",
+      "destination": "/product.html?slug=:slug*",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     {
       "source": "/",
       "destination": "/landing.html"
-    },
-    {
-      "source": "/product/:path*",
-      "destination": "/product.html"
     }
   ],
   "cleanUrls": true,
