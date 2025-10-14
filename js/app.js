@@ -602,7 +602,7 @@
     return data.map(p => ({
       id: p.hash_id,
       brand: storeMap[p.store_id] || p.brand || '',
-      title: p.title || '',
+      title: p.title || '', // Keep title for SEO URL generation
       now: p.sale_price ? formatCurrency(p.sale_price, p.currency) : formatCurrency(p.price, p.currency),
       old: p.sale_price && p.price && Number(p.price) > Number(p.sale_price) ? formatCurrency(p.price, p.currency) : '',
       image: p.image
@@ -621,7 +621,8 @@
       hpMedia.style.background = p.image ? `center/cover no-repeat url(${CSS.escape ? CSS.escape(p.image) : p.image})` : 'linear-gradient(120deg,#e9eef5,#f3f5f8)';
     }
     if (hpCta && p.id) {
-      hpCta.href = `product.html?id=${encodeURIComponent(p.id)}`;
+      // Use SEO-friendly URL if available, otherwise fallback to old format
+      hpCta.href = window.seoUtils ? window.seoUtils.createSeoFriendlyProductUrl(p.id, p.title) : `product.html?id=${encodeURIComponent(p.id)}`;
     }
   }
 
@@ -828,16 +829,23 @@
           if (error) throw error;
 
           if (data && data.length > 0) {
-            dropdown.innerHTML = data.map(product => `
-              <a href="product.html?id=${product.hash_id}" class="search-result-item">
-                <img src="${product.image}" alt="${product.title}" class="search-result-image" loading="lazy">
-                <div class="search-result-info">
-                  <div class="search-result-title">${product.title}</div>
-                  <div class="search-result-brand">${product.brand || ''}</div>
-                  <div class="search-result-price">${product.sale_price || product.price} ${product.currency || '€'}</div>
-                </div>
-              </a>
-            `).join('');
+            dropdown.innerHTML = data.map(product => {
+              // Use SEO-friendly URL if available, otherwise fallback to old format
+              const productUrl = window.seoUtils 
+                ? window.seoUtils.createSeoFriendlyProductUrl(product.hash_id, product.title) 
+                : `product.html?id=${product.hash_id}`;
+              
+              return `
+                <a href="${productUrl}" class="search-result-item">
+                  <img src="${product.image}" alt="${product.title}" class="search-result-image" loading="lazy">
+                  <div class="search-result-info">
+                    <div class="search-result-title">${product.title}</div>
+                    <div class="search-result-brand">${product.brand || ''}</div>
+                    <div class="search-result-price">${product.sale_price || product.price} ${product.currency || '€'}</div>
+                  </div>
+                </a>
+              `;
+            }).join('');
             dropdown.style.display = 'block';
           } else {
             const currentLang = localStorage.getItem('selectedLanguage') || 'de';

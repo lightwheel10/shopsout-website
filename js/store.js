@@ -195,7 +195,8 @@
     
     const cta = document.createElement('a');
     cta.className = 'btn btn-primary';
-    cta.href = `product.html?id=${encodeURIComponent(product.hash_id)}`;
+    // Use SEO-friendly URL if available, otherwise fallback to old format
+    cta.href = window.seoUtils ? window.seoUtils.createSeoFriendlyProductUrl(product.hash_id, product.title) : `product.html?id=${encodeURIComponent(product.hash_id)}`;
     cta.setAttribute('data-i18n', 'card.cta');
     cta.textContent = 'View deal'; // fallback
     

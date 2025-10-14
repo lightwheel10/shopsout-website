@@ -258,7 +258,8 @@
       dealBtn.setAttribute('data-i18n', 'card.cta');
       dealBtn.textContent = 'zum Deal'; // fallback
       const detailsBtn = document.createElement('a');
-      detailsBtn.href = `product.html?id=${encodeURIComponent(p.hash_id)}`;
+      // Use SEO-friendly URL if available, otherwise fallback to old format
+      detailsBtn.href = window.seoUtils ? window.seoUtils.createSeoFriendlyProductUrl(p.hash_id, p.title) : `product.html?id=${encodeURIComponent(p.hash_id)}`;
       detailsBtn.className = 'btn btn-details';
       detailsBtn.setAttribute('data-i18n', 'button.dealDetails');
       detailsBtn.textContent = 'Deal-Details'; // fallback

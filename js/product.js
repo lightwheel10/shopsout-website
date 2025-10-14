@@ -12,6 +12,33 @@
     catch(_) { return `${Number(value).toFixed(2)} ${currency || '€'}`; }
   }
 
+  /**
+   * Get product identifier from URL
+   * Supports both old format (?id=xxx) and new SEO format (/product/slug-123abc)
+   * @returns {string|null} Product ID or hash
+   */
+  function getProductIdentifier() {
+    // Priority 1: Check for old format query parameters (backward compatibility)
+    const idParam = getQueryParam('id');
+    const hashParam = getQueryParam('hash');
+    
+    if (idParam) return idParam;
+    if (hashParam) return hashParam;
+
+    // Priority 2: Check for new SEO-friendly slug format
+    if (window.seoUtils) {
+      const slug = getQueryParam('slug');
+      if (slug) {
+        const shortId = window.seoUtils.parseProductIdFromSlug(slug);
+        if (shortId) {
+          return shortId;
+        }
+      }
+    }
+
+    return null;
+  }
+
   async function fetchProduct(idOrHash) {
     // console.log('[Product Debug] fetchProduct called with:', idOrHash);
     let query = window.supabaseClient
@@ -27,6 +54,10 @@
     if (/^[0-9a-f-]{36}$/i.test(idOrHash)) {
       // console.log('[Product Debug] Using product_id field for UUID:', idOrHash);
       query = query.eq('product_id', idOrHash);
+    } else if (/^[0-9a-f]{8}$/i.test(idOrHash)) {
+      // console.log('[Product Debug] Using short ID (first 8 chars) for:', idOrHash);
+      // Short ID from SEO URL - search for products starting with this prefix
+      query = query.or(`hash_id.ilike.${idOrHash}%,product_id.ilike.${idOrHash}%`);
     } else {
       // console.log('[Product Debug] Using hash_id field for:', idOrHash);
       query = query.eq('hash_id', idOrHash);
@@ -125,7 +156,8 @@
     // Add a small delay to show the skeleton loading effect
     await new Promise(resolve => setTimeout(resolve, 800));
     
-    const id = getQueryParam('id') || getQueryParam('hash');
+    // Get product ID from URL (supports both old and new formats)
+    const id = getProductIdentifier();
     // console.log('[Product Debug] URL ID:', id);
     
     try {
@@ -348,7 +380,10 @@
         const now = document.createElement('span'); now.className = 'price-now'; now.textContent = r.sale_price ? formatCurrency(r.sale_price, r.currency || 'EUR') : formatCurrency(r.price, r.currency || 'EUR');
         prices.appendChild(now);
         if (hasDiscount) { const old = document.createElement('span'); old.className = 'price-old'; old.textContent = formatCurrency(r.price, r.currency || 'EUR'); prices.appendChild(old); }
-        const cta = document.createElement('a'); cta.className = 'btn btn-primary'; cta.href = `product.html?id=${encodeURIComponent(r.hash_id)}`; cta.setAttribute('data-i18n', 'card.cta'); cta.textContent = 'View deal'; // fallback
+        const cta = document.createElement('a'); cta.className = 'btn btn-primary'; 
+        // Use SEO-friendly URL if available, otherwise fallback to old format
+        cta.href = window.seoUtils ? window.seoUtils.createSeoFriendlyProductUrl(r.hash_id, r.title) : `product.html?id=${encodeURIComponent(r.hash_id)}`;
+        cta.setAttribute('data-i18n', 'card.cta'); cta.textContent = 'View deal'; // fallback
         body.append(b, t, prices, cta); card.append(media, body); 
         
         // Apply current language to the button
