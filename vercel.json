@@ -5,8 +5,8 @@
       "destination": "/landing.html"
     },
     {
-      "source": "/product/:slug*",
-      "destination": "/product.html?slug=$slug"
+      "source": "/product/(.*)",
+      "destination": "/product.html?slug=$1"
     },
     {
       "source": "/(.*)",
