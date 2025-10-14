@@ -55,13 +55,9 @@
         // Remove trailing hyphen if substring cut in the middle
         .replace(/-+$/, '');
 
-      // Extract first 8 characters of ID for uniqueness
-      // Works with both full UUIDs and hash_ids
-      const shortId = productId.substring(0, 8);
-
-      // Combine slug with short ID
-      // Format: /product/{slug}-{shortId}
-      const seoUrl = `product/${slug}-${shortId}`;
+      // Encode the product ID to preserve underscores and special chars
+      // We'll add a marker "id--" before the ID to make parsing easier
+      const seoUrl = `product/${slug}--id--${productId}`;
 
       return seoUrl;
 
@@ -74,8 +70,8 @@
 
   /**
    * Parses product ID from SEO-friendly URL slug
-   * @param {string} slug - URL slug (e.g., "wireless-headphones-550e8400")
-   * @returns {string|null} Short product ID or null if parsing fails
+   * @param {string} slug - URL slug (e.g., "wireless-headphones--id--shopify_abc123")
+   * @returns {string|null} Product ID or null if parsing fails
    */
   function parseProductIdFromSlug(slug) {
     try {
@@ -83,21 +79,17 @@
         return null;
       }
 
-      // Find the last hyphen-separated segment (should be the short ID)
-      const parts = slug.split('-');
+      // Look for the marker "--id--" that separates the slug from the ID
+      const marker = '--id--';
+      const markerIndex = slug.indexOf(marker);
       
-      if (parts.length === 0) {
-        return null;
+      if (markerIndex !== -1) {
+        // Extract everything after the marker
+        const productId = slug.substring(markerIndex + marker.length);
+        return productId || null;
       }
 
-      // Get last part (should be short UUID/hash)
-      const shortId = parts[parts.length - 1];
-
-      // Validate it looks like a hex string (8 characters)
-      if (shortId && /^[a-f0-9]{8}$/i.test(shortId)) {
-        return shortId;
-      }
-
+      // Fallback: if no marker found, return null (invalid format)
       return null;
 
     } catch (error) {
