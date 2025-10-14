@@ -5,14 +5,11 @@
       "destination": "/landing.html"
     },
     {
-      "source": "/product/(.*)",
-      "destination": "/product.html?slug=$1"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/$1"
+      "source": "/product/:slug*",
+      "destination": "/product.html?slug=:slug"
     }
   ],
+  "cleanUrls": true,
   "headers": [
     {
       "source": "/(.*)",
