@@ -40,7 +40,7 @@
   }
 
   async function fetchProduct(idOrHash) {
-    // console.log('[Product Debug] fetchProduct called with:', idOrHash);
+    console.log('[Product Debug] fetchProduct called with:', idOrHash);
     let query = window.supabaseClient
       .from('cleaned_products')
       .select('hash_id, product_id, title, description, description_english, price, sale_price, link, image, brand, currency, coupon_code, coupon_value, availability, store_id, affiliate_link')
@@ -48,24 +48,24 @@
       .not('store_id', 'is', null)
       .limit(1);
     if (!idOrHash) {
-      // console.log('[Product Debug] No ID provided');
+      console.log('[Product Debug] No ID provided');
       return { data: null };
     }
     if (/^[0-9a-f-]{36}$/i.test(idOrHash)) {
-      // console.log('[Product Debug] Using product_id field for UUID:', idOrHash);
+      console.log('[Product Debug] Using product_id field for UUID:', idOrHash);
       query = query.eq('product_id', idOrHash);
     } else if (/^[0-9a-f]{8}$/i.test(idOrHash)) {
-      // console.log('[Product Debug] Using short ID (first 8 chars) for:', idOrHash);
+      console.log('[Product Debug] Using short ID (first 8 chars) for:', idOrHash);
       // Short ID from SEO URL - search for products starting with this prefix
       query = query.or(`hash_id.ilike.${idOrHash}%,product_id.ilike.${idOrHash}%`);
     } else {
-      // console.log('[Product Debug] Using hash_id field for:', idOrHash);
+      console.log('[Product Debug] Using hash_id field for:', idOrHash);
       query = query.eq('hash_id', idOrHash);
     }
     const { data, error } = await query.single();
-    // console.log('[Product Debug] Query result - data:', data, 'error:', error);
+    console.log('[Product Debug] Query result - data:', data, 'error:', error);
     if (error) { 
-      // console.log('[Product Debug] Database error:', error); 
+      console.log('[Product Debug] Database error:', error); 
       return { data: null }; 
     }
     
@@ -158,7 +158,7 @@
     
     // Get product ID from URL (supports both old and new formats)
     const id = getProductIdentifier();
-    // console.log('[Product Debug] URL ID:', id);
+    console.log('[Product Debug] URL ID:', id);
     
     try {
       const { data: p } = await fetchProduct(id);
