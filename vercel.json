@@ -6,7 +6,7 @@
     },
     {
       "source": "/product/:slug*",
-      "destination": "/product.html?slug=:slug"
+      "destination": "/product.html?slug=:slug*"
     }
   ],
   "cleanUrls": true,
