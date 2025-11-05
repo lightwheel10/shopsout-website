@@ -89,6 +89,7 @@
     card.className = 'product-card';
     const media = document.createElement('div');
     media.className = 'product-media';
+    media.style.position = 'relative'; // Make media a positioning context
     
     // Add lazy loading for background images
     if (p.image) {
@@ -119,13 +120,12 @@
     
     if (hasDiscount) {
       prices.classList.add('has-discount');
-      // Add discount badge to product card (top right corner)
+      // FIXED: Add discount badge to MEDIA (image area) so it never overlaps with text
       const discountPercent = Math.round(((Number(p.price) - Number(p.sale_price)) / Number(p.price)) * 100);
       const discountBadge = document.createElement('span');
       discountBadge.className = 'discount-badge';
       discountBadge.textContent = `-${discountPercent}%`;
-      // Remove inline styles - let CSS handle positioning and sizing
-      card.appendChild(discountBadge); // Attach to card instead of prices
+      media.appendChild(discountBadge); // FIXED: Attach to media instead of card
     }
     
     const now = document.createElement('span'); now.className = 'price-now';
@@ -185,7 +185,7 @@
     }
   }
 
-  function renderIntoDealsGrid(products) {
+  function renderIntoDealsGrid(products, appendMode = false) {
     const grid = document.querySelector('.deals-grid');
     const skeleton = document.getElementById('dealsGridSkeleton');
     
@@ -198,12 +198,22 @@
     grid.style.display = '';
     grid.classList.add('content-loaded');
     
-    grid.innerHTML = '';
+    // Clear grid only if not in append mode (for infinite scroll)
+    if (!appendMode) {
+      grid.innerHTML = '';
+    }
     const frag = document.createDocumentFragment();
 
-    products.forEach(p => {
+    products.forEach((p, index) => {
       const card = document.createElement('article');
       card.className = 'deal-card-v2';
+      
+      // Add fade-in animation for appended items (infinite scroll)
+      if (appendMode) {
+        card.classList.add('fade-in');
+        // Stagger animation slightly for each card
+        card.style.animationDelay = `${index * 0.05}s`;
+      }
 
       // --- Left Column ---
       const leftCol = document.createElement('div');
@@ -211,6 +221,7 @@
 
       const media = document.createElement('div');
       media.className = 'deal-v2-media';
+      media.style.position = 'relative'; // Make media a positioning context for discount badge
       if (p.image) {
         const img = document.createElement('img');
         img.className = 'product-image-lazy';
@@ -313,8 +324,8 @@
         if (percentage > 0) {
           discount.className = 'discount-badge';
           discount.textContent = `-${percentage}%`;
-          // Attach discount badge to card (top right corner) instead of detailsGrid
-          card.appendChild(discount);
+          // FIXED: Attach discount badge to MEDIA (image area) so it never overlaps with text
+          media.appendChild(discount);
         }
       }
 
@@ -382,18 +393,18 @@
     grid.append(frag);
   }
 
-  // Auto-run on deals page with server-side pagination
+  // Auto-run on deals page with infinite scroll
   if (document.querySelector('.deals-grid')) {
     const grid = document.querySelector('.deals-grid');
-    const pagination = document.getElementById('pagination');
-    const paginationList = document.getElementById('paginationList');
     const PAGE_SIZE = 10;
     const resultsMeta = document.getElementById('resultsMeta');
     let totalCount = 0;
-          let totalPages = 1;
-      let currentPage = 1;
-      // Simple filter state management
-      let selectedCategories = [];
+    let totalPages = 1;
+    let currentPage = 1;
+    let isLoading = false;
+    let hasMorePages = true;
+    // Simple filter state management
+    let selectedCategories = [];
       
       // DOM elements
       let priceMinEl = document.getElementById('priceMin');
@@ -605,49 +616,30 @@
       resultsMeta.textContent = `${total} ${resultsText}${filterText}`;
     }
 
-    function buildPaginationUI(total, size, page) {
-      totalPages = Math.max(1, Math.ceil(total / size));
-      if (!pagination || !paginationList) return;
-      if (totalPages <= 1) { pagination.style.display = 'none'; return; }
-      pagination.style.display = '';
-      
-      // Get current language for pagination translations
-      const currentLang = localStorage.getItem('selectedLanguage') || 'de';
-      const dict = window.translations?.[currentLang] || window.translations?.de || {};
-      const nextText = dict['pagination.next'] || 'Next';
-      
-      const items = [];
-      const maxButtons = 6;
-      const start = Math.max(1, Math.min(page - 2, totalPages - maxButtons + 1));
-      const end = Math.min(totalPages, start + maxButtons - 1);
-      for (let i = start; i <= end; i += 1) {
-        items.push(`<li><a ${i === page ? 'class="current"' : ''} href="#" data-page="${i}">${i}</a></li>`);
-      }
-      if (end < totalPages) items.push('<li aria-hidden="true">…</li>');
-      items.push(`<li><a class="next" href="#" data-page="${Math.min(totalPages, page + 1)}">${nextText}</a></li>`);
-      paginationList.innerHTML = items.join('');
-    }
-
-    async function goTo(page) {
+    async function goTo(page, appendMode = false) {
       currentPage = Math.max(1, Math.min(page, totalPages));
       
-      // Show skeleton during loading (except for pagination clicks)
+      // Show skeleton during initial loading only
       const skeleton = document.getElementById('dealsGridSkeleton');
       const grid = document.querySelector('.deals-grid');
       
-      if (page === 1 && skeleton && grid) {
+      if (page === 1 && !appendMode && skeleton && grid) {
         skeleton.style.display = '';
         grid.style.display = 'none';
       }
       
       // Fetch page; also get count the first time
       const { data, count } = await fetchProductsPage(currentPage, PAGE_SIZE);
-      if (count != null) totalCount = count;
+      if (count != null) {
+        totalCount = count;
+        totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+        hasMorePages = currentPage < totalPages;
+      }
       
       // Show no results message if needed  
       const noResults = document.getElementById('noResults');
       
-      if (data.length === 0) {
+      if (data.length === 0 && !appendMode) {
         // Hide both grid and skeleton when no results
         if (skeleton) skeleton.style.display = 'none';
         if (grid) grid.style.display = 'none';
@@ -655,35 +647,114 @@
           noResults.style.display = 'block';
           // Get current language for error message
           const currentLang = localStorage.getItem('selectedLanguage') || 'de';
-          const errorMsg = currentLang === 'de' 
-            ? 'Keine Produkte gefunden. Versuchen Sie es mit anderen Filtern.'
-            : 'No products found. Try different filters.';
+          const dict = window.translations?.[currentLang] || window.translations?.de || {};
+          const errorMsg = dict['infiniteScroll.noResults'] || 'No products found. Try different filters.';
           noResults.textContent = errorMsg;
         }
-      } else {
+      } else if (data.length > 0) {
         if (grid) grid.style.display = '';
         if (noResults) noResults.style.display = 'none';
-        renderIntoDealsGrid(data);
+        renderIntoDealsGrid(data, appendMode);
       }
       
       updateResultsMeta(totalCount);
-      buildPaginationUI(totalCount, PAGE_SIZE, currentPage);
     }
 
-    paginationList?.addEventListener('click', (e) => {
-      const target = e.target;
-      if (target && target.matches('a[data-page]')) {
-        e.preventDefault();
-        const page = Number(target.getAttribute('data-page')) || 1;
-        goTo(page);
+    // Create and manage loading indicator for infinite scroll
+    function createLoadingIndicator() {
+      let loadingIndicator = document.getElementById('infiniteScrollLoader');
+      if (!loadingIndicator) {
+        loadingIndicator = document.createElement('div');
+        loadingIndicator.id = 'infiniteScrollLoader';
+        loadingIndicator.className = 'infinite-scroll-loader';
+        loadingIndicator.style.cssText = 'display:none; text-align:center; padding:24px; color:#666;';
+        loadingIndicator.innerHTML = '<p>Loading more products...</p>';
+        
+        // Insert after deals grid
+        const grid = document.querySelector('.deals-grid');
+        if (grid && grid.parentElement) {
+          grid.parentElement.insertBefore(loadingIndicator, grid.nextSibling);
+        }
       }
+      return loadingIndicator;
+    }
+    
+    function showLoadingIndicator() {
+      const loader = createLoadingIndicator();
+      loader.style.display = 'flex'; // Changed to flex for proper layout
+      
+      // Get current language for loading text
+      const currentLang = localStorage.getItem('selectedLanguage') || 'de';
+      const dict = window.translations?.[currentLang] || window.translations?.de || {};
+      const loadingText = dict['infiniteScroll.loading'] || 'Loading more products...';
+      loader.innerHTML = `
+        <div class="loader-spinner"></div>
+        <p>${loadingText}</p>
+      `;
+    }
+    
+    function hideLoadingIndicator() {
+      const loader = document.getElementById('infiniteScrollLoader');
+      if (loader) loader.style.display = 'none';
+    }
+    
+    function showEndMessage() {
+      const loader = createLoadingIndicator();
+      const currentLang = localStorage.getItem('selectedLanguage') || 'de';
+      const dict = window.translations?.[currentLang] || window.translations?.de || {};
+      const endText = dict['infiniteScroll.allLoaded'] || 'All products loaded';
+      loader.innerHTML = `
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="color:#999;">
+          <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <p style="color:#999;">${endText}</p>
+      `;
+      loader.style.display = 'flex';
+    }
+
+    // Load next page for infinite scroll
+    async function loadNextPage() {
+      if (isLoading || !hasMorePages) return;
+      
+      isLoading = true;
+      showLoadingIndicator();
+      
+      const nextPage = currentPage + 1;
+      await goTo(nextPage, true); // true = append mode
+      
+      hideLoadingIndicator();
+      isLoading = false;
+      
+      // Show end message if no more pages
+      if (!hasMorePages) {
+        showEndMessage();
+      }
+    }
+
+    // Infinite scroll detection
+    function handleScroll() {
+      if (isLoading || !hasMorePages) return;
+      
+      const scrollPosition = window.innerHeight + window.scrollY;
+      const pageHeight = document.documentElement.scrollHeight;
+      
+      // Trigger load when within 300px of bottom
+      if (scrollPosition >= pageHeight - 300) {
+        loadNextPage();
+      }
+    }
+    
+    // Add scroll listener with throttling for performance
+    let scrollTimeout;
+    window.addEventListener('scroll', () => {
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(handleScroll, 100);
     });
 
-    // Expose function to refresh pagination and results meta translations
+    // Expose function to refresh results meta translations (called from app.js on language change)
     window.refreshPagination = function() {
       if (totalCount > 0) {
         updateResultsMeta(totalCount);
-        buildPaginationUI(totalCount, PAGE_SIZE, currentPage);
       }
     };
 
@@ -697,6 +768,17 @@
       searchInput.value = searchTerm;
     }
     
+    // Reset infinite scroll state (for when filters change)
+    function resetInfiniteScroll() {
+      currentPage = 1;
+      hasMorePages = true;
+      isLoading = false;
+      hideLoadingIndicator();
+      // Clear the grid to start fresh
+      const grid = document.querySelector('.deals-grid');
+      if (grid) grid.innerHTML = '';
+    }
+
     // Debounce search to avoid too many database calls
     let searchTimeout;
     searchInput?.addEventListener('input', (e) => {
@@ -707,6 +789,7 @@
       
       // Wait 300ms after user stops typing before searching
       searchTimeout = setTimeout(() => {
+        resetInfiniteScroll();
         goTo(1);
       }, 300);
     });
@@ -714,11 +797,19 @@
     // Filter event listeners
     categoriesListEl?.addEventListener('change', () => {
       selectedCategories = Array.from(categoriesListEl.querySelectorAll('input[type="checkbox"]:checked')).map(i => i.value);
+      resetInfiniteScroll();
       goTo(1);
     });
     
-    priceMinEl?.addEventListener('change', () => goTo(1));
-    priceMaxEl?.addEventListener('change', () => goTo(1));
+    priceMinEl?.addEventListener('change', () => {
+      resetInfiniteScroll();
+      goTo(1);
+    });
+    
+    priceMaxEl?.addEventListener('change', () => {
+      resetInfiniteScroll();
+      goTo(1);
+    });
     
     // Reset filters functionality
     document.getElementById('filtersReset')?.addEventListener('click', () => {
@@ -730,7 +821,8 @@
       if (priceMinEl) priceMinEl.value = 0;
       if (priceMaxEl) priceMaxEl.value = 3000;
       
-      // Reload results
+      // Reset infinite scroll and reload results
+      resetInfiniteScroll();
       goTo(1);
     });
 

@@ -5,11 +5,23 @@
   let currentStoreData = null;
   let currentStoreDeals = [];
   let currentStoreName = '';
+  let allStoreProducts = []; // Store all products for expand/collapse
+  let isShowingAllProducts = false; // Track expanded state
+  let currentStoreId = null; // Track current store ID
 
   // Get store ID from URL parameter
   function getStoreIdFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get('id');
+  }
+
+  // Helper function to get translation
+  function getTranslation(key, lang) {
+    if (window.translations && window.translations[lang] && window.translations[lang][key]) {
+      return window.translations[lang][key];
+    }
+    // Fallback to key if translation not found
+    return key;
   }
 
   // Fetch store details from cleaned_stores table
@@ -84,19 +96,15 @@
     }
   }
 
-  // Fetch recent deals from this store
-  async function fetchStoreDeals(storeId, limit = 6) {
-    // Fetch more products than needed to allow for sorting by discount
-    const fetchLimit = limit * 3; // Fetch 3x to ensure we have enough after sorting
-    
+  // Fetch all deals from this store
+  async function fetchAllStoreDeals(storeId) {
     const { data, error } = await window.supabaseClient
       .from('cleaned_products')
       .select('hash_id, title, price, sale_price, image, brand, link, currency, description, updated_at')
       .eq('store_id', storeId)
       .eq('status', 'published')
       .not('image', 'is', null)
-      .order('updated_at', { ascending: false })
-      .limit(fetchLimit);
+      .order('updated_at', { ascending: false });
     
     if (error) {
       // console.error('[Supabase] fetch store deals error', error);
@@ -130,8 +138,7 @@
       return new Date(b.updated_at) - new Date(a.updated_at);
     });
     
-    // Return only the requested limit
-    return sortedData.slice(0, limit);
+    return sortedData;
   }
 
   // Format currency helper
@@ -151,6 +158,7 @@
     
     const media = document.createElement('div');
     media.className = 'product-media';
+    media.style.position = 'relative'; // Make media a positioning context
     if (product.image) {
       media.style.background = `center/cover no-repeat url(${CSS.escape ? CSS.escape(product.image) : product.image})`;
     }
@@ -173,12 +181,12 @@
     const hasDiscount = product.sale_price && product.price && Number(product.price) > Number(product.sale_price);
     if (hasDiscount) {
       prices.classList.add('has-discount');
-      // Add discount badge to product card (top right corner)
+      // Add discount badge to MEDIA (image area) so it never overlaps with text
       const discountPercent = Math.round(((Number(product.price) - Number(product.sale_price)) / Number(product.price)) * 100);
       const discountBadge = document.createElement('span');
       discountBadge.className = 'discount-badge';
       discountBadge.textContent = `-${discountPercent}%`;
-      card.appendChild(discountBadge); // Attach to card instead of prices
+      media.appendChild(discountBadge); // FIXED: Attach to media instead of card
     }
     
     const now = document.createElement('span');
@@ -379,6 +387,14 @@
   // Render store deals
   function renderStoreDeals(deals, storeName = '', isSearchResult = false) {
     const dealsGrid = document.getElementById('storeProductsGrid');
+    const productsSection = document.querySelector('.store-products-section');
+    
+    // Remove existing expand/collapse link if present
+    const existingLink = productsSection.querySelector('.expand-products-link');
+    if (existingLink) {
+      existingLink.remove();
+    }
+    
     dealsGrid.innerHTML = '';
     
     if (deals.length === 0) {
@@ -399,11 +415,58 @@
       return;
     }
     
+    // Determine how many products to show
+    const displayLimit = isShowingAllProducts ? deals.length : 6;
+    const dealsToShow = deals.slice(0, displayLimit);
+    
     const fragment = document.createDocumentFragment();
-    deals.forEach(deal => {
+    dealsToShow.forEach(deal => {
       fragment.appendChild(createProductCard(deal, storeName));
     });
     dealsGrid.appendChild(fragment);
+    
+    // Add expand/collapse link if there are more than 6 products
+    if (deals.length > 6) {
+      const currentLang = localStorage.getItem('selectedLanguage') || 'de';
+      
+      const expandLink = document.createElement('div');
+      expandLink.className = 'expand-products-link';
+      
+      if (isShowingAllProducts) {
+        // Show "Show less" option
+        const showLessText = getTranslation('store.showLess', currentLang);
+        expandLink.innerHTML = `<a href="#" class="show-less-link">${showLessText}</a>`;
+      } else {
+        // Show "Show all X products" option
+        const showAllText = getTranslation('store.showAllProducts', currentLang).replace('{count}', deals.length);
+        expandLink.innerHTML = `<a href="#" class="show-all-link">${showAllText}</a>`;
+      }
+      
+      productsSection.appendChild(expandLink);
+      
+      // Add click handler
+      const link = expandLink.querySelector('a');
+      link.addEventListener('click', handleExpandCollapseClick);
+    }
+  }
+
+  // Handle expand/collapse click
+  function handleExpandCollapseClick(e) {
+    e.preventDefault();
+    
+    // Toggle state
+    isShowingAllProducts = !isShowingAllProducts;
+    
+    // Re-render with new state
+    renderStoreDeals(allStoreProducts, currentStoreName);
+    
+    // Smooth scroll to top of products section if collapsing
+    if (!isShowingAllProducts) {
+      const productsSection = document.querySelector('.store-products-section');
+      if (productsSection) {
+        productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
   }
 
   // Show loading state
@@ -439,11 +502,14 @@
     showLoading();
     
     try {
-      // Fetch store details and stats in parallel
+      // Store current store ID globally
+      currentStoreId = storeId;
+      
+      // Fetch store details, stats, and ALL deals in parallel
       const [store, stats, deals] = await Promise.all([
         fetchStoreDetails(storeId),
         fetchStoreStats(storeId),
-        fetchStoreDeals(storeId)
+        fetchAllStoreDeals(storeId)
       ]);
       
       if (!store) {
@@ -454,9 +520,13 @@
       // Update page title
       document.title = `${store.cleaned_name} – Store Details – ShopShout`;
       
-      // Store deals and name globally for search
+      // Store all products and name globally
+      allStoreProducts = deals;
       currentStoreDeals = deals;
       currentStoreName = store.cleaned_name;
+      
+      // Reset expanded state
+      isShowingAllProducts = false;
       
       // Render everything
       renderStoreDetails(store, stats);
@@ -539,6 +609,24 @@
     }
   }
 
+  // Update expand/collapse link text when language changes
+  function updateExpandCollapseLink() {
+    const expandLink = document.querySelector('.expand-products-link a');
+    if (expandLink && allStoreProducts.length > 6) {
+      const currentLang = localStorage.getItem('selectedLanguage') || 'de';
+      
+      if (isShowingAllProducts) {
+        const showLessText = getTranslation('store.showLess', currentLang);
+        expandLink.textContent = showLessText;
+        expandLink.className = 'show-less-link';
+      } else {
+        const showAllText = getTranslation('store.showAllProducts', currentLang).replace('{count}', allStoreProducts.length);
+        expandLink.textContent = showAllText;
+        expandLink.className = 'show-all-link';
+      }
+    }
+  }
+
 
   // Listen for language changes to update store description and features
   function setupLanguageChangeListener() {
@@ -549,6 +637,7 @@
         updateStoreDescription(currentStoreData);
         updateStoreFeatures(currentStoreData);
         updateNoDealsMessage();
+        updateExpandCollapseLink();
       }
     });
     
@@ -559,6 +648,7 @@
         updateStoreDescription(currentStoreData);
         updateStoreFeatures(currentStoreData);
         updateNoDealsMessage();
+        updateExpandCollapseLink();
       }
     });
     
@@ -571,6 +661,7 @@
           updateStoreDescription(currentStoreData);
           updateStoreFeatures(currentStoreData);
           updateNoDealsMessage();
+          updateExpandCollapseLink();
         }, 100);
       }
     });

@@ -59,6 +59,11 @@
       'product.goToStore': 'Zum Shop',
       'product.backToDeals': 'Zurück zu den Deals',
       'product.relatedProducts': 'Ähnliche Produkte',
+      'product.affiliateBonus': '+10%',
+      'product.priceFlow.original': 'Originalpreis',
+      'product.priceFlow.storeDeal': 'Shop-Angebot',
+      'product.priceFlow.yourPrice': 'Dein Preis mit ShopShout',
+      'product.priceFlow.savings': 'Du sparst insgesamt',
       'store.badge': 'TOP-SHOP',
       'store.status': 'Status:',
       'store.visitStore': 'Shop besuchen',
@@ -76,6 +81,8 @@
       'store.shippingService': 'Service:',
       'store.handlingTime': 'Bearbeitungszeit:',
       'store.transitTime': 'Versandzeit:',
+      'store.showAllProducts': 'Alle {count} Produkte anzeigen',
+      'store.showLess': 'Weniger anzeigen',
       'empty': 'Keine Ergebnisse für die aktuellen Filter.',
       'footer.title': 'Deals & Coupons',
       'footer.subtitle': 'Entdecke die besten Deals auf Europas innovativster AI-Deal-Plattform.',
@@ -112,6 +119,10 @@
       'results.count': 'Ergebnisse',
       'results.categories': 'Kategorien',
       'results.priceRange': 'Preis',
+      // Infinite scroll translations
+      'infiniteScroll.loading': 'Weitere Produkte werden geladen...',
+      'infiniteScroll.allLoaded': 'Alle Produkte wurden geladen',
+      'infiniteScroll.noResults': 'Keine Produkte gefunden. Versuchen Sie es mit anderen Filtern.',
       // Privacy page translations
       'privacy.title': 'Datenschutzerklärung',
       // Impressum page translations
@@ -199,6 +210,11 @@
       'product.goToStore': 'Go to store',
       'product.backToDeals': 'Back to deals',
       'product.relatedProducts': 'Related products',
+      'product.affiliateBonus': '+10%',
+      'product.priceFlow.original': 'Original Price',
+      'product.priceFlow.storeDeal': 'Store Deal',
+      'product.priceFlow.yourPrice': 'Your Price with ShopShout',
+      'product.priceFlow.savings': 'Total Savings',
       'store.badge': 'TOP SHOP',
       'store.status': 'Status:',
       'store.visitStore': 'Visit Store',
@@ -216,6 +232,8 @@
       'store.shippingService': 'Service:',
       'store.handlingTime': 'Handling Time:',
       'store.transitTime': 'Transit Time:',
+      'store.showAllProducts': 'Show all {count} products',
+      'store.showLess': 'Show less',
       'empty': 'No results for the current filters.',
       'footer.title': 'Deals & Coupons',
       'footer.subtitle': 'Discover the best deals on Europe\'s most innovative AI deal platform.',
@@ -252,6 +270,10 @@
       'results.count': 'Results',
       'results.categories': 'Categories',
       'results.priceRange': 'Price',
+      // Infinite scroll translations
+      'infiniteScroll.loading': 'Loading more products...',
+      'infiniteScroll.allLoaded': 'All products loaded',
+      'infiniteScroll.noResults': 'No products found. Try different filters.',
       // Privacy page translations
       'privacy.title': 'Privacy Policy',
       // Impressum page translations

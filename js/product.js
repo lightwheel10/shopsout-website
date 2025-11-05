@@ -70,15 +70,16 @@
     }
     
     if (data && data.store_id) {
-      // Get store name
+      // Get store name and logo
       const { data: store } = await window.supabaseClient
         .from('cleaned_stores')
-        .select('cleaned_name')
+        .select('cleaned_name, logo_url')
         .eq('id', data.store_id)
         .single();
       
       if (store) {
         data.store_name = store.cleaned_name;
+        data.store_logo_url = store.logo_url;
       }
     }
     
@@ -242,41 +243,219 @@
     // Update product description with language support
     updateProductDescription(p);
     
-    // Add discount badge AFTER all other DOM manipulations
-    if (hasDiscount) {
-      // Remove any existing discount badges and wrappers first
-      const existingBadges = document.querySelectorAll('.discount-badge, .brand-discount');
-      existingBadges.forEach(badge => badge.remove());
-      const existingWrappers = document.querySelectorAll('.brand-wrapper');
-      existingWrappers.forEach(wrapper => {
-        // Move brand back to original position before removing wrapper
-        const brandElement = wrapper.querySelector('#pdBrand');
-        if (brandElement) {
-          wrapper.parentNode.insertBefore(brandElement, wrapper);
-        }
-        wrapper.remove();
-      });
+    // Hide the brand element AND title outside the card since they're now inside the price flow card
+    const brandElement = document.getElementById('pdBrand');
+    if (brandElement) {
+      brandElement.style.display = 'none';
+    }
+    
+    const titleElement = document.getElementById('pdTitle');
+    if (titleElement) {
+      titleElement.style.display = 'none';
+    }
+    
+    // Remove any existing discount badges and wrappers outside the card
+    const existingBadges = document.querySelectorAll('.discount-badge, .brand-discount, .brand-affiliate');
+    existingBadges.forEach(badge => badge.remove());
+    const existingWrappers = document.querySelectorAll('.brand-wrapper');
+    existingWrappers.forEach(wrapper => {
+      wrapper.remove();
+    });
+    
+    // Create Progressive Discount Flow instead of simple price display
+    if (p.sale_price || p.price) {
+      // Remove any existing price flow containers
+      const existingFlows = document.querySelectorAll('.price-flow-container');
+      existingFlows.forEach(flow => flow.remove());
       
-      // Add discount badge next to brand name
-      const brandElement = document.getElementById('pdBrand');
-      if (brandElement) {
-        const discountPercent = Math.round(((Number(p.price) - Number(p.sale_price)) / Number(p.price)) * 100);
-        const discountBadge = document.createElement('span');
-        discountBadge.className = 'brand-discount';
-        discountBadge.textContent = `-${discountPercent}%`;
+      const pricesContainer = document.querySelector('.deal-prices');
+      if (pricesContainer) {
+        // Hide the old price display
+        pricesContainer.style.display = 'none';
         
-        // Create a wrapper to keep brand and badge on same line
-        const brandWrapper = document.createElement('div');
-        brandWrapper.className = 'brand-wrapper';
-        brandWrapper.style.cssText = 'display: flex; align-items: center; gap: 8px; flex-direction: row;';
+        const currentLang = localStorage.getItem('selectedLanguage') || 'de';
+        const dict = window.translations?.[currentLang] || window.translations?.de || {};
         
-        // Replace brand element with wrapper containing both brand and badge
-        const parentElement = brandElement.parentNode;
-        parentElement.insertBefore(brandWrapper, brandElement);
+        // Create the price flow container
+        const flowContainer = document.createElement('div');
+        flowContainer.className = 'price-flow-container';
         
-        // Move brand to wrapper first, then add badge after
-        brandWrapper.appendChild(brandElement); // Brand first (left)
-        brandWrapper.appendChild(discountBadge); // Badge second (right)
+        // Add product title at the top of the card
+        const cardTitle = document.createElement('h2');
+        cardTitle.className = 'price-flow-title';
+        cardTitle.textContent = p.title || '';
+        cardTitle.style.cssText = 'margin: 0 0 16px 0; font-size: 1.5rem; font-weight: 700; color: var(--text); line-height: 1.3;';
+        flowContainer.appendChild(cardTitle);
+        
+        // Add store name with discount badges on the SAME line
+        const cardHeader = document.createElement('div');
+        cardHeader.className = 'price-flow-header';
+        cardHeader.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-bottom: 20px;';
+        
+        if (p.store_name || p.store_logo_url) {
+          const storeBadge = document.createElement('div');
+          storeBadge.className = 'store-badge';
+          storeBadge.style.marginBottom = '0';
+          
+          // Add logo if available
+          if (p.store_logo_url) {
+            const logoImg = document.createElement('img');
+            logoImg.className = 'store-logo';
+            logoImg.src = p.store_logo_url;
+            logoImg.alt = p.store_name || 'Store';
+            logoImg.onerror = function() {
+              // Fallback if logo fails to load
+              this.style.display = 'none';
+              const fallback = document.createElement('div');
+              fallback.className = 'store-logo-fallback';
+              fallback.textContent = p.store_name ? p.store_name.charAt(0).toUpperCase() : '?';
+              storeBadge.appendChild(fallback);
+            };
+            storeBadge.appendChild(logoImg);
+          } else if (p.store_name) {
+            // Show fallback letter if no logo
+            const fallback = document.createElement('div');
+            fallback.className = 'store-logo-fallback';
+            fallback.textContent = p.store_name.charAt(0).toUpperCase();
+            storeBadge.appendChild(fallback);
+          }
+          
+          cardHeader.appendChild(storeBadge);
+        }
+        
+        // Add discount badges to card header (same line)
+        if (hasDiscount) {
+          const storeDiscountPercent = Math.round(((Number(p.price) - Number(p.sale_price)) / Number(p.price)) * 100);
+          const discountBadgeInCard = document.createElement('span');
+          discountBadgeInCard.className = 'brand-discount';
+          discountBadgeInCard.textContent = `-${storeDiscountPercent}%`;
+          cardHeader.appendChild(discountBadgeInCard);
+        }
+        
+        // Add affiliate badge to card header (same line)
+        const affiliateBadgeInCard = document.createElement('span');
+        affiliateBadgeInCard.className = 'brand-affiliate';
+        affiliateBadgeInCard.textContent = dict['product.affiliateBonus'] || '+10%';
+        cardHeader.appendChild(affiliateBadgeInCard);
+        
+        flowContainer.appendChild(cardHeader);
+        
+        const originalPrice = Number(p.price);
+        const storePrice = p.sale_price ? Number(p.sale_price) : originalPrice;
+        const finalPrice = storePrice * 0.9; // 10% affiliate discount
+        const totalSavings = originalPrice - finalPrice;
+        const totalSavingsPercent = Math.round((totalSavings / originalPrice) * 100);
+        
+        // ALWAYS show original price
+        const originalItem = document.createElement('div');
+        originalItem.className = 'price-flow-item original';
+        
+        const originalLabel = document.createElement('div');
+        originalLabel.className = 'price-flow-label';
+        originalLabel.textContent = dict['product.priceFlow.original'] || 'Original Price';
+        
+        const originalPriceEl = document.createElement('div');
+        originalPriceEl.className = 'price-flow-price';
+        originalPriceEl.textContent = formatCurrency(originalPrice, p.currency || 'EUR');
+        
+        originalItem.appendChild(originalLabel);
+        originalItem.appendChild(originalPriceEl);
+        flowContainer.appendChild(originalItem);
+        
+        // Only show store deal item if there's a store discount
+        if (hasDiscount) {
+          const storeDealItem = document.createElement('div');
+          storeDealItem.className = 'price-flow-item store-deal';
+          
+          const storeDealLabel = document.createElement('div');
+          storeDealLabel.className = 'price-flow-label';
+          storeDealLabel.textContent = dict['product.priceFlow.storeDeal'] || 'Store Deal';
+          
+          const discountBadge = document.createElement('span');
+          discountBadge.className = 'price-flow-badge store-discount';
+          const storeDiscountPercent = Math.round(((originalPrice - storePrice) / originalPrice) * 100);
+          discountBadge.textContent = `-${storeDiscountPercent}%`;
+          storeDealLabel.appendChild(discountBadge);
+          
+          const storePriceEl = document.createElement('div');
+          storePriceEl.className = 'price-flow-price';
+          storePriceEl.textContent = formatCurrency(storePrice, p.currency || 'EUR');
+          
+          storeDealItem.appendChild(storeDealLabel);
+          storeDealItem.appendChild(storePriceEl);
+          flowContainer.appendChild(storeDealItem);
+        }
+        
+        // ShopShout final price (always shown - most prominent)
+        const finalItem = document.createElement('div');
+        finalItem.className = 'price-flow-item shopshout-final';
+        
+        const finalLabel = document.createElement('div');
+        finalLabel.className = 'price-flow-label';
+        finalLabel.textContent = dict['product.priceFlow.yourPrice'] || 'Your Price with ShopShout';
+        
+        const affiliateBadge = document.createElement('span');
+        affiliateBadge.className = 'price-flow-badge affiliate-bonus';
+        affiliateBadge.textContent = '+10%';
+        finalLabel.appendChild(affiliateBadge);
+        
+        const finalPriceEl = document.createElement('div');
+        finalPriceEl.className = 'price-flow-price';
+        finalPriceEl.textContent = formatCurrency(finalPrice, p.currency || 'EUR');
+        
+        finalItem.appendChild(finalLabel);
+        finalItem.appendChild(finalPriceEl);
+        flowContainer.appendChild(finalItem);
+        
+        // Add savings summary
+        const savingsSummary = document.createElement('div');
+        savingsSummary.className = 'price-savings-summary';
+        savingsSummary.innerHTML = `${dict['product.priceFlow.savings'] || 'Total Savings'}: <span class="price-savings-amount">${formatCurrency(totalSavings, p.currency || 'EUR')} (${totalSavingsPercent}%)</span>`;
+        flowContainer.appendChild(savingsSummary);
+        
+        // Add action buttons inside the card
+        const actionsContainer = document.createElement('div');
+        actionsContainer.className = 'price-flow-actions';
+        
+        // Clone the existing buttons and move them into the card
+        const existingCta = document.getElementById('pdCta');
+        const existingBackBtn = document.querySelector('.detail-buttons .btn-outline');
+        
+        if (existingCta) {
+          const ctaClone = existingCta.cloneNode(true);
+          ctaClone.id = 'pdCtaClone'; // Different ID to avoid conflicts
+          
+          // Copy all properties from original button
+          if (p.affiliate_link && p.affiliate_link.trim() !== '') {
+            ctaClone.href = p.affiliate_link;
+            ctaClone.classList.remove('disabled');
+            ctaClone.style.pointerEvents = '';
+            ctaClone.style.cursor = '';
+          } else {
+            ctaClone.href = 'javascript:void(0)';
+            ctaClone.classList.add('disabled');
+            ctaClone.style.pointerEvents = 'none';
+            ctaClone.style.cursor = 'not-allowed';
+          }
+          
+          actionsContainer.appendChild(ctaClone);
+        }
+        
+        if (existingBackBtn) {
+          const backBtnClone = existingBackBtn.cloneNode(true);
+          actionsContainer.appendChild(backBtnClone);
+        }
+        
+        flowContainer.appendChild(actionsContainer);
+        
+        // Hide the original button container
+        const detailButtons = document.querySelector('.detail-buttons');
+        if (detailButtons) {
+          detailButtons.style.display = 'none';
+        }
+        
+        // Insert flow container after prices container
+        pricesContainer.parentNode.insertBefore(flowContainer, pricesContainer.nextSibling);
       }
     }
 
@@ -374,7 +553,7 @@
           const discountBadge = document.createElement('span');
           discountBadge.className = 'discount-badge';
           discountBadge.textContent = `-${discountPercent}%`;
-          card.appendChild(discountBadge); // Attach to card instead of prices
+          media.appendChild(discountBadge); // Attach to media (image area)
         }
         
         const now = document.createElement('span'); now.className = 'price-now'; now.textContent = r.sale_price ? formatCurrency(r.sale_price, r.currency || 'EUR') : formatCurrency(r.price, r.currency || 'EUR');

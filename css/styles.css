@@ -961,6 +961,60 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   line-height: 1.5;
 }
 
+/* Expand/Collapse Products Link */
+.expand-products-link {
+  text-align: center;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+
+.expand-products-link a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 12px 24px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.expand-products-link a:hover {
+  background: var(--bg-secondary);
+  color: var(--primary-dark);
+}
+
+.expand-products-link a:after {
+  content: '→';
+  font-size: 18px;
+  transition: transform 0.2s ease;
+}
+
+.expand-products-link a.show-less-link:after {
+  content: '↑';
+}
+
+.expand-products-link a:hover:after {
+  transform: translateX(4px);
+}
+
+.expand-products-link a.show-less-link:hover:after {
+  transform: translateY(-2px);
+}
+
+/* Product Grid Animation */
+#storeProductsGrid {
+  transition: opacity 0.3s ease;
+}
+
+#storeProductsGrid.updating {
+  opacity: 0.6;
+}
+
 .products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -1034,7 +1088,8 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   box-shadow: 0 10px 20px var(--shadow);
   position: relative;
 }
-.deal-media { background: linear-gradient(120deg, #e9eef5, #f3f5f8); }
+.deal-media { background: linear-gradient(120deg, #e9eef5, #f3f5f8); position: relative; }
+.product-media { position: relative; } /* Ensure product-media is a positioning context for discount badge */
 .deal-body { padding: 14px; display: grid; gap: 8px; }
 .deal-category { color: var(--muted); font-size: .85rem; }
 .deal-title { margin: 0; font-size: 1.02rem; line-height: 1.35; }
@@ -1042,22 +1097,47 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
 .price-now { color: var(--text); font-weight: 700; }
 .price-old { color: var(--muted); text-decoration: line-through; font-size: .9rem; }
 
-/* Discount Badge - Overlapping Top Right Corner, 50% Bigger */
+/* Discount Badge - FIXED: Positioned on IMAGE area to never overlap text */
 .discount-badge {
   background: #ef4444;
   color: white;
-  font-size: 1.125rem; /* 50% bigger than 0.75rem */
+  font-size: 1rem; /* Reduced size to fit better */
   font-weight: 700;
-  padding: 6px 12px; /* Increased padding proportionally */
-  border-radius: 8px; /* Slightly larger border radius */
+  padding: 5px 10px; /* Reduced padding to fit better */
+  border-radius: 6px; /* Slightly smaller border radius */
   position: absolute;
-  top: -18px; /* Moved up to prevent overlap with title */
-  right: -8px; /* Negative value to overlap the right edge */
+  top: 4px; /* Top right corner of image */
+  right: 4px; /* Top right corner of image */
   z-index: 20; /* Higher z-index to ensure it's above everything */
   box-shadow: 0 4px 8px rgba(0,0,0,0.25); /* Enhanced shadow for floating effect */
   white-space: nowrap;
   display: inline-block;
   transform: none;
+}
+
+/* Affiliate Bonus Badge - Positioned below store discount badge */
+.affiliate-badge {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  position: absolute;
+  top: 38px; /* Below the discount badge */
+  right: 4px;
+  z-index: 20;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transform: none;
+}
+
+.affiliate-badge::before {
+  content: '🎁';
+  font-size: 0.85em;
 }
 
 /* Enhanced pricing when discount is present */
@@ -1102,8 +1182,18 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 32px;
-  align-items: start;
+  align-items: stretch; /* Make both columns same height */
   margin-bottom: 24px;
+}
+
+.top-panel .detail-media {
+  height: 100%; /* Fill the height */
+}
+
+.top-panel .detail-body {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Fill the height */
 }
 
 .bottom-panel {
@@ -1269,6 +1359,209 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   flex-shrink: 0; /* Prevent shrinking */
 }
 
+/* Affiliate bonus badge next to brand name in product detail */
+.brand-affiliate {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  flex-shrink: 0;
+}
+
+.brand-affiliate::before {
+  content: '🎁';
+  font-size: 0.85em;
+}
+
+/* Progressive Discount Flow - Product Detail Page */
+.price-flow-container {
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin: 0;
+  box-shadow: 0 4px 12px var(--shadow);
+  height: 100%; /* Fill the available height to match image */
+  display: flex;
+  flex-direction: column;
+}
+
+.price-flow-container .store-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--muted);
+  font-weight: 600;
+  margin-bottom: 16px;
+  padding: 4px 10px;
+  background: var(--accent);
+  border-radius: 6px;
+  height: 28px;
+}
+
+.price-flow-container .store-badge .store-logo {
+  height: 20px;
+  width: auto;
+  max-width: 80px;
+  object-fit: contain;
+}
+
+.price-flow-container .store-badge .store-logo-fallback {
+  width: 24px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--brand-solid);
+  color: white;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border-radius: 4px;
+}
+
+.price-flow-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  position: relative;
+}
+
+.price-flow-item:not(:last-child) {
+  border-bottom: none; /* Remove all border lines between items */
+}
+
+.price-flow-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.price-flow-badge {
+  font-size: 0.8rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+.price-flow-badge.store-discount {
+  background: #fee;
+  color: #dc2626;
+}
+
+.price-flow-badge.affiliate-bonus {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.price-flow-price {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.price-flow-bar {
+  display: none; /* Hide all progress bars */
+}
+
+.price-flow-bar-fill {
+  display: none; /* Hide all progress bars */
+}
+
+/* Original price - strikethrough */
+.price-flow-item.original .price-flow-price {
+  text-decoration: line-through;
+  color: var(--muted);
+  opacity: 0.7;
+  font-size: 1.1rem;
+}
+
+/* Store deal price */
+.price-flow-item.store-deal .price-flow-price {
+  color: #dc2626;
+}
+
+
+/* Final ShopShout price - most prominent */
+.price-flow-item.shopshout-final {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 2px solid #10b981;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 12px 0 0 0;
+  border-bottom: 2px solid #10b981; /* Fix: add bottom border back */
+  width: 100%; /* Ensure it doesn't overflow */
+  box-sizing: border-box; /* Include padding and border in width */
+}
+
+.price-flow-item.shopshout-final .price-flow-label {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #065f46;
+}
+
+.price-flow-item.shopshout-final .price-flow-label::before {
+  content: '🎉';
+  font-size: 1.3em;
+}
+
+.price-flow-item.shopshout-final .price-flow-price {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #059669;
+  text-shadow: 0 1px 2px rgba(5, 150, 105, 0.2);
+}
+
+
+.price-savings-summary {
+  text-align: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: none; /* Remove top border line */
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.price-savings-amount {
+  font-weight: 700;
+  color: #059669;
+  font-size: 1.1em;
+}
+
+/* Buttons inside price flow card */
+.price-flow-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: auto; /* Push buttons to bottom */
+  padding-top: 20px;
+  border-top: none; /* Remove top border line */
+}
+
+.price-flow-actions .btn {
+  flex: 1;
+  text-align: center;
+  justify-content: center;
+}
+
+.price-flow-actions .btn-primary {
+  flex: 2; /* Make primary button larger */
+}
+
 .detail-body h1 {
   order: 2;
   margin: 0;
@@ -1315,114 +1608,70 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   margin-top: 6px;
 }
 
-/* Pagination */
-.pagination { margin-top: 22px; }
-.pagination ul { list-style: none; display: flex; gap: 8px; padding: 0; margin: 0; flex-wrap: wrap; }
-.pagination a, .pagination li { color: var(--text); text-decoration: none; }
-.pagination a { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--border); background: var(--panel); }
-.pagination a:hover { background: var(--accent-2); }
-.pagination a.current { background: var(--brand-gradient); color: white; border-color: var(--brand-solid); }
-.pagination .next { width: auto; padding: 0 12px; }
+/* Infinite Scroll Loader */
+.infinite-scroll-loader {
+  text-align: center;
+  padding: 32px 16px;
+  margin: 24px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
 
-/* Mobile-optimized pagination */
+.infinite-scroll-loader p {
+  margin: 0;
+  color: #666;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+/* Spinner animation */
+.loader-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f0f0f0;
+  border-top: 3px solid var(--brand-solid);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Fade-in animation for newly loaded products */
+.deal-card-v2.fade-in {
+  animation: fadeInUp 0.4s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 860px) {
-  .pagination {
-    margin-top: 24px;
-    display: flex;
-    justify-content: center;
-  }
-  
-  .pagination ul {
+  .infinite-scroll-loader {
+    padding: 28px 12px;
+    margin: 20px 0;
     gap: 12px;
-    justify-content: center;
-    align-items: center;
   }
   
-  .pagination a {
-    width: 44px;
-    height: 44px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    border-radius: 12px;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-    transition: all 0.2s ease;
-  }
-  
-  .pagination a:active {
-    transform: scale(0.95);
-    background: var(--accent-2);
-  }
-  
-  .pagination .next {
-    min-width: 44px;
-    height: 44px;
-    padding: 0 16px;
-    font-weight: 600;
-  }
-  
-  .pagination a.current {
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
-  }
-}
-
-@media (max-width: 560px) {
-  .pagination {
-    margin-top: 20px;
-    padding: 0 8px;
-  }
-  
-  .pagination ul {
-    gap: 10px;
-    max-width: 100%;
-    overflow-x: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    padding: 8px 0;
-  }
-  
-  .pagination ul::-webkit-scrollbar {
-    display: none;
-  }
-  
-  .pagination a {
-    width: 42px;
-    height: 42px;
+  .infinite-scroll-loader p {
     font-size: 0.9rem;
-    flex-shrink: 0;
   }
   
-  .pagination .next {
-    min-width: 42px;
-    height: 42px;
-    padding: 0 14px;
-    font-size: 0.85rem;
-  }
-}
-
-@media (max-width: 390px) {
-  .pagination {
-    margin-top: 16px;
-    padding: 0 4px;
-  }
-  
-  .pagination ul {
-    gap: 8px;
-    padding: 6px 0;
-  }
-  
-  .pagination a {
-    width: 40px;
-    height: 40px;
-    font-size: 0.85rem;
-    border-radius: 10px;
-  }
-  
-  .pagination .next {
-    min-width: 40px;
-    height: 40px;
-    padding: 0 12px;
-    font-size: 0.8rem;
+  .loader-spinner {
+    width: 36px;
+    height: 36px;
+    border-width: 2.5px;
   }
 }
 
@@ -3121,20 +3370,70 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
     margin-bottom: 8px;
   }
   
-  /* Move discount badge higher on mobile for deals page cards only */
+  /* FIXED: Discount badge on image area - mobile */
   .deal-card-v2 .discount-badge {
-    top: -12px; /* Moved up from -8px */
-    right: -8px;
-    font-size: 1rem; /* Slightly smaller on mobile */
-    padding: 5px 10px; /* Adjusted padding */
+    top: 4px; /* Top right corner */
+    right: 4px;
+    font-size: 0.9rem; /* Slightly smaller on mobile */
+    padding: 4px 8px; /* Adjusted padding */
+  }
+  
+  .deal-card-v2 .affiliate-badge,
+  .product-card .affiliate-badge {
+    top: 34px;
+    right: 4px;
+    font-size: 0.8rem;
+    padding: 3px 6px;
   }
   
   /* Specific adjustment for regular product cards (featured/related products) */
   .product-card .discount-badge {
-    top: -10px; /* Moderate adjustment now that overflow is visible */
-    right: -6px;
-    font-size: 1rem;
+    top: 4px; /* Top right corner */
+    right: 4px;
+    font-size: 0.9rem;
+    padding: 4px 8px;
+  }
+  
+  .price-flow-container {
+    padding: 16px;
+  }
+  
+  .price-flow-container .store-badge {
+    font-size: 0.85rem;
     padding: 5px 10px;
+  }
+  
+  .price-flow-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .price-flow-label {
+    font-size: 0.875rem;
+  }
+  
+  .price-flow-price {
+    font-size: 1.2rem;
+    width: 100%;
+    justify-content: flex-end;
+  }
+  
+  .price-flow-item.shopshout-final .price-flow-price {
+    font-size: 1.6rem;
+  }
+  
+  .price-savings-summary {
+    font-size: 0.85rem;
+  }
+  
+  .price-flow-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .price-flow-actions .btn {
+    width: 100%;
   }
 }
 
@@ -3187,19 +3486,27 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
     margin-top: 8px;
   }
   
-  /* Further adjust discount badge for smaller screens - deals page only */
+  /* FIXED: Discount badge on image area - smaller screens */
   .deal-card-v2 .discount-badge {
-    top: -16px; /* Move even higher on smaller screens */
-    right: -6px;
-    font-size: 0.9rem; /* Smaller font */
+    top: 8px; /* Top right corner */
+    right: 8px;
+    font-size: 0.85rem; /* Smaller font */
     padding: 4px 8px; /* Smaller padding */
+  }
+  
+  .deal-card-v2 .affiliate-badge,
+  .product-card .affiliate-badge {
+    top: 32px;
+    right: 8px;
+    font-size: 0.75rem;
+    padding: 3px 6px;
   }
   
   /* Additional adjustment for product cards on smaller screens */
   .product-card .discount-badge {
-    top: -12px; /* Moderate adjustment now that overflow is visible */
-    right: -4px;
-    font-size: 0.9rem;
+    top: 8px; /* Top right corner */
+    right: 8px;
+    font-size: 0.85rem;
     padding: 4px 8px;
   }
 }
@@ -3222,19 +3529,27 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
     padding: 3px 6px;
   }
   
-  /* Optimal discount badge positioning for very small screens - deals page only */
+  /* FIXED: Discount badge on image area - very small screens */
   .deal-card-v2 .discount-badge {
-    top: -18px; /* Move highest on smallest screens */
-    right: -4px;
-    font-size: 0.8rem; /* Smallest font size */
+    top: 8px; /* On image area with spacing */
+    right: 8px;
+    font-size: 0.75rem; /* Smallest font size */
     padding: 3px 6px; /* Minimal padding */
+  }
+  
+  .deal-card-v2 .affiliate-badge,
+  .product-card .affiliate-badge {
+    top: 30px;
+    right: 8px;
+    font-size: 0.7rem;
+    padding: 2px 5px;
   }
   
   /* Maximum adjustment for product cards on smallest screens */
   .product-card .discount-badge {
-    top: -14px; /* Moderate adjustment now that overflow is visible */
-    right: -2px;
-    font-size: 0.8rem;
+    top: 8px; /* On image area with spacing */
+    right: 8px;
+    font-size: 0.75rem;
     padding: 3px 6px;
   }
   
