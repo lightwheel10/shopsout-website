@@ -2274,6 +2274,7 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
     overflow: visible; /* Keep visible to allow discount badge to show */
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    grid-template-rows: 180px 1fr; /* Match the media height */
   }
   
   .product-card:active {
@@ -2282,12 +2283,13 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   }
   
   .product-card .product-media {
-    height: 180px;
+    border-radius: 16px 16px 0 0; /* Match card radius, only round top corners */
   }
   
   .product-card .product-body {
     padding: 16px;
     gap: 10px;
+    border-radius: 0 0 16px 16px; /* Match card radius, only round bottom corners */
   }
   
   .product-card .product-title {
