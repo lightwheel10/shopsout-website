@@ -2200,7 +2200,7 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   .brands-row {
     gap: 12px;
     padding: 16px 0;
-    justify-content: flex-start;
+    justify-content: center;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
