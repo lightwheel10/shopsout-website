@@ -14,7 +14,11 @@
 
   /**
    * Get product identifier from URL
-   * Supports both old format (?id=xxx) and new SEO format (/product/slug-123abc)
+   * Supports multiple URL formats:
+   * - Old format: ?id=xxx or ?hash=xxx
+   * - Query slug: ?slug=xxx
+   * - Path-based SEO: /product/slug--id--productId (Vercel format with marker)
+   * - Path-based SEO: /product/slug-productId (fallback without marker)
    * @returns {string|null} Product ID or hash
    */
   function getProductIdentifier() {
@@ -25,7 +29,7 @@
     if (idParam) return idParam;
     if (hashParam) return hashParam;
 
-    // Priority 2: Check for new SEO-friendly slug format
+    // Priority 2: Check for ?slug= query parameter (legacy SEO format)
     if (window.seoUtils) {
       const slug = getQueryParam('slug');
       if (slug) {
@@ -33,6 +37,38 @@
         if (shortId) {
           return shortId;
         }
+      }
+    }
+
+    // Priority 3: Parse path-based SEO URLs (Vercel deployment)
+    // This handles both /product/slug--id--productId and /product/slug-productId formats
+    const path = window.location.pathname;
+    
+    // Check if we're on a product path
+    const pathMatch = path.match(/\/product\/(.+)/);
+    if (pathMatch && pathMatch[1]) {
+      const slugWithId = pathMatch[1];
+      
+      // First, check if seoUtils can extract the slug and parse it
+      if (window.seoUtils && window.seoUtils.getProductSlugFromUrl) {
+        const extractedSlug = window.seoUtils.getProductSlugFromUrl();
+        if (extractedSlug) {
+          // Try to parse using the --id-- marker format
+          const productId = window.seoUtils.parseProductIdFromSlug(extractedSlug);
+          if (productId) {
+            return productId;
+          }
+        }
+      }
+      
+      // Fallback: Extract the last segment after the final hyphen
+      // This handles formats like: wireless-headphones-1e938cef
+      const parts = slugWithId.split('-');
+      const lastPart = parts[parts.length - 1];
+      
+      // Validate it looks like a short ID (8+ hex chars) or full UUID (32+ hex chars)
+      if (/^[0-9a-f]{8,}$/i.test(lastPart)) {
+        return lastPart;
       }
     }
 
@@ -247,6 +283,11 @@
       
       // Store product data globally for language switching
       currentProductData = p;
+      
+      // Update SEO meta tags with product information
+      if (window.updateProductSEO) {
+        window.updateProductSEO(p);
+      }
       
       // Hide skeleton and show content with animation
       showContentWithAnimation('productDetailSkeleton', 'deal');

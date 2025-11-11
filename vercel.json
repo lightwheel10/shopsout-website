@@ -12,6 +12,14 @@
     {
       "source": "/",
       "destination": "/landing.html"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap.xml"
+    },
+    {
+      "source": "/product-feed.xml",
+      "destination": "/api/product-feed.xml"
     }
   ],
   "headers": [
