@@ -128,6 +128,69 @@
     }
   }
 
+  // Update price flow card text based on current language
+  function updatePriceFlowCardText(product) {
+    if (!product) return;
+    
+    const currentLang = localStorage.getItem('selectedLanguage') || 'de';
+    const dict = window.translations?.[currentLang] || window.translations?.de || {};
+    
+    // Update "Original Price" label
+    const originalLabel = document.querySelector('.price-flow-item.original .price-flow-label');
+    if (originalLabel) {
+      originalLabel.textContent = dict['product.priceFlow.original'] || 'Original Price';
+    }
+    
+    // Update "Store Deal" label
+    const storeDealLabel = document.querySelector('.price-flow-item.store-deal .price-flow-label');
+    if (storeDealLabel) {
+      // Get the discount badge
+      const discountBadge = storeDealLabel.querySelector('.price-flow-badge');
+      const badgeText = discountBadge ? discountBadge.textContent : '';
+      
+      // Update label text
+      storeDealLabel.textContent = dict['product.priceFlow.storeDeal'] || 'Store Deal';
+      
+      // Re-append the badge
+      if (discountBadge && badgeText) {
+        discountBadge.textContent = badgeText;
+        storeDealLabel.appendChild(discountBadge);
+      }
+    }
+    
+    // Update "Your Price with ShopShout" label
+    const finalLabel = document.querySelector('.price-flow-item.shopshout-final .price-flow-label');
+    if (finalLabel) {
+      // Get the affiliate badge
+      const affiliateBadge = finalLabel.querySelector('.price-flow-badge');
+      const badgeText = affiliateBadge ? affiliateBadge.textContent : '+10%';
+      
+      // Update label text
+      finalLabel.textContent = dict['product.priceFlow.yourPrice'] || 'Your Price with ShopShout';
+      
+      // Re-append the badge
+      if (affiliateBadge) {
+        affiliateBadge.textContent = badgeText;
+        finalLabel.appendChild(affiliateBadge);
+      }
+    }
+    
+    // Update "Total Savings" text
+    const savingsSummary = document.querySelector('.price-savings-summary');
+    if (savingsSummary) {
+      const savingsAmount = savingsSummary.querySelector('.price-savings-amount');
+      const amountText = savingsAmount ? savingsAmount.textContent : '';
+      
+      savingsSummary.innerHTML = `${dict['product.priceFlow.savings'] || 'Total Savings'}: <span class="price-savings-amount">${amountText}</span>`;
+    }
+    
+    // Update affiliate badge in header
+    const affiliateBadgeInCard = document.querySelector('.brand-affiliate');
+    if (affiliateBadgeInCard) {
+      affiliateBadgeInCard.textContent = dict['product.affiliateBonus'] || '+10%';
+    }
+  }
+
   // Helper function to show content with animation
   function showContentWithAnimation(skeletonId, contentId, content = null) {
     const skeleton = document.getElementById(skeletonId);
@@ -586,12 +649,13 @@
     }
   }
 
-  // Listen for language changes to update product description
+  // Listen for language changes to update product description and price flow card
   function setupProductLanguageChangeListener() {
     // Listen for language changes (custom event or manual checking)
     document.addEventListener('languageChanged', function() {
       if (currentProductData) {
         updateProductDescription(currentProductData);
+        updatePriceFlowCardText(currentProductData);
       }
     });
     
@@ -599,6 +663,7 @@
     window.addEventListener('storage', function(e) {
       if (e.key === 'selectedLanguage' && currentProductData) {
         updateProductDescription(currentProductData);
+        updatePriceFlowCardText(currentProductData);
       }
     });
     
@@ -608,6 +673,7 @@
         // Small delay to ensure language has been updated
         setTimeout(() => {
           updateProductDescription(currentProductData);
+          updatePriceFlowCardText(currentProductData);
         }, 100);
       }
     });
