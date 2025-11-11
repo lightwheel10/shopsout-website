@@ -9,10 +9,14 @@
   let isShowingAllProducts = false; // Track expanded state
   let currentStoreId = null; // Track current store ID
 
-  // Get store ID from URL parameter
-  function getStoreIdFromURL() {
+  // Get store identifier from URL parameter (supports both 'store' and legacy 'id')
+  function getStoreIdentifierFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('id');
+    // Try 'store' parameter first (new format), then 'id' (legacy format)
+    return {
+      identifier: urlParams.get('store') || urlParams.get('id'),
+      isLegacyId: !urlParams.get('store') && !!urlParams.get('id')
+    };
   }
 
   // Helper function to get translation
@@ -25,12 +29,21 @@
   }
 
   // Fetch store details from cleaned_stores table
-  async function fetchStoreDetails(storeId) {
-    const { data, error } = await window.supabaseClient
+  // Supports lookup by cleaned_name (preferred) or id (legacy)
+  async function fetchStoreDetails(identifier, isLegacyId = false) {
+    let query = window.supabaseClient
       .from('cleaned_stores')
-      .select('*')
-      .eq('id', storeId)
-      .single();
+      .select('*');
+    
+    // If it's a legacy ID (UUID format) or explicitly marked as legacy, use id lookup
+    if (isLegacyId) {
+      query = query.eq('id', identifier);
+    } else {
+      // Try cleaned_name first (new format) - use case-insensitive match
+      query = query.ilike('cleaned_name', identifier);
+    }
+    
+    const { data, error } = await query.single();
     
     if (error) {
       // console.error('[Supabase] fetch store error', error);
@@ -338,8 +351,15 @@
     // Meta information (status display removed per client request)
     
     // Action buttons
-    document.getElementById('visitStoreMainBtn').href = store.url;
-    document.getElementById('viewAllStoreDealsBtn').href = `index.html?store=${store.id}`;
+    // Use affiliate_link_base if available, otherwise fall back to regular url
+    const visitStoreUrl = store.affiliate_link_base && store.affiliate_link_base.trim() !== '' 
+      ? store.affiliate_link_base 
+      : store.url;
+    document.getElementById('visitStoreMainBtn').href = visitStoreUrl;
+    
+    // Use cleaned_name for SEO-friendly URL, fallback to id if not available
+    const storeParam = store.cleaned_name ? encodeURIComponent(store.cleaned_name) : store.id;
+    document.getElementById('viewAllStoreDealsBtn').href = `index.html?store=${storeParam}`;
     
     // Statistics Card
     document.getElementById('totalActiveDeals').textContent = stats.totalProducts || '0';
@@ -492,9 +512,9 @@
 
   // Initialize store page
   async function initStorePage() {
-    const storeId = getStoreIdFromURL();
+    const { identifier, isLegacyId } = getStoreIdentifierFromURL();
     
-    if (!storeId) {
+    if (!identifier) {
       showError();
       return;
     }
@@ -502,20 +522,22 @@
     showLoading();
     
     try {
-      // Store current store ID globally
-      currentStoreId = storeId;
-      
-      // Fetch store details, stats, and ALL deals in parallel
-      const [store, stats, deals] = await Promise.all([
-        fetchStoreDetails(storeId),
-        fetchStoreStats(storeId),
-        fetchAllStoreDeals(storeId)
-      ]);
+      // Fetch store details first to get the actual store ID
+      const store = await fetchStoreDetails(identifier, isLegacyId);
       
       if (!store) {
         showError();
         return;
       }
+      
+      // Store current store ID globally
+      currentStoreId = store.id;
+      
+      // Fetch stats and ALL deals in parallel using the actual store ID
+      const [stats, deals] = await Promise.all([
+        fetchStoreStats(store.id),
+        fetchAllStoreDeals(store.id)
+      ]);
       
       // Update page title
       document.title = `${store.cleaned_name} – Store Details – ShopShout`;

@@ -23,7 +23,9 @@
   function createShopCard(store) {
     const card = document.createElement('a');
     card.className = 'shop-card';
-    card.href = `store.html?id=${encodeURIComponent(store.id)}`;
+    // Use cleaned_name for SEO-friendly URLs, fallback to id if cleaned_name is not available
+    const storeParam = store.cleaned_name ? encodeURIComponent(store.cleaned_name) : encodeURIComponent(store.id);
+    card.href = `store.html?store=${storeParam}`;
     card.setAttribute('data-store-id', store.id);
     
     // Use cleaned_name only

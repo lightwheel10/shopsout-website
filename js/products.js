@@ -7,9 +7,29 @@
   // Initialize store name from URL parameter if present
   async function initializeStoreNameFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
-    const storeId = urlParams.get('store');
-    if (storeId && !storeNames[storeId]) {
-      await fetchStoreNames([storeId]);
+    const storeParam = urlParams.get('store');
+    
+    if (!storeParam) return;
+    
+    // Check if it's a UUID (legacy format) or a cleaned_name
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(storeParam);
+    
+    if (isUUID) {
+      // Legacy: fetch store name by ID
+      if (!storeNames[storeParam]) {
+        await fetchStoreNames([storeParam]);
+      }
+    } else {
+      // New: storeParam is already the cleaned_name, just cache it (case-insensitive)
+      const { data: storeData } = await window.supabaseClient
+        .from('cleaned_stores')
+        .select('id, cleaned_name')
+        .ilike('cleaned_name', storeParam)
+        .single();
+      
+      if (storeData) {
+        storeNames[storeData.id] = storeData.cleaned_name;
+      }
     }
   }
 
@@ -518,15 +538,33 @@
       // URL parameters for category and store filters
       const urlParams = new URLSearchParams(window.location.search);
       const categoryParam = urlParams.get('category');
-      const storeId = urlParams.get('store');
+      const storeParam = urlParams.get('store');
       
       // Auto-select category from URL parameter
       if (categoryParam && !selectedCategories.includes(categoryParam)) {
         query = query.eq('ai_category', categoryParam);
       }
       
-      if (storeId) {
-        query = query.eq('store_id', storeId);
+      // Handle store filter - support both cleaned_name and UUID
+      if (storeParam) {
+        // Check if it looks like a UUID (legacy format)
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(storeParam);
+        
+        if (isUUID) {
+          // Legacy: filter by store_id directly
+          query = query.eq('store_id', storeParam);
+        } else {
+          // New: need to look up store ID from cleaned_name first (case-insensitive)
+          const { data: storeData } = await window.supabaseClient
+            .from('cleaned_stores')
+            .select('id')
+            .ilike('cleaned_name', storeParam)
+            .single();
+          
+          if (storeData) {
+            query = query.eq('store_id', storeData.id);
+          }
+        }
       }
       
       // Text search
@@ -605,11 +643,22 @@
       }
       
       const urlParams = new URLSearchParams(window.location.search);
-      const storeId = urlParams.get('store');
-      if (storeId && storeNames[storeId]) {
-        filters.push(`Store: ${storeNames[storeId]}`);
-      } else if (storeId) {
-        filters.push(`Store: ${storeId}`);
+      const storeParam = urlParams.get('store');
+      
+      if (storeParam) {
+        // Check if it's a UUID (legacy) or cleaned_name
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(storeParam);
+        
+        if (isUUID && storeNames[storeParam]) {
+          // Legacy UUID: show the cached name
+          filters.push(`Store: ${storeNames[storeParam]}`);
+        } else if (isUUID) {
+          // Legacy UUID but no cached name
+          filters.push(`Store: ${storeParam}`);
+        } else {
+          // New format: storeParam is already the cleaned_name
+          filters.push(`Store: ${storeParam}`);
+        }
       }
       
       const filterText = filters.length > 0 ? ` • ${filters.join(' • ')}` : '';
