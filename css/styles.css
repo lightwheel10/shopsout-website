@@ -3445,19 +3445,21 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   }
   
   .price-flow-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+    flex-direction: row; /* Keep row layout - label and price on same line */
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
   }
   
   .price-flow-label {
     font-size: 0.875rem;
+    flex: 0 1 auto; /* Allow label to shrink if needed */
   }
   
   .price-flow-price {
     font-size: 1.2rem;
-    width: 100%;
-    justify-content: flex-end;
+    flex: 0 0 auto; /* Don't shrink the price */
+    text-align: right;
   }
   
   .price-flow-item.shopshout-final .price-flow-price {
