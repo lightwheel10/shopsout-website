@@ -86,9 +86,36 @@
         <div class="hero-copy">
           <h1 data-i18n-html="landing.hero.title">Discover top <span class="highlight">deals & coupons</span> from trusted stores</h1>
           <p class="muted" data-i18n="landing.hero.subtitle">A curated marketplace for quality offers across categories you love.</p>
-          <div class="hero-ctas">
-            <a class="btn" href="index.html" data-i18n="landing.hero.ctaPrimary">Shop deals</a>
-          </div>
+          
+          <!-- Hero Signup Form -->
+          <form class="hero-signup-form">
+            <div class="hero-signup-inputs">
+              <input 
+                type="text" 
+                class="hero-signup-input" 
+                placeholder="Name" 
+                data-i18n-placeholder="hero.namePlaceholder"
+                required
+              />
+              <input 
+                type="email" 
+                class="hero-signup-input" 
+                placeholder="E-Mail" 
+                data-i18n-placeholder="hero.emailPlaceholder"
+                required
+              />
+              <button type="submit" class="btn hero-signup-btn" data-i18n="hero.signupButton">Abonnieren</button>
+            </div>
+            <div class="hero-social-proof">
+              <div class="subscriber-avatars">
+                <img class="avatar-img" src="https://i.pravatar.cc/150?img=1" alt="User avatar" loading="lazy" />
+                <img class="avatar-img" src="https://i.pravatar.cc/150?img=5" alt="User avatar" loading="lazy" />
+                <img class="avatar-img" src="https://i.pravatar.cc/150?img=9" alt="User avatar" loading="lazy" />
+                <img class="avatar-img" src="https://i.pravatar.cc/150?img=12" alt="User avatar" loading="lazy" />
+              </div>
+              <p class="social-proof-text" data-i18n="hero.socialProof">Über 2.500 Nutzer sparen bereits mit uns!</p>
+            </div>
+          </form>
         </div>
         <div class="hero-art">
           <!-- Hero Product Skeleton -->
@@ -420,6 +447,28 @@
             <li><a href="privacy.html" data-i18n="footer.links.privacy">Datenschutz</a></li>
             <li><a href="impressum.html" data-i18n="footer.links.impressum">Impressum</a></li>
           </ul>
+        </div>
+        <div class="footer-col footer-newsletter">
+          <h4 data-i18n="newsletter.title">Newsletter</h4>
+          <p data-i18n="newsletter.description">Erhalte exklusive Deals direkt in dein Postfach!</p>
+          <!-- TODO: Add newsletter backend API integration -->
+          <form class="newsletter-form">
+            <input 
+              type="text" 
+              class="newsletter-input" 
+              placeholder="Dein Name" 
+              data-i18n-placeholder="newsletter.namePlaceholder"
+              required
+            />
+            <input 
+              type="email" 
+              class="newsletter-input" 
+              placeholder="Deine E-Mail" 
+              data-i18n-placeholder="newsletter.emailPlaceholder"
+              required
+            />
+            <button type="submit" class="newsletter-btn" data-i18n="newsletter.button">Abonnieren</button>
+          </form>
         </div>
       </div>
       <div class="container footer-bottom">

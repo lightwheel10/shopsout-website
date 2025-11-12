@@ -43,6 +43,10 @@
       'landing.hero.title': 'Entdecke Top-<span class="highlight">Angebote & Deals</span> von vertrauenswürdigen Shops',
       'landing.hero.subtitle': 'Dein Marktplatz für hochwertige & geprüfte Angebote aus vielen Kategorien – geprüft von AI.',
       'landing.hero.ctaPrimary': 'Alle Deals',
+      'hero.namePlaceholder': 'Name',
+      'hero.emailPlaceholder': 'E-Mail',
+      'hero.signupButton': 'Abonnieren',
+      'hero.socialProof': 'Über 2.500 Nutzer sparen bereits mit uns!',
       'landing.featured.title': 'Empfohlene Produkte',
       'landing.featured.link': 'Alle Angebote ansehen',
       'landing.featured.cta': 'Jetzt kaufen',
@@ -60,6 +64,7 @@
       'product.backToDeals': 'Zurück zu den Deals',
       'product.relatedProducts': 'Ähnliche Produkte',
       'product.affiliateBonus': '+10%',
+      'product.extra': 'Extra',
       'product.priceFlow.original': 'Originalpreis',
       'product.priceFlow.storeDeal': 'Shop-Angebot',
       'product.priceFlow.yourPrice': 'Dein Preis mit ShopShout',
@@ -188,7 +193,13 @@
       'cats.toys': 'Spielzeug',
       'cats.travel': 'Reise',
       'cats.hotel': 'Hotel',
-      'cats.wellness': 'Wellness'
+      'cats.wellness': 'Wellness',
+      'newsletter.title': 'Newsletter',
+      'newsletter.description': 'Erhalte exklusive Deals direkt in dein Postfach!',
+      'newsletter.namePlaceholder': 'Dein Name',
+      'newsletter.emailPlaceholder': 'Deine E-Mail',
+      'newsletter.button': 'Abonnieren',
+      'newsletter.success': '🎉 Vielen Dank! Du wirst bald von uns hören!'
     },
     en: {
       'nav.home': 'Home',
@@ -211,6 +222,7 @@
       'product.backToDeals': 'Back to deals',
       'product.relatedProducts': 'Related products',
       'product.affiliateBonus': '+10%',
+      'product.extra': 'Extra',
       'product.priceFlow.original': 'Original Price',
       'product.priceFlow.storeDeal': 'Store Deal',
       'product.priceFlow.yourPrice': 'Your Price with ShopShout',
@@ -355,9 +367,19 @@
       'cats.travel': 'Travel',
       'cats.hotel': 'Hotel',
       'cats.wellness': 'Wellness',
+      'newsletter.title': 'Newsletter',
+      'newsletter.description': 'Get exclusive deals straight to your inbox!',
+      'newsletter.namePlaceholder': 'Your Name',
+      'newsletter.emailPlaceholder': 'Your Email',
+      'newsletter.button': 'Subscribe',
+      'newsletter.success': '🎉 Thank you! You\'ll hear from us soon!',
       'landing.hero.title': 'Discover top <span class="highlight">deals & savings</span> from trusted stores',
       'landing.hero.subtitle': 'A curated marketplace for quality offers across categories you love backed by AI.',
       'landing.hero.ctaPrimary': 'See all Deals',
+      'hero.namePlaceholder': 'Name',
+      'hero.emailPlaceholder': 'Email',
+      'hero.signupButton': 'Subscribe',
+      'hero.socialProof': 'Join 2,500+ users already saving with us!',
       'landing.metrics.publishers': 'Publishers onboard',
       'landing.metrics.salesPerDay': 'Sales per day',
       'landing.metrics.uplift': 'Average uplift',
@@ -903,6 +925,148 @@
 
   // Setup search on all pages
   setupGlobalSearch();
+
+  // Confetti animation function
+  function createConfetti() {
+    const confettiCount = 50;
+    const colors = ['#667eea', '#764ba2', '#f59e0b', '#10b981', '#ec4899', '#3b82f6'];
+    
+    for (let i = 0; i < confettiCount; i++) {
+      const confetti = document.createElement('div');
+      confetti.style.position = 'fixed';
+      confetti.style.width = '10px';
+      confetti.style.height = '10px';
+      confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      confetti.style.left = Math.random() * 100 + '%';
+      confetti.style.top = '-10px';
+      confetti.style.opacity = '1';
+      confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+      confetti.style.pointerEvents = 'none';
+      confetti.style.zIndex = '9999';
+      confetti.style.transform = 'rotate(' + (Math.random() * 360) + 'deg)';
+      
+      document.body.appendChild(confetti);
+      
+      const duration = Math.random() * 3 + 2;
+      const xMovement = (Math.random() - 0.5) * 100;
+      
+      confetti.animate([
+        { 
+          transform: 'translateY(0) translateX(0) rotate(0deg)',
+          opacity: 1 
+        },
+        { 
+          transform: `translateY(${window.innerHeight + 20}px) translateX(${xMovement}px) rotate(${Math.random() * 720}deg)`,
+          opacity: 0 
+        }
+      ], {
+        duration: duration * 1000,
+        easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+      });
+      
+      setTimeout(() => {
+        confetti.remove();
+      }, duration * 1000);
+    }
+  }
+
+  // Newsletter form handler (footer forms with name + email)
+  function setupNewsletterForms() {
+    const forms = document.querySelectorAll('.newsletter-form');
+    
+    forms.forEach(form => {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const nameInput = form.querySelector('input[type="text"]');
+        const emailInput = form.querySelector('input[type="email"]');
+        const button = form.querySelector('.newsletter-btn');
+        
+        if (!nameInput.value.trim() || !emailInput.value.trim()) {
+          return;
+        }
+        
+        // Get current language
+        const currentLang = localStorage.getItem('selectedLanguage') || 'de';
+        
+        // Trigger confetti
+        createConfetti();
+        
+        // Update button to show success
+        const originalButtonText = button.textContent;
+        button.textContent = '✓ ' + (currentLang === 'de' ? 'Erfolgreich!' : 'Success!');
+        button.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+        button.disabled = true;
+        
+        // Reset form
+        form.reset();
+        
+        // Reset button after 3 seconds
+        setTimeout(() => {
+          button.textContent = originalButtonText;
+          button.style.background = '';
+          button.disabled = false;
+        }, 3000);
+        
+        // TODO: Add actual newsletter API integration here
+        console.log('Newsletter subscription:', {
+          name: nameInput.value,
+          email: emailInput.value
+        });
+      });
+    });
+  }
+
+  // Hero signup form handler (name + email)
+  function setupHeroSignupForm() {
+    const form = document.querySelector('.hero-signup-form');
+    if (!form) return;
+    
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const inputs = form.querySelectorAll('.hero-signup-input');
+      const nameInput = inputs[0];
+      const emailInput = inputs[1];
+      const button = form.querySelector('.hero-signup-btn');
+      
+      if (!nameInput.value.trim() || !emailInput.value.trim()) {
+        return;
+      }
+      
+      // Get current language
+      const currentLang = localStorage.getItem('selectedLanguage') || 'de';
+      
+      // Trigger confetti
+      createConfetti();
+      
+      // Update button to show success
+      const originalButtonText = button.textContent;
+      button.textContent = '✓ ' + (currentLang === 'de' ? 'Erfolgreich!' : 'Success!');
+      button.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+      button.disabled = true;
+      
+      // Reset form
+      form.reset();
+      
+      // Reset button after 3 seconds
+      setTimeout(() => {
+        button.textContent = originalButtonText;
+        button.style.background = '';
+        button.disabled = false;
+      }, 3000);
+      
+      // TODO: Add actual newsletter API integration here
+      console.log('Hero signup:', {
+        name: nameInput.value,
+        email: emailInput.value
+      });
+    });
+  }
+
+  // Initialize forms
+  setupNewsletterForms();
+  setupHeroSignupForm();
 })();
 
 

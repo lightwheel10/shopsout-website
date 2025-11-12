@@ -1137,7 +1137,7 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
 }
 
 .affiliate-badge::before {
-  content: '🎁';
+  content: attr(data-text);
   font-size: 0.85em;
 }
 
@@ -1377,7 +1377,7 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
 }
 
 .brand-affiliate::before {
-  content: '🎁';
+  content: attr(data-text);
   font-size: 0.85em;
 }
 
@@ -1678,16 +1678,88 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
 
 /* Footer */
 .site-footer { border-top: 1px solid var(--border); margin-top: 32px; background: #ffffff; }
-.footer-inner { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 24px; padding: 28px 0; }
+.footer-inner { display: grid; grid-template-columns: 1fr 0.8fr 1fr; gap: 32px; padding: 28px 0; }
 .footer-actions { display: flex; align-items: center; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
 .footer-socials { display: inline-flex; gap: 8px; }
-.footer-col h4 { margin-top: 0; }
+.footer-col h4 { margin-top: 0; margin-bottom: 16px; }
 .footer-links, .footer-tags { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
 .footer-links a, .footer-tags a { color: var(--muted); text-decoration: none; }
 .footer-links a:hover, .footer-tags a:hover { color: var(--text); }
 .footer-bottom { border-top: 1px solid var(--border); padding: 12px 0 28px; }
 .muted { color: var(--muted); }
 .small { font-size: .9rem; }
+
+/* Newsletter Form */
+.footer-newsletter { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 0;
+}
+
+.footer-newsletter h4 {
+  margin: 0 0 10px 0;
+}
+
+.footer-newsletter p { 
+  color: var(--muted); 
+  font-size: 0.9rem; 
+  line-height: 1.5; 
+  margin: 0 0 12px 0;
+}
+
+.newsletter-form { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 8px;
+  width: 100%;
+}
+
+.newsletter-input { 
+  width: 100%;
+  padding: 8px 12px; 
+  border: 1px solid var(--border); 
+  border-radius: 8px; 
+  font-size: 0.95rem; 
+  font-family: inherit;
+  background: var(--panel);
+  color: var(--text);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  min-height: 44px;
+}
+
+.newsletter-input:focus { 
+  outline: none; 
+  border-color: var(--brand-solid);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.newsletter-input::placeholder {
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+.newsletter-btn { 
+  width: 100%;
+  padding: 8px 12px; 
+  background: var(--brand-gradient);
+  color: white; 
+  border: 1px solid var(--brand-solid);
+  border-radius: 8px; 
+  font-weight: 600; 
+  font-size: 0.95rem;
+  cursor: pointer; 
+  transition: all 0.2s ease;
+  font-family: inherit;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.newsletter-btn:hover { 
+  background: var(--brand-gradient-hover);
+}
 
 /* Responsive */
 @media (max-width: 1000px) {
@@ -1696,9 +1768,99 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
 /* Landing page */
 .hero { background: radial-gradient(1200px 500px at 10% -20%, #f4f8ff, var(--bg) 60%); border-bottom: 1px solid var(--border); }
 .hero-inner { display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; align-items: center; padding: 48px 0; }
-.hero-copy h1 { font-size: 2.2rem; margin: 0 0 10px; }
+.hero-copy h1 { font-size: 2.2rem; margin: 0 0 10px; line-height: 1.2; }
 .hero-copy .highlight { background: var(--brand-gradient); color: white; padding: 2px 6px; border-radius: 6px; }
-.hero-ctas { display: flex; gap: 10px; margin-top: 12px; }
+.hero-copy .muted { margin-bottom: 24px; font-size: 1.05rem; }
+
+/* Hero Signup Form */
+.hero-signup-form {
+  max-width: 560px;
+}
+
+.hero-signup-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr 100px;
+  gap: 10px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+.hero-signup-input {
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  background: white;
+  color: var(--text);
+  transition: all 0.2s ease;
+  min-height: 48px;
+  box-sizing: border-box;
+}
+
+.hero-signup-input:focus {
+  outline: none;
+  border-color: var(--brand-solid);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.hero-signup-input::placeholder {
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+.hero-signup-btn {
+  white-space: nowrap;
+  padding: 12px 20px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  min-height: 48px;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Hero Social Proof */
+.hero-social-proof {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.subscriber-avatars {
+  display: flex;
+  align-items: center;
+}
+
+.avatar-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid white;
+  margin-left: -10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  object-fit: cover;
+  transition: transform 0.2s ease;
+}
+
+.avatar-img:first-child {
+  margin-left: 0;
+}
+
+.avatar-img:hover {
+  transform: scale(1.1);
+  z-index: 10;
+}
+
+.social-proof-text {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.hero-ctas { display: flex; gap: 10px; margin-top: 0; }
 .hero-art { position: relative; height: auto; display: flex; justify-content: center; align-items: center; }
 .hero-product {
   height: 420px;
@@ -1968,6 +2130,37 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   .product-card.hero-product { 
     grid-template-rows: 200px 1fr; /* Reduced image height to give more space to content */
   }
+  .hero-signup-inputs {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .hero-signup-input {
+    width: 100%;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  .hero-signup-btn {
+    width: 100%;
+    padding: 14px 24px;
+  }
+  
+  .hero-social-proof {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+    text-align: center;
+  }
+  
+  .social-proof-text {
+    font-size: 0.85rem;
+  }
+  
+  .subscriber-avatars {
+    justify-content: center;
+  }
+  
   .hero-ctas { 
     justify-content: center; 
     flex-wrap: wrap;
@@ -2356,6 +2549,19 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
   .footer-links a {
     padding: 8px 0;
     font-size: 0.95rem;
+  }
+  
+  /* Newsletter mobile styles */
+  .footer-newsletter {
+    padding: 16px 0;
+  }
+  
+  .newsletter-input {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  .newsletter-btn {
+    padding: 12px 16px;
   }
   
   /* Product Detail Mobile Optimizations */

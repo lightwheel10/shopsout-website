@@ -224,6 +224,7 @@
     const affiliateBadgeInCard = document.querySelector('.brand-affiliate');
     if (affiliateBadgeInCard) {
       affiliateBadgeInCard.textContent = dict['product.affiliateBonus'] || '+10%';
+      affiliateBadgeInCard.setAttribute('data-text', dict['product.extra'] || 'Extra');
     }
   }
 
@@ -440,6 +441,7 @@
         const affiliateBadgeInCard = document.createElement('span');
         affiliateBadgeInCard.className = 'brand-affiliate';
         affiliateBadgeInCard.textContent = dict['product.affiliateBonus'] || '+10%';
+        affiliateBadgeInCard.setAttribute('data-text', dict['product.extra'] || 'Extra');
         cardHeader.appendChild(affiliateBadgeInCard);
         
         flowContainer.appendChild(cardHeader);
@@ -498,10 +500,11 @@
         finalLabel.className = 'price-flow-label';
         finalLabel.textContent = dict['product.priceFlow.yourPrice'] || 'Your Price with ShopShout';
         
-        const affiliateBadge = document.createElement('span');
-        affiliateBadge.className = 'price-flow-badge affiliate-bonus';
-        affiliateBadge.textContent = '+10%';
-        finalLabel.appendChild(affiliateBadge);
+        // Removed +10% badge from price flow as per user request
+        // const affiliateBadge = document.createElement('span');
+        // affiliateBadge.className = 'price-flow-badge affiliate-bonus';
+        // affiliateBadge.textContent = '+10%';
+        // finalLabel.appendChild(affiliateBadge);
         
         const finalPriceEl = document.createElement('div');
         finalPriceEl.className = 'price-flow-price';
