@@ -4306,35 +4306,115 @@ input[type="range"] { width: 100%; accent-color: var(--brand-solid); }
 @media (max-width: 768px) {
   .affiliate-modal {
     max-width: 100%;
-    margin: 16px;
+    margin: 12px;
     grid-template-columns: 1fr;
+    border-radius: 10px;
   }
   
   .affiliate-modal-header {
-    padding: 24px 20px;
+    padding: 20px 16px;
     border-right: none;
     border-bottom: 1px solid var(--border);
   }
   
   .affiliate-modal-body {
-    padding: 24px 20px;
+    padding: 20px 16px 10px;
   }
   
   .affiliate-modal-title {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+  }
+  
+  .affiliate-modal-subtitle {
+    font-size: 0.8rem;
   }
   
   .affiliate-modal-discount {
-    font-size: 2rem;
+    font-size: 1.8rem;
+  }
+  
+  .affiliate-modal-discount-text {
+    font-size: 0.75rem;
   }
   
   .affiliate-modal-icon {
-    width: 48px;
-    height: 48px;
-    font-size: 24px;
+    width: 44px;
+    height: 44px;
+    font-size: 22px;
+    margin-bottom: 10px;
+  }
+  
+  .affiliate-modal-highlight {
+    padding: 16px 12px;
+    margin-bottom: 14px;
   }
   
   .affiliate-modal-highlight::before {
+    font-size: 16px;
+    top: -12px;
+  }
+  
+  .affiliate-modal-btn {
+    padding: 12px 18px;
+    font-size: 0.9rem;
+  }
+  
+  .affiliate-modal-email-section {
+    padding-top: 12px;
+  }
+  
+  .affiliate-modal-label {
+    font-size: 0.65rem;
+  }
+  
+  .affiliate-modal-email-group .affiliate-modal-input {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+  }
+  
+  .affiliate-modal-btn-small {
+    padding: 8px 12px;
+    font-size: 0.75rem;
+  }
+  
+  .affiliate-modal-note {
+    font-size: 0.6rem;
+    margin-top: 5px;
+  }
+  
+  .affiliate-modal-close {
+    top: 10px;
+    right: 10px;
+    width: 28px;
+    height: 28px;
     font-size: 18px;
+  }
+  
+  /* Price comparison on mobile */
+  .affiliate-modal-price-comparison {
+    margin-top: 12px;
+    padding: 10px;
+  }
+  
+  .price-row {
+    padding: 5px 0;
+  }
+  
+  .price-label {
+    font-size: 0.7rem;
+  }
+  
+  .price-value {
+    font-size: 0.85rem;
+  }
+  
+  .price-value.price-highlight {
+    font-size: 1rem;
+  }
+  
+  .price-savings {
+    margin-top: 8px;
+    padding-top: 6px;
+    font-size: 0.65rem;
   }
 }
