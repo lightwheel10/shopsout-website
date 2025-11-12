@@ -319,31 +319,25 @@
       setVisible(old, true);
     }
     // Coupon display removed
-    // Use affiliate_link for the button, completely disable if not available
+    // Store affiliate link in data attribute (not href) to prevent direct navigation
     if (p.affiliate_link && p.affiliate_link.trim() !== '') { 
-      cta.href = p.affiliate_link;
+      // Store the link in data attribute instead of href
+      cta.setAttribute('data-affiliate-link', p.affiliate_link);
+      cta.href = 'javascript:void(0);'; // Completely prevent navigation
+      cta.removeAttribute('target'); // Remove target="_blank" to prevent auto redirect
       cta.classList.remove('disabled');
       cta.style.pointerEvents = '';
-      cta.onclick = null;
       cta.title = '';
-      cta.style.cursor = '';
+      cta.style.cursor = 'pointer';
     } else { 
       // COMPLETELY disable the button
-      cta.href = 'javascript:void(0)';
+      cta.removeAttribute('data-affiliate-link');
+      cta.href = 'javascript:void(0);';
+      cta.removeAttribute('target');
       cta.classList.add('disabled');
       cta.style.pointerEvents = 'none';
       cta.style.cursor = 'not-allowed';
       cta.title = 'Affiliate link not available';
-      cta.addEventListener('click', function(e) { 
-        e.preventDefault(); 
-        e.stopImmediatePropagation(); 
-        return false; 
-      }, true);
-      cta.onclick = function(e) { 
-        e.preventDefault(); 
-        e.stopImmediatePropagation(); 
-        return false; 
-      };
     }
     // Update product description with language support
     updateProductDescription(p);
@@ -532,14 +526,18 @@
           const ctaClone = existingCta.cloneNode(true);
           ctaClone.id = 'pdCtaClone'; // Different ID to avoid conflicts
           
-          // Copy all properties from original button
+          // Copy all properties from original button and use data attribute
           if (p.affiliate_link && p.affiliate_link.trim() !== '') {
-            ctaClone.href = p.affiliate_link;
+            ctaClone.setAttribute('data-affiliate-link', p.affiliate_link);
+            ctaClone.href = 'javascript:void(0);'; // Completely prevent navigation
+            ctaClone.removeAttribute('target'); // Remove target="_blank"
             ctaClone.classList.remove('disabled');
             ctaClone.style.pointerEvents = '';
-            ctaClone.style.cursor = '';
+            ctaClone.style.cursor = 'pointer';
           } else {
-            ctaClone.href = 'javascript:void(0)';
+            ctaClone.removeAttribute('data-affiliate-link');
+            ctaClone.href = 'javascript:void(0);';
+            ctaClone.removeAttribute('target');
             ctaClone.classList.add('disabled');
             ctaClone.style.pointerEvents = 'none';
             ctaClone.style.cursor = 'not-allowed';
@@ -726,6 +724,296 @@
   // Initialize language change listener
   setupProductLanguageChangeListener();
 
+  /**
+   * Create and show affiliate modal popup
+   * Shows discount info and email capture before redirecting
+   */
+  function showAffiliateModal(affiliateLink, productData = null) {
+    // Get current language for translations
+    const currentLang = localStorage.getItem('selectedLanguage') || 'de';
+    const dict = window.translations?.[currentLang] || window.translations?.de || {};
+    
+    // Calculate prices if product data available
+    let priceHTML = '';
+    if (productData && (productData.price || productData.sale_price)) {
+      const originalPrice = Number(productData.price) || Number(productData.sale_price);
+      const currentPrice = Number(productData.sale_price) || originalPrice;
+      const shopshoutPrice = currentPrice * 0.9;
+      const savings = originalPrice - shopshoutPrice;
+      const currency = productData.currency || 'EUR';
+      
+      priceHTML = `
+        <div class="affiliate-modal-price-comparison">
+          <div class="price-row price-original">
+            <span class="price-label">${currentLang === 'de' ? 'Originalpreis' : 'Original Price'}</span>
+            <span class="price-value">${formatCurrency(originalPrice, currency)}</span>
+          </div>
+          <div class="price-row price-shopshout">
+            <span class="price-label">${currentLang === 'de' ? 'Mit ShopShout' : 'With ShopShout'}</span>
+            <span class="price-value price-highlight">${formatCurrency(shopshoutPrice, currency)}</span>
+          </div>
+          <div class="price-savings">
+            ${currentLang === 'de' ? 'Du sparst' : 'You save'} <strong>${formatCurrency(savings, currency)}</strong>
+          </div>
+        </div>
+      `;
+    }
+    
+    // Create modal overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'affiliate-modal-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-labelledby', 'affiliate-modal-title');
+    
+    // Modal content
+    overlay.innerHTML = `
+      <div class="affiliate-modal">
+        <button class="affiliate-modal-close" aria-label="Close modal">&times;</button>
+        
+        <div class="affiliate-modal-header">
+          <div class="affiliate-modal-icon">🎉</div>
+          <h2 id="affiliate-modal-title" class="affiliate-modal-title">
+            ${currentLang === 'de' ? 'Exklusiver Bonus!' : 'Exclusive Bonus!'}
+          </h2>
+          ${priceHTML}
+        </div>
+        
+        <div class="affiliate-modal-body">
+          <div class="affiliate-modal-highlight">
+            <div class="affiliate-modal-discount">+10%</div>
+            <p class="affiliate-modal-discount-text">
+              ${currentLang === 'de' 
+                ? 'Extra Rabatt durch ShopShout' 
+                : 'Extra discount through ShopShout'}
+            </p>
+          </div>
+          
+          <form class="affiliate-modal-form" id="affiliateModalForm">
+            <div class="affiliate-modal-actions">
+              <button type="button" class="affiliate-modal-btn affiliate-modal-btn-primary" id="continueToStoreBtn">
+                ${currentLang === 'de' ? 'Weiter zum Shop' : 'Continue to Store'}
+              </button>
+            </div>
+            
+            <div class="affiliate-modal-email-section">
+              <label class="affiliate-modal-label" for="affiliateEmail">
+                ${currentLang === 'de' 
+                  ? '💌 Erhalte die besten Deals per E-Mail (optional)' 
+                  : '💌 Get the best deals via email (optional)'}
+              </label>
+              <div class="affiliate-modal-email-group">
+                <input 
+                  type="email" 
+                  id="affiliateEmail" 
+                  class="affiliate-modal-input" 
+                  placeholder="${currentLang === 'de' ? 'deine@email.com' : 'your@email.com'}"
+                />
+                <button type="submit" class="affiliate-modal-btn-small">
+                  ${currentLang === 'de' ? 'Senden' : 'Send'}
+                </button>
+              </div>
+              <p class="affiliate-modal-note">
+                ${currentLang === 'de' 
+                  ? 'Keine Sorge - Kein Spam, nur die besten Angebote!' 
+                  : 'Don\'t worry - No spam, only the best deals!'}
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
+    `;
+    
+    // Append to body
+    document.body.appendChild(overlay);
+    
+    // Get form elements
+    const form = overlay.querySelector('#affiliateModalForm');
+    const emailInput = overlay.querySelector('#affiliateEmail');
+    const closeBtn = overlay.querySelector('.affiliate-modal-close');
+    const continueBtn = overlay.querySelector('#continueToStoreBtn');
+    
+    // Handle "Continue to Store" button click
+    continueBtn.addEventListener('click', function() {
+      closeModalAndSwitchToStore();
+    });
+    
+    // Handle form submit - email capture
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const email = emailInput.value.trim();
+      
+      if (email) {
+        // TODO: Add email capture functionality
+        // Send email to Supabase or newsletter service
+        // Example:
+        // await window.supabaseClient
+        //   .from('newsletter_subscribers')
+        //   .insert([{ email: email, source: 'affiliate_modal' }]);
+        
+        // Email captured successfully
+        
+        // Show success feedback
+        emailInput.value = '';
+        emailInput.placeholder = currentLang === 'de' ? '✓ Danke!' : '✓ Thanks!';
+        emailInput.disabled = true;
+        setTimeout(() => {
+          emailInput.disabled = false;
+          emailInput.placeholder = currentLang === 'de' ? 'deine@email.com' : 'your@email.com';
+        }, 2000);
+      }
+    });
+    
+    // Handle close button - just close modal, stay on page
+    closeBtn.addEventListener('click', function() {
+      closeModalOnly();
+    });
+    
+    // Handle overlay click (close on backdrop click)
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) {
+        closeModalOnly();
+      }
+    });
+    
+    // Handle Escape key
+    function handleEscape(e) {
+      if (e.key === 'Escape') {
+        closeModalOnly();
+      }
+    }
+    document.addEventListener('keydown', handleEscape);
+    
+    // Close modal only - user stays on product page
+    function closeModalOnly() {
+      // Remove event listener
+      document.removeEventListener('keydown', handleEscape);
+      
+      // Fade out animation
+      overlay.style.opacity = '0';
+      
+      // Remove modal after animation
+      setTimeout(() => {
+        if (overlay.parentNode) {
+          overlay.parentNode.removeChild(overlay);
+        }
+      }, 300);
+      
+      // User stays on product page in new tab
+    }
+    
+    // Close modal and switch to affiliate store tab
+    function closeModalAndSwitchToStore() {
+      // Remove event listener
+      document.removeEventListener('keydown', handleEscape);
+      
+      // Fade out animation
+      overlay.style.opacity = '0';
+      
+      // Remove modal after animation
+      setTimeout(() => {
+        if (overlay.parentNode) {
+          overlay.parentNode.removeChild(overlay);
+        }
+      }, 300);
+      
+      // Open affiliate link (this will switch to that tab or open a new one)
+      setTimeout(() => {
+        window.open(affiliateLink, '_blank', 'noopener,noreferrer');
+      }, 400);
+    }
+    
+    // Focus on email input for accessibility
+    setTimeout(() => {
+      emailInput.focus();
+    }, 400);
+  }
+
+  /**
+   * Setup click handlers for affiliate buttons
+   * Intercepts clicks to show modal and open in new tab
+   */
+  function setupAffiliateButtonHandlers() {
+    // Handle main CTA button clicks
+    document.addEventListener('click', function(e) {
+      // Check if clicked element is a "Go to Store" button
+      const ctaButton = e.target.closest('#pdCta, #pdCtaClone');
+      
+      if (ctaButton && !ctaButton.classList.contains('disabled')) {
+        // Get affiliate link from data attribute
+        const affiliateLink = ctaButton.getAttribute('data-affiliate-link');
+        
+        if (affiliateLink) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          
+          // Open current product page in NEW TAB with modal (so user can continue browsing)
+          // Add URL parameters to trigger the modal with product data
+          const currentUrl = new URL(window.location.href);
+          currentUrl.searchParams.set('showModal', 'true');
+          currentUrl.searchParams.set('affiliateUrl', encodeURIComponent(affiliateLink));
+          
+          // Pass current product data if available
+          if (currentProductData) {
+            currentUrl.searchParams.set('productData', encodeURIComponent(JSON.stringify({
+              price: currentProductData.price,
+              sale_price: currentProductData.sale_price,
+              currency: currentProductData.currency
+            })));
+          }
+          
+          window.open(currentUrl.toString(), '_blank', 'noopener,noreferrer');
+          
+          // IMMEDIATELY redirect current page to affiliate link (no modal here)
+          setTimeout(() => {
+            window.location.href = affiliateLink;
+          }, 100);
+          
+          return false;
+        }
+      }
+    }, true); // Use capture phase to ensure we catch it first
+  }
+
+  // Initialize affiliate button handlers
+  setupAffiliateButtonHandlers();
+
+  // Check if this page was opened in a new tab and should show the modal
+  function checkAndShowModalFromNewTab() {
+    // Check URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const shouldShowModal = urlParams.get('showModal');
+    const affiliateUrl = urlParams.get('affiliateUrl');
+    const productDataParam = urlParams.get('productData');
+    
+    if (shouldShowModal === 'true' && affiliateUrl) {
+      const decodedAffiliateUrl = decodeURIComponent(affiliateUrl);
+      let productData = null;
+      
+      if (productDataParam) {
+        try {
+          productData = JSON.parse(decodeURIComponent(productDataParam));
+        } catch (e) {
+          console.error('[Affiliate Modal] Failed to parse product data:', e);
+        }
+      }
+      
+      // Remove the URL parameters to clean up the URL
+      urlParams.delete('showModal');
+      urlParams.delete('affiliateUrl');
+      urlParams.delete('productData');
+      const cleanUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+      window.history.replaceState({}, '', cleanUrl);
+      
+      // Show modal immediately (as fast as possible)
+      showAffiliateModal(decodedAffiliateUrl, productData);
+    }
+  }
+  
+  // Check after render completes
   await render();
+  checkAndShowModalFromNewTab();
 })();
 
