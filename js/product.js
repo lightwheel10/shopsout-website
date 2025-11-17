@@ -875,11 +875,18 @@
             </div>
             
             <div class="affiliate-modal-email-section">
-              <label class="affiliate-modal-label" for="affiliateEmail">
+              <label class="affiliate-modal-label" for="affiliateName">
                 ${currentLang === 'de' 
                   ? '💌 Erhalte die besten Deals per E-Mail (optional)' 
                   : '💌 Get the best deals via email (optional)'}
               </label>
+              <input 
+                type="text" 
+                id="affiliateName" 
+                class="affiliate-modal-input" 
+                placeholder="${currentLang === 'de' ? 'Name' : 'Name'}"
+                style="width: 100%; margin-bottom: 12px;"
+              />
               <div class="affiliate-modal-email-group">
                 <input 
                   type="email" 
@@ -907,6 +914,7 @@
     
     // Get form elements
     const form = overlay.querySelector('#affiliateModalForm');
+    const nameInput = overlay.querySelector('#affiliateName');
     const emailInput = overlay.querySelector('#affiliateEmail');
     const closeBtn = overlay.querySelector('.affiliate-modal-close');
     const continueBtn = overlay.querySelector('#continueToStoreBtn');
@@ -920,6 +928,7 @@
     form.addEventListener('submit', function(e) {
       e.preventDefault();
       
+      const name = nameInput.value.trim();
       const email = emailInput.value.trim();
       const submitBtn = form.querySelector('button[type="submit"]');
       
@@ -927,8 +936,9 @@
         // Get current language at submission time (not from closure)
         const currentLang = localStorage.getItem('selectedLanguage') || 'en';
         
-        // Send email to webhook
+        // Send name and email to webhook
         sendToWebhook({
+          name: name || null,
           email: email,
           source: 'affiliate_modal',
           timestamp: new Date().toISOString()
@@ -943,6 +953,8 @@
         submitBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
         submitBtn.disabled = true;
         
+        nameInput.value = '';
+        nameInput.disabled = true;
         emailInput.value = '';
         emailInput.disabled = true;
         
@@ -951,6 +963,7 @@
           submitBtn.textContent = originalButtonText;
           submitBtn.style.background = '';
           submitBtn.disabled = false;
+          nameInput.disabled = false;
           emailInput.disabled = false;
         }, 3000);
       }
@@ -1015,9 +1028,9 @@
       }, 400);
     }
     
-    // Focus on email input for accessibility
+    // Focus on name input for accessibility
     setTimeout(() => {
-      emailInput.focus();
+      nameInput.focus();
     }, 400);
   }
 
