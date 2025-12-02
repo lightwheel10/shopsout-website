@@ -498,7 +498,7 @@
       }
     }
     
-    // Add language change listener to update categories
+    // Add language change listener to update categories and reload deals
     function setupCategoryLanguageListener() {
       // Listen for language changes
       document.addEventListener('click', function(e) {
@@ -506,6 +506,9 @@
           // Small delay to ensure language has been updated
           setTimeout(() => {
             loadCategories();
+            // Reload deals grid to show descriptions in the new language
+            resetInfiniteScroll();
+            goTo(1);
           }, 100);
         }
       });
@@ -514,6 +517,9 @@
       window.addEventListener('storage', function(e) {
         if (e.key === 'selectedLanguage') {
           loadCategories();
+          // Reload deals grid to show descriptions in the new language
+          resetInfiniteScroll();
+          goTo(1);
         }
       });
     }
@@ -523,7 +529,7 @@
       const to = from + pageSize - 1;
       let query = window.supabaseClient
         .from('cleaned_products')
-        .select('hash_id, title, price, sale_price, image, brand, link, affiliate_link, currency, description, store_id, ai_category', { count: 'exact' })
+        .select('hash_id, title, price, sale_price, image, brand, link, affiliate_link, currency, description, description_english, store_id, ai_category', { count: 'exact' })
         .eq('status', 'published')
         .not('image', 'is', null)
         .not('store_id', 'is', null)
