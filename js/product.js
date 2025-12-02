@@ -323,9 +323,6 @@
   }
 
   async function render() {
-    // Add a small delay to show the skeleton loading effect
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
     // Get product ID from URL (supports both old and new formats)
     const id = getProductIdentifier();
     // console.log('[Product Debug] URL ID:', id);
@@ -660,9 +657,6 @@
 
   async function loadRelatedProducts(product) {
     try {
-      // Add delay for related products skeleton
-      await new Promise(resolve => setTimeout(resolve, 400));
-      
       const { data: sameBrand } = await window.supabaseClient
         .from('cleaned_products')
         .select('hash_id, product_id, title, price, sale_price, image, brand, currency, store_id')

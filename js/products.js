@@ -951,9 +951,6 @@
   // Landing page: featured and best sections with skeleton loading
   if (document.getElementById('featuredGrid')) {
     try {
-      // Add a small delay to show the skeleton loading effect
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
       const list = await fetchFeaturedProducts(4);
       const grid = document.getElementById('featuredGrid');
       
@@ -978,9 +975,6 @@
   
   if (document.getElementById('bestGrid')) {
     try {
-      // Add a small delay to show the skeleton loading effect
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
       const list = await fetchTopProducts(9);
       const grid = document.getElementById('bestGrid');
       
