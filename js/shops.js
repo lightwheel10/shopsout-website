@@ -1,14 +1,14 @@
 (async function(){
   if (!window.supabaseClient) return;
 
-  // Fetch stores from the cleaned_stores table
+  // Fetch stores from the stores table
   async function fetchStores(limit = 50) {
     const { data, error } = await window.supabaseClient
-      .from('cleaned_stores')
-      .select('id, name, cleaned_name, logo_url, url, description, status, is_published_to_deals')
+      .from('stores')
+      .select('id, name, logo_url, url, description, status, is_published')
       .eq('status', 'active')
-      .eq('is_published_to_deals', true)
-      .not('cleaned_name', 'is', null)
+      .eq('is_published', true)
+      .not('name', 'is', null)
       .order('name', { ascending: true })
       .limit(limit);
     
@@ -23,13 +23,13 @@
   function createShopCard(store) {
     const card = document.createElement('a');
     card.className = 'shop-card';
-    // Use cleaned_name for SEO-friendly URLs, fallback to id if cleaned_name is not available
-    const storeParam = store.cleaned_name ? encodeURIComponent(store.cleaned_name) : encodeURIComponent(store.id);
+    // Use name for SEO-friendly URLs, fallback to id if name is not available
+    const storeParam = store.name ? encodeURIComponent(store.name) : encodeURIComponent(store.id);
     card.href = `store.html?store=${storeParam}`;
     card.setAttribute('data-store-id', store.id);
     
-    // Use cleaned_name only
-    const displayName = store.cleaned_name;
+    // Use name only
+    const displayName = store.name;
     
     const logoDiv = document.createElement('div');
     logoDiv.className = 'shop-logo';
@@ -119,7 +119,7 @@
           } else {
             // Filter stores by name
             const filteredStores = stores.filter(store => {
-              const name = (store.cleaned_name || '').toLowerCase();
+              const name = (store.name || '').toLowerCase();
               return name.includes(searchTerm);
             });
             renderShops(filteredStores);

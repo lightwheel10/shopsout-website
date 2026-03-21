@@ -146,9 +146,10 @@
   async function fetchProduct(idOrHash) {
     // console.log('[Product Debug] fetchProduct called with:', idOrHash);
     let query = window.supabaseClient
-      .from('cleaned_products')
-      .select('hash_id, product_id, title, description, description_english, price, sale_price, link, image, brand, currency, coupon_code, coupon_value, availability, store_id, affiliate_link')
-      .eq('status', 'published')
+      .from('products')
+      .select('hash_id, id, title, cleaned_title, description_de, description_en, price, original_price, product_url, image_url, brand, currency, coupon_code, coupon_value, in_stock, store_id, affiliate_link')
+      .eq('is_published', true)
+      .is('deleted_at', null)
       .not('store_id', 'is', null)
       .limit(1);
     if (!idOrHash) {
@@ -157,32 +158,46 @@
     }
     if (/^[0-9a-f-]{36}$/i.test(idOrHash)) {
       // console.log('[Product Debug] Using product_id field for UUID:', idOrHash);
-      query = query.eq('product_id', idOrHash);
+      query = query.eq('id', idOrHash);
     } else if (/^[0-9a-f]{8}$/i.test(idOrHash)) {
       // console.log('[Product Debug] Using short ID (first 8 chars) for:', idOrHash);
       // Short ID from SEO URL - search for products starting with this prefix
-      query = query.or(`hash_id.ilike.${idOrHash}%,product_id.ilike.${idOrHash}%`);
+      query = query.or(`hash_id.ilike.${idOrHash}%,id.ilike.${idOrHash}%`);
     } else {
       // console.log('[Product Debug] Using hash_id field for:', idOrHash);
       query = query.eq('hash_id', idOrHash);
     }
     const { data, error } = await query.single();
-    // console.log('[Product Debug] Query result - data:', data, 'error:', error);
-    if (error) { 
-      // console.log('[Product Debug] Database error:', error); 
-      return { data: null }; 
+    if (error) {
+      return { data: null };
     }
-    
+
+    // Remap v2 column names to the field names the rendering code expects.
+    // This avoids changing hundreds of field references throughout the UI code.
+    if (data) {
+      data.product_id = data.id;
+      data.description = data.description_de;
+      data.description_english = data.description_en;
+      data.image = data.image_url;
+      data.link = data.product_url;
+      // V2 price mapping: v2.price = current/sale price, v2.original_price = full price
+      // V1 had: price = original, sale_price = discounted
+      data.sale_price = data.price;
+      data.price = data.original_price || data.price;
+      data.availability = data.in_stock ? 'in_stock' : 'out_of_stock';
+      if (data.cleaned_title) data.title = data.cleaned_title;
+    }
+
     if (data && data.store_id) {
       // Get store name, logo, and coupon code
       const { data: store } = await window.supabaseClient
-        .from('cleaned_stores')
-        .select('cleaned_name, logo_url, coupon_code')
+        .from('stores')
+        .select('name, logo_url, coupon_code')
         .eq('id', data.store_id)
         .single();
       
       if (store) {
-        data.store_name = store.cleaned_name;
+        data.store_name = store.name;
         data.store_logo_url = store.logo_url;
         data.store_coupon_code = store.coupon_code;
       }
@@ -658,26 +673,29 @@
   async function loadRelatedProducts(product) {
     try {
       const { data: sameBrand } = await window.supabaseClient
-        .from('cleaned_products')
-        .select('hash_id, product_id, title, price, sale_price, image, brand, currency, store_id')
-        .eq('status', 'published')
-        .not('image', 'is', null)
+        .from('products')
+        .select('hash_id, id, title, cleaned_title, price, original_price, image_url, brand, currency, store_id')
+        .eq('is_published', true)
+        .is('deleted_at', null)
+        .not('image_url', 'is', null)
         .not('store_id', 'is', null)
         .eq('store_id', product.store_id)
         .neq('hash_id', product.hash_id)
         .order('updated_at', { ascending: false, nullsFirst: false })
         .limit(6);
-      let items = sameBrand || [];
+      let items = (sameBrand || []).map(r => ({ ...r, product_id: r.id, image: r.image_url, sale_price: r.price, price: r.original_price || r.price, title: r.cleaned_title || r.title }));
       if (items.length < 6) {
         const { data: fallback } = await window.supabaseClient
-          .from('cleaned_products')
-          .select('hash_id, product_id, title, price, sale_price, image, brand, currency, store_id')
-          .eq('status', 'published')
-          .not('image', 'is', null)
+          .from('products')
+          .select('hash_id, id, title, cleaned_title, price, original_price, image_url, brand, currency, store_id')
+          .eq('is_published', true)
+          .is('deleted_at', null)
+          .not('image_url', 'is', null)
           .not('store_id', 'is', null)
           .neq('hash_id', product.hash_id)
           .order('updated_at', { ascending: false, nullsFirst: false })
           .limit(6 - items.length);
+        items = items.concat((fallback || []).map(r => ({ ...r, product_id: r.id, image: r.image_url, sale_price: r.price, price: r.original_price || r.price, title: r.cleaned_title || r.title })));
         items = items.concat(fallback || []);
       }
       
@@ -688,13 +706,13 @@
         
         if (storeIds.length > 0) {
           const { data: stores } = await window.supabaseClient
-            .from('cleaned_stores')
-            .select('id, cleaned_name')
+            .from('stores')
+            .select('id, name')
             .in('id', storeIds);
           
           if (stores) {
             stores.forEach(store => {
-              storeMap[store.id] = store.cleaned_name;
+              storeMap[store.id] = store.name;
             });
           }
         }

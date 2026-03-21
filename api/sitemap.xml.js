@@ -77,16 +77,18 @@ export default async function handler(req, res) {
   try {
     // Initialize Supabase client
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: { persistSession: false }
+      auth: { persistSession: false },
+      db: { schema: 'v2' }
     });
 
     // Fetch all published products
     const { data: products, error } = await supabase
-      .from('cleaned_products')
-      .select('hash_id, title, updated_at')
-      .eq('status', 'published')
+      .from('products')
+      .select('hash_id, name, updated_at')
+      .eq('is_published', true)
+      .is('deleted_at', null)
       .not('store_id', 'is', null)
-      .not('image', 'is', null)
+      .not('image_url', 'is', null)
       .order('updated_at', { ascending: false });
 
     if (error) {
@@ -125,9 +127,9 @@ export default async function handler(req, res) {
 
     // Product pages
     productList.forEach(product => {
-      if (!product.hash_id || !product.title) return;
+      if (!product.hash_id || !product.name) return;
 
-      const productUrl = createProductUrl(product.hash_id, product.title);
+      const productUrl = createProductUrl(product.hash_id, product.name);
       const lastmod = formatDate(product.updated_at);
 
       xml += '  <url>\n';

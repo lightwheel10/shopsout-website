@@ -28,19 +28,19 @@
     return key;
   }
 
-  // Fetch store details from cleaned_stores table
-  // Supports lookup by cleaned_name (preferred) or id (legacy)
+  // Fetch store details from stores table
+  // Supports lookup by name (preferred) or id (legacy)
   async function fetchStoreDetails(identifier, isLegacyId = false) {
     let query = window.supabaseClient
-      .from('cleaned_stores')
+      .from('stores')
       .select('*');
-    
+
     // If it's a legacy ID (UUID format) or explicitly marked as legacy, use id lookup
     if (isLegacyId) {
       query = query.eq('id', identifier);
     } else {
-      // Try cleaned_name first (new format) - use case-insensitive match
-      query = query.ilike('cleaned_name', identifier);
+      // Try name first (new format) - use case-insensitive match
+      query = query.ilike('name', identifier);
     }
     
     const { data, error } = await query.single();
@@ -57,21 +57,24 @@
     try {
       // Get total products count
       const { count: totalProducts } = await window.supabaseClient
-        .from('cleaned_products')
+        .from('products')
         .select('*', { count: 'exact', head: true })
         .eq('store_id', storeId)
-        .eq('status', 'published');
+        .eq('is_published', true)
+        .is('deleted_at', null);
 
       // Get products with prices for discount calculation
-      const { data: products } = await window.supabaseClient
-        .from('cleaned_products')
-        .select('price, sale_price, updated_at')
+      const { data: rawProducts } = await window.supabaseClient
+        .from('products')
+        .select('price, original_price, updated_at')
         .eq('store_id', storeId)
-        .eq('status', 'published')
+        .eq('is_published', true)
+        .is('deleted_at', null)
+        .not('original_price', 'is', null)
         .not('price', 'is', null)
-        .not('sale_price', 'is', null)
         .order('updated_at', { ascending: false })
         .limit(100);
+      const products = rawProducts ? rawProducts.map(r => ({ ...r, sale_price: r.price, price: r.original_price || r.price })) : null;
 
       // Calculate average discount
       let avgDiscount = 0;
@@ -79,7 +82,7 @@
         const discounts = products
           .filter(p => p.price > p.sale_price)
           .map(p => ((p.price - p.sale_price) / p.price) * 100);
-        
+
         if (discounts.length > 0) {
           avgDiscount = Math.round(discounts.reduce((a, b) => a + b, 0) / discounts.length);
         }
@@ -87,10 +90,11 @@
 
       // Get last deal added date
       const { data: lastDeal } = await window.supabaseClient
-        .from('cleaned_products')
+        .from('products')
         .select('updated_at')
         .eq('store_id', storeId)
-        .eq('status', 'published')
+        .eq('is_published', true)
+        .is('deleted_at', null)
         .order('updated_at', { ascending: false })
         .limit(1);
 
@@ -111,23 +115,26 @@
 
   // Fetch all deals from this store
   async function fetchAllStoreDeals(storeId) {
-    const { data, error } = await window.supabaseClient
-      .from('cleaned_products')
-      .select('hash_id, title, price, sale_price, image, brand, link, currency, description, updated_at')
+    const { data: rawData, error } = await window.supabaseClient
+      .from('products')
+      .select('id, hash_id, title, cleaned_title, original_price, price, image_url, brand, product_url, currency, description, updated_at')
       .eq('store_id', storeId)
-      .eq('status', 'published')
-      .not('image', 'is', null)
+      .eq('is_published', true)
+      .is('deleted_at', null)
+      .not('image_url', 'is', null)
       .order('updated_at', { ascending: false });
     
     if (error) {
       // console.error('[Supabase] fetch store deals error', error);
       return [];
     }
-    
-    if (!data || data.length === 0) {
+
+    if (!rawData || rawData.length === 0) {
       return [];
     }
-    
+
+    const data = rawData.map(r => ({ ...r, product_id: r.id, image: r.image_url, link: r.product_url, sale_price: r.price, price: r.original_price || r.price, title: r.cleaned_title || r.title }));
+
     // Sort products by discount percentage (highest first)
     const sortedData = data.sort((a, b) => {
       // Calculate discount percentage for product A
@@ -277,7 +284,7 @@
     // Update badge
     const badge = document.getElementById('storeBadge');
     if (badge) {
-      if (store.is_published_to_deals) {
+      if (store.is_published) {
         badge.textContent = currentLang === 'de' ? 'TOP-SHOP' : 'TOP SHOP';
       } else {
         badge.textContent = currentLang === 'de' ? 'SHOP-HIGHLIGHT' : 'STORE HIGHLIGHT';
@@ -324,7 +331,7 @@
     // Store the data globally for language switching
     currentStoreData = store;
     
-    const displayName = store.cleaned_name;
+    const displayName = store.name;
     
     // Hero Section
     document.getElementById('storeMainTitle').textContent = displayName;
@@ -333,7 +340,7 @@
     const badge = document.getElementById('storeBadge');
     // Get current language for badge text
     const currentLang = localStorage.getItem('selectedLanguage') || 'en';
-    if (store.is_published_to_deals) {
+    if (store.is_published) {
       badge.textContent = currentLang === 'de' ? 'Top-Shop' : 'Top Shop';
       badge.style.background = '#10b981';
     } else {
@@ -357,8 +364,8 @@
       : store.url;
     document.getElementById('visitStoreMainBtn').href = visitStoreUrl;
     
-    // Use cleaned_name for SEO-friendly URL, fallback to id if not available
-    const storeParam = store.cleaned_name ? encodeURIComponent(store.cleaned_name) : store.id;
+    // Use name for SEO-friendly URL, fallback to id if not available
+    const storeParam = store.name ? encodeURIComponent(store.name) : store.id;
     document.getElementById('viewAllStoreDealsBtn').href = `index.html?store=${storeParam}`;
     
     // Statistics Card
@@ -540,19 +547,19 @@
       ]);
       
       // Update page title
-      document.title = `${store.cleaned_name} – Store Details – ShopShout`;
+      document.title = `${store.name} – Store Details – ShopShout`;
       
       // Store all products and name globally
       allStoreProducts = deals;
       currentStoreDeals = deals;
-      currentStoreName = store.cleaned_name;
+      currentStoreName = store.name;
       
       // Reset expanded state
       isShowingAllProducts = false;
       
       // Render everything
       renderStoreDetails(store, stats);
-      renderStoreDeals(deals, store.cleaned_name);
+      renderStoreDeals(deals, store.name);
       
       showContent();
       

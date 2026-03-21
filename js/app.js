@@ -615,34 +615,36 @@
   let heroProducts = [];
   async function loadHeroProducts() {
     if (!window.supabaseClient) return [];
-    const { data, error } = await window.supabaseClient
-      .from('cleaned_products')
-      .select('hash_id, title, price, sale_price, image, brand, currency, store_id')
-      .eq('status', 'published')
+    const { data: rawData, error } = await window.supabaseClient
+      .from('products')
+      .select('id, hash_id, title, cleaned_title, original_price, price, image_url, brand, currency, store_id')
+      .eq('is_published', true)
+      .is('deleted_at', null)
       .eq('is_slider', true)
-      .not('image', 'is', null)
+      .not('image_url', 'is', null)
       .not('store_id', 'is', null)
       .order('updated_at', { ascending: false, nullsFirst: false })
       .limit(5);
-    if (error || !data) return [];
-    
+    if (error || !rawData) return [];
+    const data = rawData.map(r => ({ ...r, product_id: r.id, image: r.image_url, link: r.product_url, sale_price: r.price, price: r.original_price || r.price, title: r.cleaned_title || r.title }));
+
     // Get store names for all products
     const storeIds = [...new Set(data.map(p => p.store_id).filter(Boolean))];
     const storeMap = {};
-    
+
     if (storeIds.length > 0) {
       const { data: stores } = await window.supabaseClient
-        .from('cleaned_stores')
-        .select('id, cleaned_name')
+        .from('stores')
+        .select('id, name')
         .in('id', storeIds);
-      
+
       if (stores) {
         stores.forEach(store => {
-          storeMap[store.id] = store.cleaned_name;
+          storeMap[store.id] = store.name;
         });
       }
     }
-    
+
     return data.map(p => ({
       id: p.hash_id,
       brand: storeMap[p.store_id] || p.brand || '',
@@ -762,11 +764,11 @@
     
     try {
       const { data, error } = await window.supabaseClient
-        .from('cleaned_stores')
-        .select('id, name, cleaned_name, logo_url, url')
+        .from('stores')
+        .select('id, name, logo_url, url')
         .eq('status', 'active')
         .eq('is_featured', true)
-        .not('cleaned_name', 'is', null)
+        .not('name', 'is', null)
         .order('name', { ascending: true })
         .limit(6);
       
@@ -786,8 +788,8 @@
         data.forEach(store => {
           const storeElement = document.createElement('div');
           storeElement.className = 'brand-logo';
-          
-          const displayName = store.cleaned_name;
+
+          const displayName = store.name;
           
           if (store.logo_url) {
             // Create store element with logo only
@@ -859,26 +861,28 @@
 
           // Search database
           currentRequest = window.supabaseClient
-            .from('cleaned_products')
-            .select('hash_id, title, image, sale_price, price, currency, brand')
-            .eq('status', 'published')
-            .not('image', 'is', null)
+            .from('products')
+            .select('id, hash_id, title, cleaned_title, image_url, price, original_price, currency, brand')
+            .eq('is_published', true)
+            .is('deleted_at', null)
+            .not('image_url', 'is', null)
             .or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,brand.ilike.%${searchTerm}%`)
             .order('updated_at', { ascending: false })
             .limit(3);
 
-          const { data, error } = await currentRequest;
+          const { data: rawSearchData, error } = await currentRequest;
           currentRequest = null;
 
           if (error) throw error;
+          const data = rawSearchData ? rawSearchData.map(r => ({ ...r, product_id: r.id, image: r.image_url, link: r.product_url, sale_price: r.price, price: r.original_price || r.price, title: r.cleaned_title || r.title })) : null;
 
           if (data && data.length > 0) {
             dropdown.innerHTML = data.map(product => {
               // Use SEO-friendly URL if available, otherwise fallback to old format
-              const productUrl = window.seoUtils 
-                ? window.seoUtils.createSeoFriendlyProductUrl(product.hash_id, product.title) 
+              const productUrl = window.seoUtils
+                ? window.seoUtils.createSeoFriendlyProductUrl(product.hash_id, product.title)
                 : `product.html?id=${product.hash_id}`;
-              
+
               return `
                 <a href="${productUrl}" class="search-result-item">
                   <img src="${product.image}" alt="${product.title}" class="search-result-image" loading="lazy">

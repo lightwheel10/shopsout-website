@@ -11,24 +11,24 @@
     
     if (!storeParam) return;
     
-    // Check if it's a UUID (legacy format) or a cleaned_name
+    // Check if it's a UUID (legacy format) or a store name
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(storeParam);
-    
+
     if (isUUID) {
       // Legacy: fetch store name by ID
       if (!storeNames[storeParam]) {
         await fetchStoreNames([storeParam]);
       }
     } else {
-      // New: storeParam is already the cleaned_name, just cache it (case-insensitive)
+      // New: storeParam is already the store name, just cache it (case-insensitive)
       const { data: storeData } = await window.supabaseClient
-        .from('cleaned_stores')
-        .select('id, cleaned_name')
-        .ilike('cleaned_name', storeParam)
+        .from('stores')
+        .select('id, name')
+        .ilike('name', storeParam)
         .single();
-      
+
       if (storeData) {
-        storeNames[storeData.id] = storeData.cleaned_name;
+        storeNames[storeData.id] = storeData.name;
       }
     }
   }
@@ -36,10 +36,11 @@
   async function fetchTopProducts(limit = 9) {
     // Fetch active products with images and a sale price first
     const { data, error } = await window.supabaseClient
-      .from('cleaned_products')
-      .select('hash_id, title, price, sale_price, image, brand, link, affiliate_link, currency, store_id')
-      .eq('status', 'published')
-      .not('image', 'is', null)
+      .from('products')
+      .select('id, hash_id, title, cleaned_title, original_price, price, image_url, brand, product_url, affiliate_link, currency, store_id')
+      .eq('is_published', true)
+      .is('deleted_at', null)
+      .not('image_url', 'is', null)
       .not('store_id', 'is', null)
       .order('updated_at', { ascending: false, nullsFirst: false })
       .limit(limit);
@@ -47,27 +48,27 @@
       // console.error('[Supabase] fetch error', error);
       return [];
     }
-    
-    const products = data || [];
+
+    const products = (data || []).map(r => ({ ...r, product_id: r.id, image: r.image_url, link: r.product_url, sale_price: r.price, price: r.original_price || r.price, title: r.cleaned_title || r.title }));
     if (products.length === 0) return [];
-    
+
     // Get store names for all products
     const storeIds = [...new Set(products.map(p => p.store_id).filter(Boolean))];
     const storeMap = {};
-    
+
     if (storeIds.length > 0) {
       const { data: stores } = await window.supabaseClient
-        .from('cleaned_stores')
-        .select('id, cleaned_name')
+        .from('stores')
+        .select('id, name')
         .in('id', storeIds);
-      
+
       if (stores) {
         stores.forEach(store => {
-          storeMap[store.id] = store.cleaned_name;
+          storeMap[store.id] = store.name;
         });
       }
     }
-    
+
     // Add store names to products
     return products.map(p => ({
       ...p,
@@ -84,13 +85,13 @@
     if (uncachedIds.length === 0) return;
     
     const { data: stores } = await window.supabaseClient
-      .from('cleaned_stores')
-      .select('id, cleaned_name')
+      .from('stores')
+      .select('id, name')
       .in('id', uncachedIds);
-    
+
     if (stores) {
       stores.forEach(store => {
-        storeNames[store.id] = store.cleaned_name;
+        storeNames[store.id] = store.name;
       });
     }
   }
@@ -317,7 +318,7 @@
       title.textContent = p.title || 'Product';
       header.appendChild(title);
       
-      // Note: expiry functionality removed as valid_to column doesn't exist in cleaned_products table
+      // Note: expiry functionality removed as valid_to column doesn't exist in products table
       // Future enhancement: add expiry logic when schema supports it
 
       const shopLink = document.createElement('a');
@@ -351,7 +352,7 @@
 
       const validity = document.createElement('div');
       validity.className = 'deal-v2-validity';
-      // Note: validity date display removed as valid_from/valid_to columns don't exist in cleaned_products table
+      // Note: validity date display removed as valid_from/valid_to columns don't exist in products table
       // Future enhancement: add validity dates when schema supports it
 
       const prices = document.createElement('div');
@@ -528,10 +529,11 @@
       const from = (page - 1) * pageSize;
       const to = from + pageSize - 1;
       let query = window.supabaseClient
-        .from('cleaned_products')
-        .select('hash_id, title, price, sale_price, image, brand, link, affiliate_link, currency, description, description_english, store_id, ai_category', { count: 'exact' })
-        .eq('status', 'published')
-        .not('image', 'is', null)
+        .from('products')
+        .select('id, hash_id, title, cleaned_title, original_price, price, image_url, brand, product_url, affiliate_link, currency, description_de, description_en, store_id, ai_category', { count: 'exact' })
+        .eq('is_published', true)
+        .is('deleted_at', null)
+        .not('image_url', 'is', null)
         .not('store_id', 'is', null)
         .order('updated_at', { ascending: false, nullsFirst: false })
         .range(from, to);
@@ -551,7 +553,7 @@
         query = query.eq('ai_category', categoryParam);
       }
       
-      // Handle store filter - support both cleaned_name and UUID
+      // Handle store filter - support both store name and UUID
       if (storeParam) {
         // Check if it looks like a UUID (legacy format)
         const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(storeParam);
@@ -560,11 +562,11 @@
           // Legacy: filter by store_id directly
           query = query.eq('store_id', storeParam);
         } else {
-          // New: need to look up store ID from cleaned_name first (case-insensitive)
+          // New: need to look up store ID from name first (case-insensitive)
           const { data: storeData } = await window.supabaseClient
-            .from('cleaned_stores')
+            .from('stores')
             .select('id')
-            .ilike('cleaned_name', storeParam)
+            .ilike('name', storeParam)
             .single();
           
           if (storeData) {
@@ -576,46 +578,46 @@
       // Text search
       if (typeof searchTerm === 'string' && searchTerm.trim().length > 0) {
         const escaped = searchTerm.replace(/,/g, ' ');
-        query = query.or(`title.ilike.%${escaped}%,description.ilike.%${escaped}%,ai_category.ilike.%${escaped}%`);
+        query = query.or(`title.ilike.%${escaped}%,description_de.ilike.%${escaped}%,ai_category.ilike.%${escaped}%`);
       }
       
-      // Price filter using OR to cover price vs sale_price
+      // Price filter using OR to cover price vs original_price
       const min = Number(priceMinEl?.value || 0) || 0;
       const max = Number(priceMaxEl?.value || 3000) || 3000;
       if (!Number.isNaN(min) || !Number.isNaN(max)) {
         const parts = [];
-        if (!Number.isNaN(min)) parts.push(`and(sale_price.gte.${min}),and(price.gte.${min})`);
-        if (!Number.isNaN(max)) parts.push(`and(sale_price.lte.${max}),and(price.lte.${max})`);
+        if (!Number.isNaN(min)) parts.push(`and(price.gte.${min}),and(original_price.gte.${min})`);
+        if (!Number.isNaN(max)) parts.push(`and(price.lte.${max}),and(original_price.lte.${max})`);
         if (parts.length === 2) {
-          // (sale between) OR (price between)
-          query = query.or(`and(sale_price.gte.${min},sale_price.lte.${max}),and(price.gte.${min},price.lte.${max})`);
+          // (current price between) OR (original price between)
+          query = query.or(`and(price.gte.${min},price.lte.${max}),and(original_price.gte.${min},original_price.lte.${max})`);
         } else if (parts.length === 1) {
           // single-sided filter
-          if (!Number.isNaN(min)) query = query.or(`sale_price.gte.${min},price.gte.${min}`);
-          if (!Number.isNaN(max)) query = query.or(`sale_price.lte.${max},price.lte.${max}`);
+          if (!Number.isNaN(min)) query = query.or(`price.gte.${min},original_price.gte.${min}`);
+          if (!Number.isNaN(max)) query = query.or(`price.lte.${max},original_price.lte.${max}`);
         }
       }
       
       const { data, error, count } = await query;
       if (error) { /* console.error('[Supabase] fetch page error', error); */ return { data: [], count: 0 }; }
       
-      const products = data || [];
-      
+      const products = (data || []).map(r => ({ ...r, product_id: r.id, image: r.image_url, link: r.product_url, sale_price: r.price, price: r.original_price || r.price, title: r.cleaned_title || r.title, description: r.description_de, description_english: r.description_en }));
+
       if (products.length === 0) return { data: [], count: count || 0 };
-      
+
       // Get store names for all products
       const storeIds = [...new Set(products.map(p => p.store_id).filter(Boolean))];
       const storeMap = {};
-      
+
       if (storeIds.length > 0) {
         const { data: stores } = await window.supabaseClient
-          .from('cleaned_stores')
-          .select('id, cleaned_name')
+          .from('stores')
+          .select('id, name')
           .in('id', storeIds);
-        
+
         if (stores) {
           stores.forEach(store => {
-            storeMap[store.id] = store.cleaned_name;
+            storeMap[store.id] = store.name;
           });
         }
       }
@@ -652,7 +654,7 @@
       const storeParam = urlParams.get('store');
       
       if (storeParam) {
-        // Check if it's a UUID (legacy) or cleaned_name
+        // Check if it's a UUID (legacy) or store name
         const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(storeParam);
         
         if (isUUID && storeNames[storeParam]) {
@@ -662,7 +664,7 @@
           // Legacy UUID but no cached name
           filters.push(`Store: ${storeParam}`);
         } else {
-          // New format: storeParam is already the cleaned_name
+          // New format: storeParam is already the store name
           filters.push(`Store: ${storeParam}`);
         }
       }
@@ -913,40 +915,41 @@
   // New function to fetch featured products specifically
   async function fetchFeaturedProducts(limit = 4) {
     const { data, error } = await window.supabaseClient
-      .from('cleaned_products')
-      .select('hash_id, title, price, sale_price, image, brand, link, affiliate_link, currency, store_id')
-      .eq('status', 'published')
+      .from('products')
+      .select('id, hash_id, title, cleaned_title, original_price, price, image_url, brand, product_url, affiliate_link, currency, store_id')
+      .eq('is_published', true)
+      .is('deleted_at', null)
       .eq('is_featured', true)
-      .not('image', 'is', null)
+      .not('image_url', 'is', null)
       .not('store_id', 'is', null)
       .order('updated_at', { ascending: false, nullsFirst: false })
       .limit(limit);
-      
+
     if (error) {
       // console.error('[Supabase] fetch featured error', error);
       return [];
     }
-    
-    const products = data || [];
+
+    const products = (data || []).map(r => ({ ...r, product_id: r.id, image: r.image_url, link: r.product_url, sale_price: r.price, price: r.original_price || r.price, title: r.cleaned_title || r.title }));
     if (products.length === 0) return [];
-    
+
     // Get store names for all products
     const storeIds = [...new Set(products.map(p => p.store_id).filter(Boolean))];
     const storeMap = {};
-    
+
     if (storeIds.length > 0) {
       const { data: stores } = await window.supabaseClient
-        .from('cleaned_stores')
-        .select('id, cleaned_name')
+        .from('stores')
+        .select('id, name')
         .in('id', storeIds);
-      
+
       if (stores) {
         stores.forEach(store => {
-          storeMap[store.id] = store.cleaned_name;
+          storeMap[store.id] = store.name;
         });
       }
     }
-    
+
     // Add store names to products
     return products.map(p => ({
       ...p,

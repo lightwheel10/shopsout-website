@@ -97,16 +97,18 @@ export default async function handler(req, res) {
   try {
     // Initialize Supabase client
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: { persistSession: false }
+      auth: { persistSession: false },
+      db: { schema: 'v2' }
     });
 
     // Fetch all published products with full details
     const { data: products, error } = await supabase
-      .from('cleaned_products')
-      .select('hash_id, title, description, description_english, price, sale_price, currency, image, brand, updated_at, availability')
-      .eq('status', 'published')
+      .from('products')
+      .select('hash_id, name, description_de, price, currency, image_url, brand, updated_at, availability')
+      .eq('is_published', true)
+      .is('deleted_at', null)
       .not('store_id', 'is', null)
-      .not('image', 'is', null)
+      .not('image_url', 'is', null)
       .order('updated_at', { ascending: false });
 
     if (error) {
@@ -130,57 +132,45 @@ export default async function handler(req, res) {
 
     // Add each product as an item
     productList.forEach(product => {
-      if (!product.hash_id || !product.title) return;
+      if (!product.hash_id || !product.name) return;
 
-      const productUrl = createProductUrl(product.hash_id, product.title);
+      const productUrl = createProductUrl(product.hash_id, product.name);
       const pubDate = formatRFC822Date(product.updated_at);
-      
-      // Use English description if available, otherwise German
-      const description = stripHtml(product.description_english || product.description || product.title);
-      
-      // Determine which price to show (sale_price if available, otherwise regular price)
-      const displayPrice = product.sale_price || product.price;
+
+      const description = stripHtml(product.description_de || product.name);
+
       const currency = product.currency || 'EUR';
-      
-      // Format prices
-      const priceFormatted = formatPrice(displayPrice, currency);
-      const regularPriceFormatted = product.price ? formatPrice(product.price, currency) : null;
-      const salePriceFormatted = product.sale_price ? formatPrice(product.sale_price, currency) : null;
+      const priceFormatted = formatPrice(product.price, currency);
 
       xml += '    <item>\n';
-      xml += `      <title>${escapeXml(product.title)}</title>\n`;
+      xml += `      <title>${escapeXml(product.name)}</title>\n`;
       xml += `      <link>${escapeXml(productUrl)}</link>\n`;
       xml += `      <description>${escapeXml(description)}</description>\n`;
       xml += `      <pubDate>${pubDate}</pubDate>\n`;
       xml += `      <guid isPermaLink="true">${escapeXml(productUrl)}</guid>\n`;
-      
+
       // Google Shopping specific fields
       xml += `      <g:id>${escapeXml(product.hash_id)}</g:id>\n`;
-      
+
       if (priceFormatted) {
         xml += `      <g:price>${escapeXml(priceFormatted)}</g:price>\n`;
       }
-      
-      // If there's a sale price, include both regular and sale price
-      if (salePriceFormatted && regularPriceFormatted && product.sale_price < product.price) {
-        xml += `      <g:sale_price>${escapeXml(salePriceFormatted)}</g:sale_price>\n`;
+
+      if (product.image_url) {
+        xml += `      <g:image_link>${escapeXml(product.image_url)}</g:image_link>\n`;
       }
-      
-      if (product.image) {
-        xml += `      <g:image_link>${escapeXml(product.image)}</g:image_link>\n`;
-      }
-      
+
       if (product.brand) {
         xml += `      <g:brand>${escapeXml(product.brand)}</g:brand>\n`;
       }
-      
+
       // Availability
       const availability = product.availability || 'in stock';
       xml += `      <g:availability>${escapeXml(availability)}</g:availability>\n`;
-      
+
       // Condition (assuming new)
       xml += `      <g:condition>new</g:condition>\n`;
-      
+
       xml += '    </item>\n';
       xml += '\n';
     });
