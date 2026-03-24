@@ -1,5 +1,8 @@
 (async function(){
-  if (!window.supabaseClient) return;
+  if (!window.supabaseClient) {
+    console.error('[Product Debug] supabaseClient not available! window.supabase:', typeof window.supabase, '| window.APP_ENV:', !!window.APP_ENV);
+    return;
+  }
 
   function getQueryParam(name) {
     const params = new URLSearchParams(location.search);
@@ -144,7 +147,7 @@
   }
 
   async function fetchProduct(idOrHash) {
-    // console.log('[Product Debug] fetchProduct called with:', idOrHash);
+    console.log('[Product Debug] fetchProduct called with:', idOrHash);
     let query = window.supabaseClient
       .from('products')
       .select('hash_id, id, title, cleaned_title, description_de, description_en, price, original_price, product_url, image_url, brand, currency, coupon_code, coupon_value, in_stock, store_id, affiliate_link')
@@ -153,22 +156,22 @@
       .not('store_id', 'is', null)
       .limit(1);
     if (!idOrHash) {
-      // console.log('[Product Debug] No ID provided');
+      console.warn('[Product Debug] No ID provided');
       return { data: null };
     }
     if (/^[0-9a-f-]{36}$/i.test(idOrHash)) {
-      // console.log('[Product Debug] Using product_id field for UUID:', idOrHash);
+      console.log('[Product Debug] Using id field (UUID):', idOrHash);
       query = query.eq('id', idOrHash);
     } else if (/^[0-9a-f]{8}$/i.test(idOrHash)) {
-      // console.log('[Product Debug] Using short ID (first 8 chars) for:', idOrHash);
-      // Short ID from SEO URL - search for products starting with this prefix
+      console.log('[Product Debug] Using short ID (8-char hex):', idOrHash);
       query = query.or(`hash_id.ilike.${idOrHash}%,id.ilike.${idOrHash}%`);
     } else {
-      // console.log('[Product Debug] Using hash_id field for:', idOrHash);
+      console.log('[Product Debug] Using hash_id field:', idOrHash);
       query = query.eq('hash_id', idOrHash);
     }
     const { data, error } = await query.single();
     if (error) {
+      console.error('[Product Debug] Supabase error:', error.code, error.message, error.hint);
       return { data: null };
     }
 
@@ -340,14 +343,14 @@
   async function render() {
     // Get product ID from URL (supports both old and new formats)
     const id = getProductIdentifier();
-    // console.log('[Product Debug] URL ID:', id);
-    
+    console.log('[Product Debug] URL ID:', id, '| URL:', window.location.href);
+
     try {
       const { data: p } = await fetchProduct(id);
-      // console.log('[Product Debug] Fetched product:', p);
-      
+      console.log('[Product Debug] Fetched product:', p ? p.title : 'NULL');
+
       if (!p) {
-        // console.log('[Product Debug] No product found, showing error state');
+        console.warn('[Product Debug] No product found for id:', id);
         // Hide skeleton and show error state
         const skeleton = document.getElementById('productDetailSkeleton');
         const content = document.getElementById('deal');
