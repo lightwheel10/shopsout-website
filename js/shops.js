@@ -13,7 +13,7 @@
       .limit(limit);
     
     if (error) {
-      // console.error('[Supabase] fetch stores error', error);
+      console.error('[Supabase] fetch stores error', error);
       return [];
     }
     return data || [];
