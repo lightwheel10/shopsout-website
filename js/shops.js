@@ -5,7 +5,7 @@
   async function fetchStores(limit = 50) {
     const { data, error } = await window.supabaseClient
       .from('stores')
-      .select('id, name, logo_url, url, description, status, is_published')
+      .select('id, name, logo_url, url, description_de, description_en, status, is_published')
       .eq('status', 'active')
       .eq('is_published', true)
       .not('name', 'is', null)

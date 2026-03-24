@@ -117,7 +117,7 @@
   async function fetchAllStoreDeals(storeId) {
     const { data: rawData, error } = await window.supabaseClient
       .from('products')
-      .select('id, hash_id, title, cleaned_title, original_price, price, image_url, brand, product_url, currency, description, updated_at')
+      .select('id, hash_id, title, cleaned_title, original_price, price, image_url, brand, product_url, currency, description_de, description_en, updated_at')
       .eq('store_id', storeId)
       .eq('is_published', true)
       .is('deleted_at', null)
@@ -248,11 +248,11 @@
     let storeDescription = null;
     
     if (currentLang === 'de') {
-      // German: try formatted description first, then fallbacks
-      storeDescription = store.description_german_formatted || store.description_german || store.seo_text || store.description || null;
+      // German: try formatted description first, then plain
+      storeDescription = store.description_de_formatted || store.description_de || null;
     } else {
-      // English: try formatted description first, then fallbacks  
-      storeDescription = store.description_english_formatted || store.description_english || store.seo_text || store.description || null;
+      // English: try formatted description first, then plain
+      storeDescription = store.description_en_formatted || store.description_en || null;
     }
     
     if (storeDescription && storeDescription.trim()) {
